@@ -43,8 +43,8 @@ export default class Game extends Component {
        // manager.enabledDebugDraw = true;
        // manager.enabledDrawBoundingBox = true;
 
-        this.bulletPool = new NodePool(Bullet);
-        this.fishPool = new NodePool(Fish);
+        this.bulletPool = new NodePool("Bullet");
+        this.fishPool = new NodePool("Fish");
        // 池子里面多放几条鱼
         let initCount = 10;
         for (let i = 0; i < initCount; ++i){
@@ -69,7 +69,7 @@ export default class Game extends Component {
        // 动态加载json配置文件
        resources.load("fishconfig", function (err, jsonAsset) {
                 if (err) {
-                        error(err.message || err);z
+                        error(err.message || err);
                         return;
                 }
            // 加载之后转类型
@@ -82,7 +82,7 @@ export default class Game extends Component {
        // 添加触摸事件
         this.node.on(Node.EventType.TOUCH_START, function (event: EventTouch) {
            // 触点是世界坐标，需要转换为和炮台一致的坐标系下
-        let touchPos = self.weaponNode.parent.getComponent(UITransform).convertToNodeSpaceAR(v3(event.getLocation().x, event.getLocation().y));
+        let touchPos = self.weaponNode.parent.getComponent(UITransform).convertToNodeSpaceAR(v3(event.getUILocation().x, event.getUILocation().y));
            // 炮台坐标
         let weaponPos = self.weaponNode.getPosition();
            // 炮台到触点的方向向量
@@ -92,7 +92,7 @@ export default class Game extends Component {
            //将弧度转换为欧拉角
         let degree = angle / Math.PI * 180;
            // 设置炮台角度
-        self.weaponNode.angle = -degree;
+        self.weaponNode.angle = degree;
         let bulletLevel = self.weaponNode.getComponent(Weapon).curLevel;
         self.shot(bulletLevel);
         }, this);
@@ -186,7 +186,12 @@ export default class Game extends Component {
                 const ta = a.normalize();
                 const tb = b.normalize();
         
-                return Math.acos(ta.dot(tb));
+                let ra = Math.acos(ta.dot(tb));
+                if (a.x * b.y - a.y * b.x > 0) {
+                    return -ra;
+                } else {
+                     return ra;
+                }
             }
 }
 

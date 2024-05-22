@@ -1,4 +1,4 @@
-import { _decorator, Component, Animation, Vec3, v3, Sprite, find, UITransform, BoxCollider, screen, bezierByTime, bezier, tween, math, Tween, Node, log } from 'cc';
+import { _decorator, Component, Animation, Vec3, v3, Sprite, find, UITransform, BoxCollider2D, screen, bezierByTime, bezier, tween, math, Tween, Node, log } from 'cc';
 const { ccclass, property } = _decorator;
 
 import { FishState, FishType } from './FishType';
@@ -79,9 +79,9 @@ export default class Fish extends Component {
     }
 //    // 重新设置碰撞区域
     changeCollider() {
-        let collider = this.node.getComponent(BoxCollider);
+        let collider = this.node.getComponent(BoxCollider2D);
         let contentSize = this.node.getComponent(UITransform).contentSize;
-        collider.size = v3(contentSize.x, contentSize.y)
+        collider.size = contentSize;
     }
 //    // 小鱼游泳，贝塞尔曲线实现
     swimming(trace: any) {
