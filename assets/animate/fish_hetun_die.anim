@@ -1,0 +1,78 @@
+[
+  {
+    "__type__": "cc.AnimationClip",
+    "_name": "fish_hetun_die",
+    "_objFlags": 0,
+    "_native": "",
+    "sample": 5,
+    "speed": 1,
+    "wrapMode": 1,
+    "_duration": 0.8,
+    "_hash": 0,
+    "_tracks": [
+      {
+        "__id__": 1
+      }
+    ],
+    "_events": [],
+    "_exoticAnimation": null
+  },
+  {
+    "__type__": "cc.animation.ObjectTrack",
+    "_binding": {
+      "__type__": "cc.animation.TrackBinding",
+      "path": {
+        "__id__": 2
+      }
+    },
+    "_channel": {
+      "__id__": 4
+    }
+  },
+  {
+    "__type__": "cc.animation.TrackPath",
+    "_paths": [
+      {
+        "__id__": 3
+      },
+      "spriteFrame"
+    ]
+  },
+  {
+    "__type__": "cc.animation.ComponentPath",
+    "component": "cc.Sprite"
+  },
+  {
+    "__type__": "cc.animation.Channel",
+    "_curve": {
+      "__id__": 5
+    }
+  },
+  {
+    "__type__": "cc.ObjectCurve",
+    "_times": [
+      0,
+      0.2,
+      0.4,
+      0.6
+    ],
+    "_values": [
+      {
+        "__uuid__": "86fe4526-9483-4c85-b7c9-b3a4ec696d58@16075",
+        "__expectedType__": "cc.Asset"
+      },
+      {
+        "__uuid__": "86fe4526-9483-4c85-b7c9-b3a4ec696d58@0f4b2",
+        "__expectedType__": "cc.Asset"
+      },
+      {
+        "__uuid__": "86fe4526-9483-4c85-b7c9-b3a4ec696d58@eac6a",
+        "__expectedType__": "cc.Asset"
+      },
+      {
+        "__uuid__": "86fe4526-9483-4c85-b7c9-b3a4ec696d58@40c9d",
+        "__expectedType__": "cc.Asset"
+      }
+    ]
+  }
+]
