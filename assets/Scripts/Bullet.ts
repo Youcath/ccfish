@@ -7,7 +7,7 @@
 //  * @FilePath: \CourseFishd:\cocos20\CCFish\assets\Script\Bullet.ts
 //  */
 
-import { _decorator, Component, UITransform, math, Director, Sprite, screen } from 'cc';
+import { _decorator, Component, UITransform, math, Director, Sprite, screen, v3, find, Collider2D, IPhysics2DContact, BoxCollider2D, Contact2DType } from 'cc';
 const { ccclass, property } = _decorator;
 
 import Game from './Game';
@@ -30,10 +30,17 @@ export default class Bullet extends Component {
         let weaponSite = game.weaponNode.parent.getComponent(UITransform).convertToWorldSpaceAR(game.weaponNode.getPosition());
         this.angle = -game.weaponNode.angle;
         this.node.angle = -this.angle;
-        let bpos = new math.Vec3(weaponSite.x + 50 * Math.sin(this.angle / 180 * 3.14), weaponSite.y + 50 * Math.cos(this.angle / 180 * 3.14));
         this.setBullet(level);
+        this.node.parent = find('Canvas');
+        let bpos = this.node.parent.getComponent(UITransform).convertToNodeSpaceAR(weaponSite);
         this.node.position = bpos;
-        this.node.parent = Director.instance.getScene();
+    }
+
+    protected start(): void {
+        let collider = this.getComponent(BoxCollider2D);
+        if (collider) {
+            collider.on(Contact2DType.BEGIN_CONTACT, this.onCollisionEnter, this);
+        }
     }
 //    // 根据武器等级设置子弹等级
     setBullet(level: number) {
@@ -47,22 +54,23 @@ export default class Bullet extends Component {
         by += dt * this.speed * Math.cos(this.angle / 180 * 3.14);
         this.node.setPosition(bx, by);
 
-        if (this.node.position.x > screen.windowSize.width + 100
-        || this.node.position.x < -100
-        || this.node.position.y > screen.windowSize.height + 100
-        || this.node.position.y < 0
-        ) {
-        this.game.despawnBullet(this.node);
-        }
+        // if (this.node.position.x > screen.windowSize.width + 100
+        // || this.node.position.x < -100
+        // || this.node.position.y > screen.windowSize.height + 100
+        // || this.node.position.y < 0
+        // ) {
+        // this.game.despawnBullet(this.node);
+        // }
     }
-    onCollisionEnter(other, self) {
+    onCollisionEnter(self: Collider2D, other: Collider2D, contact: IPhysics2DContact | null) {
        // 矩形碰撞组件顶点坐标，左上，左下，右下，右上
-        let posb = self.world.points;
-       // 取左上和右上坐标计算中点当做碰撞中点
-        let posNet = posb[0].add(posb[3]).mul(0.5);
-        this.game.castNet(posNet);
+        let posb = self.worldAABB.center;
+
+        this.game.castNet(posb);
         this.game.despawnBullet(this.node);
+        
     }
+
     getAttackValue(): number {
         return this.attack * this.bulletLeve;
     }

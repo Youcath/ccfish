@@ -16,13 +16,15 @@ export default class Coins extends Component {
         this.node.parent = Director.instance.getScene()
         this.node.position = pos;
         let tween = new Tween(this.node);
+        const self = this;
+        let callback = function() {
+            self.cointroller.despawnCoins(self.node);
+        }
         tween.to(0.8, {scale: new math.Vec3(0.5, 0.5, 0.5), position: toPos})
-        .call(this.despawnCoin).start();
+        .call(callback).start();
     }
     
-    despawnCoin() {
-        this.cointroller.despawnCoins(this.node);
-    }
+
 }
 
 

@@ -3,18 +3,19 @@
     "__type__": "cc.Prefab",
     "_name": "coins_down",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "_native": "",
     "data": {
       "__id__": 1
     },
     "optimizationPolicy": 0,
-    "asyncLoadAssets": false,
     "persistent": false
   },
   {
     "__type__": "cc.Node",
     "_name": "coins_down",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "_parent": null,
     "_children": [],
     "_active": true,
@@ -57,26 +58,21 @@
       "y": 1,
       "z": 1
     },
-    "_layer": 1,
+    "_mobility": 0,
+    "_layer": 33554432,
     "_euler": {
       "__type__": "cc.Vec3",
       "x": 0,
       "y": 0,
       "z": 0
     },
-    "_tag": -1,
-    "_id": "",
-    "_cascadeOpacityEnabled": true,
-    "_skewX": 0,
-    "_skewY": 0,
-    "_localZOrder": 0,
-    "_globalZOrder": 0,
-    "_opacityModifyRGB": false
+    "_id": ""
   },
   {
     "__type__": "cc.Sprite",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 1
     },
@@ -85,7 +81,6 @@
       "__id__": 3
     },
     "_customMaterial": null,
-    "_visFlags": 0,
     "_srcBlendFactor": 2,
     "_dstBlendFactor": 4,
     "_color": {
@@ -96,7 +91,8 @@
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "488d9c1c-f5f6-4d16-ae16-344c3df2e63d@18015"
+      "__uuid__": "488d9c1c-f5f6-4d16-ae16-344c3df2e63d@18015",
+      "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 0,
     "_fillType": 0,
@@ -111,8 +107,10 @@
     "_isTrimmedMode": true,
     "_useGrayscale": false,
     "_atlas": {
-      "__uuid__": "488d9c1c-f5f6-4d16-ae16-344c3df2e63d"
-    }
+      "__uuid__": "488d9c1c-f5f6-4d16-ae16-344c3df2e63d",
+      "__expectedType__": "cc.SpriteAtlas"
+    },
+    "_id": ""
   },
   {
     "__type__": "cc.CompPrefabInfo",
@@ -122,6 +120,7 @@
     "__type__": "cc.Animation",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 1
     },
@@ -132,15 +131,19 @@
     "playOnLoad": false,
     "_clips": [
       {
-        "__uuid__": "7a38dcd7-81ec-418c-9d2d-d7e4de90456b"
+        "__uuid__": "7a38dcd7-81ec-418c-9d2d-d7e4de90456b",
+        "__expectedType__": "cc.AnimationClip"
       },
       {
-        "__uuid__": "7626cb3b-184f-48eb-b186-700eaec22e95"
+        "__uuid__": "7626cb3b-184f-48eb-b186-700eaec22e95",
+        "__expectedType__": "cc.AnimationClip"
       }
     ],
     "_defaultClip": {
-      "__uuid__": "7a38dcd7-81ec-418c-9d2d-d7e4de90456b"
-    }
+      "__uuid__": "7a38dcd7-81ec-418c-9d2d-d7e4de90456b",
+      "__expectedType__": "cc.AnimationClip"
+    },
+    "_id": ""
   },
   {
     "__type__": "cc.CompPrefabInfo",
@@ -150,16 +153,18 @@
     "__type__": "4bfcc8soWpBpY9UvUv74Z4g",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 1
     },
     "_enabled": true,
+    "__prefab": {
+      "__id__": 7
+    },
     "anim": {
       "__id__": 4
     },
-    "__prefab": {
-      "__id__": 7
-    }
+    "_id": ""
   },
   {
     "__type__": "cc.CompPrefabInfo",
@@ -169,6 +174,7 @@
     "__type__": "cc.UIOpacity",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 1
     },
@@ -176,7 +182,8 @@
     "__prefab": {
       "__id__": 9
     },
-    "_opacity": 255
+    "_opacity": 255,
+    "_id": ""
   },
   {
     "__type__": "cc.CompPrefabInfo",
@@ -186,6 +193,7 @@
     "__type__": "cc.UITransform",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 1
     },
@@ -193,7 +201,6 @@
     "__prefab": {
       "__id__": 11
     },
-    "_priority": 0,
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 60,
@@ -203,7 +210,8 @@
       "__type__": "cc.Vec2",
       "x": 0.5,
       "y": 0.5
-    }
+    },
+    "_id": ""
   },
   {
     "__type__": "cc.CompPrefabInfo",
@@ -217,6 +225,8 @@
     "asset": {
       "__id__": 0
     },
-    "fileId": "8a3dOSFGpLvoQFLo52Uvsl"
+    "fileId": "8a3dOSFGpLvoQFLo52Uvsl",
+    "instance": null,
+    "targetOverrides": null
   }
 ]

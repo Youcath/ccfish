@@ -1,4 +1,4 @@
-import { _decorator, Component, Animation, Vec3, v3, Sprite, find, UITransform, BoxCollider2D, screen, bezierByTime, bezier, tween, math, Tween, Node, log } from 'cc';
+import { _decorator, Component, Animation, Vec3, v3, Sprite, find, UITransform, BoxCollider2D, screen, bezierByTime, bezier, tween, math, Tween, Node, log, Contact2DType, Collider2D, IPhysics2DContact, RigidBody2D } from 'cc';
 const { ccclass, property } = _decorator;
 
 import { FishState, FishType } from './FishType';
@@ -54,8 +54,9 @@ export default class Fish extends Component {
         let randomFish = Math.floor(Math.random() * fishStr);
         this.fishType = game.fishTypes[randomFish];
        // this.node.position = cc.v3(-cc.random0To1()*100-200, cc.randomMinus1To1() * 300 + 350);
-        let pos = v3(-Math.random() * 100 - 200, (Math.random() - 0.5) * 2 * 300 + 350);
+        let pos = v3(-Math.random() * 100 - 200, (Math.random() - 0.5) * 2 * 300 + 350, 0);
         this.node.position = find('Canvas').getComponent(UITransform).convertToNodeSpaceAR(pos);
+        // this.node.position = v3(0,0,1);
         let index = Math.floor(Math.random() * this.bezierArray.length);
         let bezier = this.bezierArray[index];
        // 贝塞尔曲线第一个控制点，用来计算初始角度
@@ -90,12 +91,16 @@ export default class Fish extends Component {
         let speed = Math.random() * 10 + 10;
         const tempVec3 = v3();
         this.tween = tween(this.node).to(speed, { position: trace[2] }, { onUpdate: (target, ratio) => {
-            this.bezierCurve(ratio, v3(), trace[0], trace[1], trace[2], tempVec3);
+            this.bezierCurve(ratio, this.node.position, trace[0], trace[1], trace[2], tempVec3);
             this.node.setPosition(tempVec3);
         }}).start();
 
     }
-    onLoad() {
+    protected start(): void {
+        let collider = this.getComponent(BoxCollider2D);
+        if (collider) {
+            collider.on(Contact2DType.BEGIN_CONTACT, this.onCollisionEnter, this);
+        }
     }
     update(dt) {
         this.updateDegree();
@@ -124,26 +129,29 @@ export default class Fish extends Component {
         if (this.isDie()) {
            // 停止贝塞尔曲线动作
            this.tween.stop();
+        const self = this;
+        let dieCallback = function() {
+            // 死亡动画播放完回收鱼
+            log('fish die');
+            self.tween.stop();
+            self.game.despawnFish(this.node);
+        }
+
 
            //播放死亡动画
-        let animState = this.anim.play(this.fishType.name + '_die');
+           this.anim.play(this.fishType.name + '_die');
            // 被打死的动画播放完成之后回调
-           this.anim!.on(Animation.EventType.FINISHED, this.dieCallback, this);
+           this.anim!.on(Animation.EventType.FINISHED, dieCallback, this);
            // 播放金币动画
            // 转为世界坐标
-        let fp = this.node.parent.getComponent(UITransform).convertToWorldSpaceAR(this.node.position);
-        this.game.gainCoins(fp, this.gold);
+            let fp = this.node.parent.getComponent(UITransform).convertToWorldSpaceAR(this.node.position);
+            this.game.gainCoins(fp, this.gold);
         } else {
            // 跑出屏幕的鱼自动回收
         this.despawnFish();
         }
     }
-    dieCallback() {
-       // 死亡动画播放完回收鱼
-        log('fish die');
-        this.tween.stop();
-        this.game.despawnFish(this.node);
-    }
+
     despawnFish() {
         if (this.node.getPosition().x > 900
         || this.node.getPosition().x < -1000
@@ -163,12 +171,15 @@ export default class Fish extends Component {
         }
         return false;
     }
-    onCollisionEnter(other, self) {
-        let bullet = <Bullet>other.node.getComponent(Bullet);
-        this.hp -= bullet.getAttackValue();
-        if (this.hp <= 0) {
-        this.fishState = FishState.dead;
+    onCollisionEnter(self: Collider2D, other: Collider2D, contact: IPhysics2DContact | null) {
+        let bullet: Bullet = other.node.getComponent(Bullet);
+        if (bullet) {
+            this.hp -= bullet.getAttackValue();
+            if (this.hp <= 0) {
+                this.fishState = FishState.dead;
+            }
         }
+        
     }
 }
 

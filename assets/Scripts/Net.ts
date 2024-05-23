@@ -1,4 +1,4 @@
-import { _decorator, Component, Animation, Vec3, Director } from 'cc';
+import { _decorator, Component, Animation, Vec3, Director, Vec2, v3, find, UITransform } from 'cc';
 const {ccclass, property} = _decorator;
 
 import Game from './Game';
@@ -10,10 +10,11 @@ export default class Net extends Component {
     game: Game;
     
     curLevel: number = 1;
-    init(position: Vec3, game: Game, level: number) {
+    init(position: Vec2, game: Game, level: number) {
         this.curLevel = level;
-        this.node.parent = Director.instance.getScene();
-        this.node.setPosition(position);
+        this.node.parent = find('Canvas');
+        let pos = this.node.parent.getComponent(UITransform).convertToNodeSpaceAR(v3(position.x, position.y, 0));
+        this.node.setPosition(pos);
         this.game = game;
         this.anim.play('net_'+this.curLevel);
     }

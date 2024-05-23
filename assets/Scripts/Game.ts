@@ -1,4 +1,4 @@
-import { _decorator, Component, NodePool, Prefab, Node, SpriteAtlas, AudioClip, Vec3, Director, instantiate, find, debug, UITransform, loader, assetManager, error, resources, EventTouch, v3, director } from 'cc';
+import { _decorator, Component, NodePool, Prefab, Node, SpriteAtlas, AudioClip, Vec3, Director, instantiate, find, debug, UITransform, loader, assetManager, error, resources, EventTouch, v3, director, Vec2 } from 'cc';
 const { ccclass, property } = _decorator;
 
 import { FishState, FishType } from './FishType';
@@ -58,8 +58,8 @@ export default class Game extends Component {
        // 设置zorder，控制显示层级
        // 背景在最下层，最上层是炮台
        // 中间层是鱼
-        find('Canvas/gameBg').setSiblingIndex(-1);
-        find('Canvas/bottomBar').setSiblingIndex(-1);
+        // find('Canvas/gameBg').setSiblingIndex(-1);
+        // find('Canvas/bottomBar').setSiblingIndex(-1);
         this.gameOverNode.setSiblingIndex(2);
         this.gameOverNode.active = false;
 
@@ -146,7 +146,7 @@ export default class Game extends Component {
 
 
     }
-    castNet(position:Vec3) {
+    castNet(position:Vec2) {
         if (this.netsPool.size() > 0) {
         this.oneNet = this.netsPool.get(this);
         } else {
@@ -159,7 +159,11 @@ export default class Game extends Component {
         this.fishPool.put(fish);
     }
     despawnBullet(bullet:Node) {
-        this.bulletPool.put(bullet);
+        const self = this;
+        let callback = function () {
+            self.bulletPool.put(bullet);
+        }
+        this.scheduleOnce(callback);
     }
     despawnNet(net: Node) {
         this.netsPool.put(net);
@@ -173,7 +177,7 @@ export default class Game extends Component {
     }
     gameRestart() {
        // cc.game.restart();
-        director.loadScene('mainscene');
+        director.loadScene('main.scene');
     }
 
         /**
