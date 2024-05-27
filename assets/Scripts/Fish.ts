@@ -8,27 +8,32 @@ import Net from './Net';
 
 @ccclass('Fish')
 export default class Fish extends Component {
-//    // animation 这个属性声明类型，为了在编辑器面板显示类型
-    @property(Animation)
-    anim: Animation | null = null;//显示申明类型，才能有代码提示
-//    // Health point 血量 默认10
+    // animation 这个属性声明类型，为了在编辑器面板显示类型
+    @property(Animation) anim: Animation | null = null;
+
+    // Health point 血量 默认10
     hp: number = 10;
-//    // gold 打死掉落金币数量
+    // gold 打死掉落金币数量
     gold: number = 2;
-//    // fish state 鱼的生命状态，默认都是活的
+    // fish state 鱼的生命状态，默认都是活的
     fishState: FishState = FishState.alive;
-//    // 保存上一次坐标,用于更新角度
+    // 保存上一次坐标,用于更新角度
     lastPosition: Vec3;
+    // 起始坐标
+    startPosition: Vec3;
+    // 种类
     fishType: FishType;
-//    //暂存game实例
+    // 贝塞尔曲线
+    bezier: Array<Vec3>;
+    // 暂存game实例
     game: Game;
-    bezier1: Vec3[] = [v3(50, -100), v3(300, -400), v3(1800, -650)];
-    bezier2: Vec3[] = [v3(100, -200), v3(400, -300), v3(1800, -600)];
-    bezier3: Vec3[] = [v3(150, -300), v3(600, -400), v3(1800, -500)];
-    bezier4: Vec3[] = [v3(50, 50), v3(400, 100), v3(1800, 200)];
-    bezier5: Vec3[] = [v3(80, 200), v3(300, 500), v3(1800, 650)];
+    bezier1: Vec3[] = [v3(50, -100), v3(300, -400), v3(1500, -650)];
+    bezier2: Vec3[] = [v3(100, -200), v3(400, -300), v3(1500, -600)];
+    bezier3: Vec3[] = [v3(150, -300), v3(600, -400), v3(1500, -500)];
+    bezier4: Vec3[] = [v3(50, 50), v3(400, 100), v3(1500, 200)];
+    bezier5: Vec3[] = [v3(80, 200), v3(300, 500), v3(1500, 650)];
     bezier6: Vec3[] = [v3(100, 100), v3(350, 400), v3(1800, 500)];
-    bezier7: Vec3[] = [v3(100, 2), v3(350, -2), v3(1800, 0)];
+    bezier7: Vec3[] = [v3(100, 2), v3(350, -2), v3(1500, 0)];
     bezierArray = new Array();
     readonly bezierCurve = (t: number, p1: Vec3, cp1: Vec3, cp2: Vec3, p2: Vec3, out: Vec3) => {
         out.x = bezier(p1.x, cp1.x, cp2.x, p2.x, t);
@@ -47,86 +52,85 @@ export default class Fish extends Component {
         this.bezierArray.push(this.bezier7);
         this.game = game;
         this.enabled = true;
-        this.spawnFish(game);
+        this.spawnFish();
     }
-//    // spawnFish(fishType:FishType) {
-    spawnFish(game: Game) {
-        let fishStr = game.fishTypes.length;
-        let randomFish = Math.floor(Math.random() * fishStr);
-        this.fishType = game.fishTypes[randomFish];
-       // this.node.position = cc.v3(-cc.random0To1()*100-200, cc.randomMinus1To1() * 300 + 350);
-        let pos = v3(-Math.random() * 100 - 200, (Math.random() - 0.5) * 2 * 300 + 350, 0);
-        this.node.position = find('Canvas').getComponent(UITransform).convertToNodeSpaceAR(pos);
-        // this.node.position = v3(0,0,1);
-        let index = Math.floor(Math.random() * this.bezierArray.length);
-        let bezier = this.bezierArray[index];
-       // 贝塞尔曲线第一个控制点，用来计算初始角度
-        let firstp = bezier[0];
-        let k = Math.atan((firstp.y) / (firstp.x));
-        this.node.angle = -k * 180 / 3.14;
-        this.node.getComponent(Sprite).spriteFrame = this.game.spAtlas.getSpriteFrame(this.fishType.name + '_run_0');
-       // 取出鱼的血量
-        this.hp = this.fishType.hp;
-       // 掉落金币
-        this.gold = this.fishType.gold;
-        this.fishState = FishState.alive;
-        this.anim.play(this.fishType.name + '_run');
-       // 加到canvas节点下才可以设置zorder
-       // 默认zorder为0，bg设为-1，炮台设为1
-        this.node.parent = find('Canvas');
-        this.lastPosition = this.node.getPosition();
-        this.changeCollider();
-        this.swimming(bezier);
 
-    }
-//    // 重新设置碰撞区域
-    changeCollider() {
-        let collider = this.node.getComponent(BoxCollider2D);
-        let contentSize = this.node.getComponent(UITransform).contentSize;
-        collider.size = contentSize;
-    }
-//    // 小鱼游泳，贝塞尔曲线实现
-    swimming(trace: any) {
-        let windowSize = screen.windowSize;
-       // var bezier = [cc.v3(100, -200), cc.v3(400, -500), cc.v3(1500, -600)];
-        let speed = Math.random() * 10 + 10;
-        const tempVec3 = v3();
-        this.tween = tween(this.node).to(speed, { position: trace[2] }, { onUpdate: (target, ratio) => {
-            this.bezierCurve(ratio, this.node.position, trace[0], trace[1], trace[2], tempVec3);
-            this.node.setPosition(tempVec3);
-        }}).start();
-
-    }
-    protected start(): void {
+    start() {
         let collider = this.getComponent(BoxCollider2D);
         if (collider) {
             collider.on(Contact2DType.BEGIN_CONTACT, this.onCollisionEnter, this);
         }
+        this.anim.play(this.fishType.name + '_run');
+        this.swimming(this.bezier);
     }
-    update(dt) {
+
+    private spawnFish() {
+        // 种类
+        let fishStr = this.game.fishTypes.length;
+        let randomFish = Math.floor(Math.random() * fishStr);
+        this.fishType = this.game.fishTypes[randomFish];
+        // 位置
+        let pos = v3(-Math.random() * 100 - 200, (Math.random() - 0.5) * 2 * 300 + 350, 0);
+        this.node.position = find('Canvas').getComponent(UITransform).convertToNodeSpaceAR(pos);
+        this.startPosition = this.node.position;
+        let index = Math.floor(Math.random() * this.bezierArray.length);
+        this.bezier = this.bezierArray[index];
+        // 贝塞尔曲线第一个控制点，用来计算初始角度
+        let firstp = this.bezier[0];
+        let k = Math.atan((firstp.y) / (firstp.x));
+        this.node.angle = -k * 180 / 3.14;
+        this.node.getComponent(Sprite).spriteFrame = this.game.spAtlas.getSpriteFrame(this.fishType.name + '_run_0');
+        // 取出鱼的血量
+        this.hp = this.fishType.hp;
+        // 掉落金币
+        this.gold = this.fishType.gold;
+        this.fishState = FishState.alive;
+        // 加到canvas节点下才可以设置zorder
+        // 默认zorder为0，bg设为-1，炮台设为1
+        this.node.parent = find('Canvas');
+        this.lastPosition = this.node.getPosition();
+        this.changeCollider();
+    }
+
+    // 重新设置碰撞区域
+    private changeCollider() {
+        let collider = this.node.getComponent(BoxCollider2D);
+        let contentSize = this.node.getComponent(UITransform).contentSize;
+        collider.size = contentSize;
+    }
+
+    // 小鱼游泳，贝塞尔曲线实现
+    private swimming(trace: Array<Vec3>) {
+        let speed = Math.random() * 10 + 10;
+        const tempVec3 = v3();
+        this.tween = tween(this.node).to(speed, { position: trace[2] }, { onUpdate: (target, ratio) => {
+            this.bezierCurve(ratio, this.startPosition, trace[0], trace[1], trace[2], tempVec3);
+            this.node.setPosition(tempVec3);
+        }}).start();
+    }
+    
+    update(deltaTime: number) {
         this.updateDegree();
     }
-    updateDegree() {
+
+    private updateDegree() {
         let currentPos = this.node.getPosition();
-       // 如果位移不超过1，不改变角度
+        // 如果位移不超过1，不改变角度
         if (this.lastPosition.clone().subtract(currentPos).length() < 1) {
             return;
         }
-       // 移动的方向向量
-       // 求角度
-       let dir = currentPos.clone().subtract(this.lastPosition);
-    
-        let angle = Game.angle(dir, v3(1, 0))// dir.signAngle(cc.v3(1, 0));
-       // 转为欧拉角
+        // 移动的方向向量
+        // 求角度
+        let dir = currentPos.clone().subtract(this.lastPosition);
+        let angle = Game.angle(dir, v3(1, 0))
+        // 转为欧拉角
         let degree = angle / Math.PI * 180;
-        this.node.angle = -degree;
+        this.node.angle = degree;
         this.lastPosition = currentPos;
         this.beAttack();
     }
-
-
     
-    beAttack() {
+    private beAttack() {
         if (this.isDie()) {
             // 停止贝塞尔曲线动作
             this.tween.stop();
@@ -140,45 +144,41 @@ export default class Fish extends Component {
 
             let collider = this.node.getComponent(BoxCollider2D);
             collider.size = size(0, 0);
-           //播放死亡动画
-           this.anim.play(this.fishType.name + '_die');
-           // 被打死的动画播放完成之后回调
-           this.anim!.on(Animation.EventType.FINISHED, dieCallback, this);
-           // 播放金币动画
-           // 转为世界坐标
+            //播放死亡动画
+            this.anim.play(this.fishType.name + '_die');
+            // 被打死的动画播放完成之后回调
+            this.anim!.on(Animation.EventType.FINISHED, dieCallback, this);
+            // 播放金币动画
+            // 转为世界坐标
             let fp = this.node.parent.getComponent(UITransform).convertToWorldSpaceAR(this.node.position);
             if (this.gold > 0) {
                 this.game.gainCoins(fp, this.gold);
                 this.gold = 0;
             }
-            
-
         } else {
-           // 跑出屏幕的鱼自动回收
+            // 跑出屏幕的鱼自动回收
             this.despawnFish();
         }
     }
 
-    despawnFish() {
-        if (this.node.getPosition().x > 900
+    private despawnFish() {
+        if (this.node.getPosition().x > 900 
         || this.node.getPosition().x < -1000
         || this.node.getPosition().y > 600
         || this.node.getPosition().y < -900
         ) {
-           // this.node.removeFromParent();
-           // 可以不移除节点，停止所有动作也可以完成
-           this.tween.stop();
+            // 可以不移除节点，停止所有动作也可以完成
+            this.tween.stop();
             this.game.despawnFish(this.node);
         }
     }
-//    // 碰撞检测，鱼被打死的逻辑
-    isDie(): boolean {
-        if (this.fishState == FishState.dead) {
-        return true;
-        }
-        return false;
+
+    // 碰撞检测，鱼被打死的逻辑
+    private isDie(): boolean {
+        return this.fishState == FishState.dead;
     }
-    onCollisionEnter(self: Collider2D, other: Collider2D, contact: IPhysics2DContact | null) {
+
+    private onCollisionEnter(self: Collider2D, other: Collider2D, contact: IPhysics2DContact | null) {
         let bullet: Bullet = other.node.getComponent(Bullet);
         if (bullet) {
             this.hp -= bullet.getAttackValue();
