@@ -108,12 +108,12 @@ export default class Fish extends Component {
     updateDegree() {
         let currentPos = this.node.getPosition();
        // 如果位移不超过1，不改变角度
-        if (this.lastPosition.subtract(currentPos).length() < 1) {
+        if (this.lastPosition.clone().subtract(currentPos).length() < 1) {
             return;
         }
        // 移动的方向向量
        // 求角度
-       let dir = currentPos.subtract(this.lastPosition);
+       let dir = currentPos.clone().subtract(this.lastPosition);
     
         let angle = Game.angle(dir, v3(1, 0))// dir.signAngle(cc.v3(1, 0));
        // 转为欧拉角
@@ -127,15 +127,15 @@ export default class Fish extends Component {
     
     beAttack() {
         if (this.isDie()) {
-           // 停止贝塞尔曲线动作
-           this.tween.stop();
-        const self = this;
-        let dieCallback = function() {
-            // 死亡动画播放完回收鱼
-            log('fish die');
-            self.tween.stop();
-            self.game.despawnFish(this.node);
-        }
+            // 停止贝塞尔曲线动作
+            this.tween.stop();
+            const self = this;
+            let dieCallback = function() {
+                // 死亡动画播放完回收鱼
+                log('fish die');
+                self.tween.stop();
+                self.game.despawnFish(this.node);
+            }
 
 
            //播放死亡动画
@@ -145,10 +145,15 @@ export default class Fish extends Component {
            // 播放金币动画
            // 转为世界坐标
             let fp = this.node.parent.getComponent(UITransform).convertToWorldSpaceAR(this.node.position);
-            this.game.gainCoins(fp, this.gold);
+            if (this.gold > 0) {
+                this.game.gainCoins(fp, this.gold);
+                this.gold = 0;
+            }
+            
+
         } else {
            // 跑出屏幕的鱼自动回收
-        this.despawnFish();
+            this.despawnFish();
         }
     }
 

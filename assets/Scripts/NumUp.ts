@@ -1,4 +1,4 @@
-import { _decorator, Component, Animation, SpriteAtlas, Sprite, Vec3, Director } from 'cc';
+import { _decorator, Component, Animation, SpriteAtlas, Sprite, Vec3, Director, find, UITransform } from 'cc';
 const { ccclass, property } = _decorator;
 
 import CoinController from './CoinController'
@@ -26,16 +26,20 @@ export default class NumUp extends Component {
         this.tensPlace.spriteFrame = this.numAtlas.getSpriteFrame('goldnum_' + nums[0]);
         this.onesPlace.spriteFrame = this.numAtlas.getSpriteFrame('goldnum_' + nums[1]);
         }
-        this.node.parent = Director.instance.getScene();
-        this.node.position = pos;
+        this.node.parent = find('Canvas');
+        this.node.position = this.node.parent.getComponent(UITransform).convertToNodeSpaceAR(pos);
+        const self = this;
+
+        let despawn = function() {
+            self.cointroller.despawnCoinup(self.node);
+        }
+
         this.anim.play('coin_up');
-        this.anim.on(Animation.EventType.STOP, this.despawn, this)
+        this.anim.on(Animation.EventType.STOP, despawn, this);
 
     }
     
-    despawn() {
-        this.cointroller.despawnCoinup(this.node);
-    }
+
 }
 
 

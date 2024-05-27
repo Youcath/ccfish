@@ -156,7 +156,12 @@ export default class Game extends Component {
         this.oneNet.getComponent(Net).init(position,this,bulletLevel);
     }
     despawnFish(fish: Node) {
-        this.fishPool.put(fish);
+        const self = this;
+        let callback = function () {
+            this.fishPool.put(fish);
+        }
+        this.scheduleOnce(callback);
+        
     }
     despawnBullet(bullet:Node) {
         const self = this;

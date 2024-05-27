@@ -16,7 +16,7 @@ export default class Net extends Component {
         let pos = this.node.parent.getComponent(UITransform).convertToNodeSpaceAR(v3(position.x, position.y, 0));
         this.node.setPosition(pos);
         this.game = game;
-        this.anim.play('net_'+this.curLevel);
+        this.anim.play('net_' + this.curLevel);
     }
     despawnNet() {
         this.game.despawnNet(this.node);
