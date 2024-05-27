@@ -1,9 +1,10 @@
-import { _decorator, Component, Animation, Vec3, v3, Sprite, find, UITransform, BoxCollider2D, screen, bezierByTime, bezier, tween, math, Tween, Node, log, Contact2DType, Collider2D, IPhysics2DContact, RigidBody2D } from 'cc';
+import { _decorator, Component, Animation, Vec3, v3, Sprite, find, UITransform, BoxCollider2D, screen, bezierByTime, bezier, tween, math, Tween, Node, log, Contact2DType, Collider2D, IPhysics2DContact, RigidBody2D, size } from 'cc';
 const { ccclass, property } = _decorator;
 
 import { FishState, FishType } from './FishType';
 import Game from './Game';
 import Bullet from './Bullet';
+import Net from './Net';
 
 @ccclass('Fish')
 export default class Fish extends Component {
@@ -137,7 +138,8 @@ export default class Fish extends Component {
                 self.game.despawnFish(this.node);
             }
 
-
+            let collider = this.node.getComponent(BoxCollider2D);
+            collider.size = size(0, 0);
            //播放死亡动画
            this.anim.play(this.fishType.name + '_die');
            // 被打死的动画播放完成之后回调
@@ -183,8 +185,15 @@ export default class Fish extends Component {
             if (this.hp <= 0) {
                 this.fishState = FishState.dead;
             }
+            return;
         }
-        
+        let net: Net = other.node.getComponent(Net);
+        if (net) {
+            this.hp -= net.getAttackValue();
+            if (this.hp <= 0) {
+                this.fishState = FishState.dead;
+            }
+        }
     }
 }
 

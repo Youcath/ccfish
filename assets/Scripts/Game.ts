@@ -1,4 +1,4 @@
-import { _decorator, Component, NodePool, Prefab, Node, SpriteAtlas, AudioClip, Vec3, Director, instantiate, find, debug, UITransform, loader, assetManager, error, resources, EventTouch, v3, director, Vec2 } from 'cc';
+import { _decorator, Component, NodePool, Prefab, Node, SpriteAtlas, AudioClip, Vec3,  instantiate, find, debug, UITransform, loader, assetManager, error, resources, EventTouch, v3, director, Vec2, Input, EventKeyboard, KeyCode, input } from 'cc';
 const { ccclass, property } = _decorator;
 
 import { FishState, FishType } from './FishType';
@@ -96,8 +96,20 @@ export default class Game extends Component {
         let bulletLevel = self.weaponNode.getComponent(Weapon).curLevel;
         self.shot(bulletLevel);
         }, this);
-        this.node.on(Node.EventType.TOUCH_MOVE, function (event) {
-           // cc.log('touch move');
+        input.on(Input.EventType.KEY_DOWN, function (event: EventKeyboard) {
+           switch(event.keyCode) {
+              case KeyCode.ARROW_LEFT:
+                self.weaponNode.angle = self.weaponNode.angle + 5;
+                break;
+            case KeyCode.ARROW_RIGHT:
+                self.weaponNode.angle = self.weaponNode.angle - 5;
+                break;
+            case KeyCode.SPACE:
+            case KeyCode.ENTER:
+                let bulletLevel = self.weaponNode.getComponent(Weapon).curLevel;
+                self.shot(bulletLevel);
+                break;
+           }
         }, this);
         this.node.on(Node.EventType.TOUCH_END, function (event) {
            // cc.log('touch end');

@@ -18,7 +18,7 @@ export default class Bullet extends Component {
     angle: number = 0;
     game: Game;
 //    // 子弹攻击力，基础攻击力
-    private attack: number = 4;
+    private attack: number = 1;
 //    // 子弹速度
     @property
     speed: number = 10;
