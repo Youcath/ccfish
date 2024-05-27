@@ -5,6 +5,7 @@ import { FishState, FishType } from './FishType';
 import Game from './Game';
 import Bullet from './Bullet';
 import Net from './Net';
+import { Utils } from './Utils';
 
 @ccclass('Fish')
 export default class Fish extends Component {
@@ -35,11 +36,6 @@ export default class Fish extends Component {
     bezier6: Vec3[] = [v3(100, 100), v3(350, 400), v3(1800, 500)];
     bezier7: Vec3[] = [v3(100, 2), v3(350, -2), v3(1500, 0)];
     bezierArray = new Array();
-    readonly bezierCurve = (t: number, p1: Vec3, cp1: Vec3, cp2: Vec3, p2: Vec3, out: Vec3) => {
-        out.x = bezier(p1.x, cp1.x, cp2.x, p2.x, t);
-        out.y = bezier(p1.y, cp1.y, cp2.y, p2.y, t);
-        out.z = bezier(p1.z, cp1.z, cp2.z, p2.z, t);
-    }
     tween: Tween<Node> | undefined;
 
     init(game: Game) {
@@ -104,7 +100,7 @@ export default class Fish extends Component {
         let speed = Math.random() * 10 + 10;
         const tempVec3 = v3();
         this.tween = tween(this.node).to(speed, { position: trace[2] }, { onUpdate: (target, ratio) => {
-            this.bezierCurve(ratio, this.startPosition, trace[0], trace[1], trace[2], tempVec3);
+            Utils.bezierCurve(ratio, this.startPosition, trace[0], trace[1], trace[2], tempVec3);
             this.node.setPosition(tempVec3);
         }}).start();
     }
@@ -122,7 +118,7 @@ export default class Fish extends Component {
         // 移动的方向向量
         // 求角度
         let dir = currentPos.clone().subtract(this.lastPosition);
-        let angle = Game.angle(dir, v3(1, 0))
+        let angle = Utils.angle(dir, v3(1, 0))
         // 转为欧拉角
         let degree = angle / Math.PI * 180;
         this.node.angle = degree;

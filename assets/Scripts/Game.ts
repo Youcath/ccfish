@@ -7,6 +7,8 @@ import Bullet from './Bullet';
 import Net from './Net';
 import CoinController from './CoinController';
 import Weapon from './Weapon';
+import { Utils } from './Utils';
+import { AudioMgr } from './AudioMgr';
 
 @ccclass('Game')
 export default class Game extends Component {
@@ -17,6 +19,7 @@ export default class Game extends Component {
     @property(Node) coinController: Node | null = null;
     @property(SpriteAtlas) spAtlas: SpriteAtlas | null = null;
     @property(Node) gameOverNode: Node | null = null;
+    @property(AudioClip) bgm: AudioClip | null = null;
 
     //鱼对象池
     fishPool: NodePool;
@@ -41,6 +44,11 @@ export default class Game extends Component {
 
         // 添加触摸事件
         this.node.on(Node.EventType.TOUCH_START, this.onTouchStart, this);
+    }
+
+    start() {
+        // 播放背景音乐
+        AudioMgr.inst.play(this.bgm);
     }
 
     private initPools() {
@@ -102,7 +110,7 @@ export default class Game extends Component {
         // 炮台到触点的方向向量
         let dir = touchPos.subtract(weaponPos);
         // 计算夹角，这个夹角是带方向的
-        let angle = Game.angle(dir, v3(0, 1));
+        let angle = Utils.angle(dir, v3(0, 1));
         //将弧度转换为欧拉角
         let degree = angle / Math.PI * 180;
         // 设置炮台角度
@@ -155,14 +163,15 @@ export default class Game extends Component {
         let bulletLevel = this.weaponNode.getComponent(Weapon).curLevel;
         this.oneNet.getComponent(Net).init(position,this,bulletLevel);
     }
+
     despawnFish(fish: Node) {
         const self = this;
         let callback = function () {
             this.fishPool.put(fish);
         }
         this.scheduleOnce(callback);
-        
     }
+
     despawnBullet(bullet:Node) {
         const self = this;
         let callback = function () {
@@ -170,37 +179,22 @@ export default class Game extends Component {
         }
         this.scheduleOnce(callback);
     }
+
     despawnNet(net: Node) {
         this.netsPool.put(net);
     }
+
     gainCoins(coinPos: Vec3, value: number) {
         this.coinController.getComponent(CoinController).gainCoins(coinPos, value);
     }
+
     gameOver() {
         this.gameOverNode.active = true;
         this.unscheduleAllCallbacks();
     }
+
     gameRestart() {
-       // cc.game.restart();
         director.loadScene('main.scene');
-    }
-
-    /**
-     * 计算两个向量夹角的弧度值
-     * @param a
-     * @param b 
-     * @returns 
-     */
-    static angle(a: Vec3, b: Vec3): number {
-        const ta = a.normalize();
-        const tb = b.normalize();
-
-        let ra = Math.acos(ta.dot(tb));
-        if (a.x * b.y - a.y * b.x > 0) {
-            return -ra;
-        } else {
-                return ra;
-        }
     }
 }
 
