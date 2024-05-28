@@ -11,6 +11,7 @@ import { _decorator, Component, UITransform, math, Director, Sprite, screen, v3,
 const { ccclass, property } = _decorator;
 
 import Game from './Game';
+import Net from './Net';
 
 @ccclass('Bullet')
 export default class Bullet extends Component {
@@ -63,6 +64,10 @@ export default class Bullet extends Component {
         // }
     }
     onCollisionEnter(self: Collider2D, other: Collider2D, contact: IPhysics2DContact | null) {
+        let net: Net = other.node.getComponent(Net);
+        if (net) {
+            return;
+        }
        // 矩形碰撞组件顶点坐标，左上，左下，右下，右上
         let posb = self.worldAABB.center;
 

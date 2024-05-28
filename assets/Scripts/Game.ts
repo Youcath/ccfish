@@ -1,4 +1,4 @@
-import { _decorator, Component, NodePool, Prefab, Node, SpriteAtlas, AudioClip, Vec3,  instantiate, find, debug, UITransform, loader, assetManager, error, resources, EventTouch, v3, director, Vec2, Input, EventKeyboard, KeyCode, input } from 'cc';
+import { _decorator, Component, NodePool, Prefab, Node, SpriteAtlas, AudioClip, Vec3,  instantiate, find, debug, UITransform, error, resources, EventTouch, v3, director, Vec2, Input, EventKeyboard, KeyCode, input, macro } from 'cc';
 const { ccclass, property } = _decorator;
 
 import { FishState, FishType } from './FishType';
@@ -21,6 +21,11 @@ export default class Game extends Component {
     @property(Node) gameOverNode: Node | null = null;
     @property(AudioClip) bgm: AudioClip | null = null;
 
+    @property(Prefab) playerPrefab: Prefab | null = null;
+
+    private bulletInterval = 0.4;
+    private touchShotTime = 0;
+
     //鱼对象池
     fishPool: NodePool;
     //子弹对象池
@@ -42,8 +47,7 @@ export default class Game extends Component {
         // 加载fish相关
         this.loadFish();
 
-        // 添加触摸事件
-        this.node.on(Node.EventType.TOUCH_START, this.onTouchStart, this);
+        this.initInput();
     }
 
     start() {
@@ -70,7 +74,7 @@ export default class Game extends Component {
         // 中间层是鱼
         // find('Canvas/gameBg').setSiblingIndex(-1);
         // find('Canvas/bottomBar').setSiblingIndex(-1);
-        this.gameOverNode.setSiblingIndex(2);
+        // this.gameOverNode.setSiblingIndex(2);
         this.gameOverNode.active = false;
     }
 
@@ -86,6 +90,15 @@ export default class Game extends Component {
             self.fishTypes = jsonAsset.json;
             self.schedule(self.creatFish, 2);
         });
+    }
+
+    private initInput() {
+        // 添加触摸事件
+        input.on(Input.EventType.TOUCH_START, this.onTouchStart, this);
+
+        input.on(Input.EventType.KEY_DOWN, this.onKeyDown, this);
+
+        input.on(Input.EventType.KEY_PRESSING, this.onKeyPressing, this);
     }
 
     private creatFish() {
@@ -115,11 +128,17 @@ export default class Game extends Component {
         let degree = angle / Math.PI * 180;
         // 设置炮台角度
         this.weaponNode.angle = degree;
-        let bulletLevel = this.weaponNode.getComponent(Weapon).curLevel;
-        this.shot(bulletLevel);
-        input.on(Input.EventType.KEY_DOWN, function (event: EventKeyboard) {
-           switch(event.keyCode) {
-              case KeyCode.ARROW_LEFT:
+        let now = new Date().getTime();
+        if (now - this.touchShotTime > this.bulletInterval * 1000) {
+            this.shot();
+            this.touchShotTime = now;
+        }
+        
+    }
+
+    private onKeyDown(event: EventKeyboard) {
+        switch(event.keyCode) {
+            case KeyCode.ARROW_LEFT:
                 this.weaponNode.angle = this.weaponNode.angle + 5;
                 break;
             case KeyCode.ARROW_RIGHT:
@@ -127,17 +146,36 @@ export default class Game extends Component {
                 break;
             case KeyCode.SPACE:
             case KeyCode.ENTER:
-                let bulletLevel = this.weaponNode.getComponent(Weapon).curLevel;
-                this.shot(bulletLevel);
+                let now = new Date().getTime();
+                if (now - this.touchShotTime > this.bulletInterval * 1000) {
+                    this.shot();
+                    this.touchShotTime = now;
+                }
                 break;
-           }
-        }, this);
-        this.node.on(Node.EventType.TOUCH_END, function (event) {
-           // cc.log('touch end');
-        }, this);
+         }
     }
 
-    private shot(level:number) {
+    private onKeyPressing(event: EventKeyboard) {
+        switch(event.keyCode) {
+            case KeyCode.ARROW_LEFT:
+                this.weaponNode.angle = this.weaponNode.angle + 5;
+                break;
+            case KeyCode.ARROW_RIGHT:
+                this.weaponNode.angle = this.weaponNode.angle - 5;
+                break;
+            case KeyCode.SPACE:
+            case KeyCode.ENTER:
+                let now = new Date().getTime();
+                if (now - this.touchShotTime > this.bulletInterval * 1000) {
+                    this.shot();
+                    this.touchShotTime = now;
+                }
+                break;
+         }
+    }
+
+    private shot() {
+        let level = this.weaponNode.getComponent(Weapon).curLevel;
         if (this.bulletPool.size() > 0) {
             this.oneBullet = this.bulletPool.get(this);
         } else {
@@ -148,9 +186,7 @@ export default class Game extends Component {
         if (left) {
             this.oneBullet.getComponent(Bullet).shot(this, level);
         } else {
-            if (this.coinController.getComponent(CoinController).currentValue == 0) {
-                this.gameOver();
-            }
+            this.gameOver();
         }
     }
 
@@ -182,6 +218,9 @@ export default class Game extends Component {
 
     despawnNet(net: Node) {
         this.netsPool.put(net);
+        if (this.coinController.getComponent(CoinController).currentValue == 0) {
+            this.gameOver();
+        }
     }
 
     gainCoins(coinPos: Vec3, value: number) {
@@ -189,12 +228,13 @@ export default class Game extends Component {
     }
 
     gameOver() {
+        this.gameOverNode.setSiblingIndex(99);
         this.gameOverNode.active = true;
         this.unscheduleAllCallbacks();
     }
 
     gameRestart() {
-        director.loadScene('main.scene');
+        director.loadScene('Scene/main.scene');
     }
 }
 

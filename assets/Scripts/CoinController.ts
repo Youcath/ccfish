@@ -30,11 +30,11 @@ export default class CoinController extends Component {
     toValue: number = 0;
     coinUpPool: NodePool;
     coinsPool: NodePool;
-//    // +金币数字
+    //    // +金币数字
     coin_up: Node;
-//    // 获得金币
+    //    // 获得金币
     oneCoin: Node;
-//    // LIFE-CYCLE CALLBACKS:
+    //    // LIFE-CYCLE CALLBACKS:
     onLoad() {
 
     }
@@ -43,7 +43,7 @@ export default class CoinController extends Component {
         this.coinsPool = new NodePool();
         this.setValue(this.currentValue);
     }
-//    // 数字固定长度lenght，不够的补0
+    //    // 数字固定长度lenght，不够的补0
     prefixInteger(num: number, length: number) {
         return (Array(length).join('0') + num).slice(-length);
     }
@@ -57,46 +57,46 @@ export default class CoinController extends Component {
         this.number5.spriteFrame = this.timerAtlas.getSpriteFrame(nums[4].toString());
         this.number6.spriteFrame = this.timerAtlas.getSpriteFrame(nums[5].toString());
     }
-//    // 获取金币加数
+    //    // 获取金币加数
     addCoins(value: number) {
         this.currentValue += value;
         this.setValue(this.currentValue);
     }
-//    // 发射子弹消耗金币
-    reduceCoin(level: number): boolean{
+    //    // 发射子弹消耗金币
+    reduceCoin(level: number): boolean {
         if (this.currentValue >= level) {
-        this.setValue(this.currentValue-=level);
-        return true;
+            this.setValue(this.currentValue -= level);
+            return true;
         }
 
         return false;
     }
     gainCoins(coinPos: Vec3, coinnum: number) {
-       // 上升的数字对象池
+        // 上升的数字对象池
         if (this.coinUpPool.size() > 0) {
-        this.coin_up = this.coinUpPool.get();
+            this.coin_up = this.coinUpPool.get();
         } else {
-        this.coin_up = instantiate(this.coinPlusPrefab);
+            this.coin_up = instantiate(this.coinPlusPrefab);
         }
 
         this.coin_up.getComponent(NumUp).init(coinPos, coinnum, this);
 
-       // 金币对象池
+        // 金币对象池
         if (this.coinsPool.size() > 0) {
-        this.oneCoin = this.coinsPool.get();
+            this.oneCoin = this.coinsPool.get();
         } else {
-        this.oneCoin = instantiate(this.coinsPrefab);
+            this.oneCoin = instantiate(this.coinsPrefab);
         }
         this.oneCoin.getComponent(Coins).init(this);
-       // 转为世界坐标
+        // 转为世界坐标
         let toPos = this.node.getComponent(UITransform).convertToWorldSpaceAR(this.number3.node.position);
         this.oneCoin.getComponent(Coins).goDown(coinPos, toPos);
         this.addCoins(coinnum);
     }
-    despawnCoins(coin:Node) {
+    despawnCoins(coin: Node) {
         this.coinsPool.put(coin);
     }
-    despawnCoinup(nup:Node) {
+    despawnCoinup(nup: Node) {
         this.coinUpPool.put(nup);
     }
 }
