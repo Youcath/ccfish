@@ -7,11 +7,12 @@
 //  * @FilePath: \CourseFishd:\cocos20\CCFish\assets\Script\Bullet.ts
 //  */
 
-import { _decorator, Component, UITransform, math, Director, Sprite, screen, v3, find, Collider2D, IPhysics2DContact, BoxCollider2D, Contact2DType } from 'cc';
+import { _decorator, Component, UITransform, Sprite, find, Collider2D, IPhysics2DContact, BoxCollider2D, Contact2DType } from 'cc';
 const { ccclass, property } = _decorator;
 
 import Game from './Game';
 import Net from './Net';
+import { Player } from './Player';
 
 @ccclass('Bullet')
 export default class Bullet extends Component {
@@ -24,12 +25,16 @@ export default class Bullet extends Component {
     @property
     speed: number = 10;
     bulletLeve: number = 1;
-    shot(game: Game, level: number) {
+    master: Player;
+    masterIndex: number; // 属于第几位玩家的子弹
+    shot(game: Game, level: number, master: Player) {
         this.game = game;
+        this.master = master;
+        this.masterIndex = master.playerIndex;
        // 启动update函数
         this.enabled = true;
-        let weaponSite = game.weaponNode.parent.getComponent(UITransform).convertToWorldSpaceAR(game.weaponNode.getPosition());
-        this.angle = -game.weaponNode.angle;
+        let weaponSite = master.weaponNode.parent.getComponent(UITransform).convertToWorldSpaceAR(master.weaponNode.getPosition());
+        this.angle = -master.weaponNode.parent.angle - master.weaponNode.angle;
         this.node.angle = -this.angle;
         this.setBullet(level);
         this.node.parent = find('Canvas');
@@ -66,13 +71,21 @@ export default class Bullet extends Component {
     onCollisionEnter(self: Collider2D, other: Collider2D, contact: IPhysics2DContact | null) {
         let net: Net = other.node.getComponent(Net);
         if (net) {
+            // 来自网的碰撞忽略
             return;
         }
+        let bullet: Bullet = other.node.getComponent(Bullet);
+        if (bullet) {
+            // 来自其他子弹的碰撞忽略
+            return;
+        }
+        // 该子弹是一次性的碰撞，第一条鱼碰撞后就取消碰撞回调
+        this.enabled = false;
        // 矩形碰撞组件顶点坐标，左上，左下，右下，右上
         let posb = self.worldAABB.center;
 
-        this.game.castNet(posb);
-        this.game.despawnBullet(this.node);
+        this.master.castNet(posb);
+        this.master.despawnBullet(this.node);
         
     }
 

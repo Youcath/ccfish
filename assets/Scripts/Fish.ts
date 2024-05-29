@@ -37,6 +37,7 @@ export default class Fish extends Component {
     bezier7: Vec3[] = [v3(100, 2), v3(350, -2), v3(1500, 0)];
     bezierArray = new Array();
     tween: Tween<Node> | undefined;
+    killerIndex: number;
 
     init(game: Game) {
         this.bezierArray.push(this.bezier1);
@@ -148,7 +149,7 @@ export default class Fish extends Component {
             // 转为世界坐标
             let fp = this.node.parent.getComponent(UITransform).convertToWorldSpaceAR(this.node.position);
             if (this.gold > 0) {
-                this.game.gainCoins(fp, this.gold);
+                this.game.gainCoins(fp, this.gold, this.killerIndex);
                 this.gold = 0;
             }
         } else {
@@ -180,6 +181,7 @@ export default class Fish extends Component {
             this.hp -= bullet.getAttackValue();
             if (this.hp <= 0) {
                 this.fishState = FishState.dead;
+                this.killerIndex = bullet.masterIndex;
             }
             return;
         }
@@ -188,6 +190,7 @@ export default class Fish extends Component {
             this.hp -= net.getAttackValue();
             if (this.hp <= 0) {
                 this.fishState = FishState.dead;
+                this.killerIndex = net.masterIndex;
             }
         }
     }

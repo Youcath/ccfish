@@ -1,0 +1,79 @@
+
+[
+    {
+        "playerNumber": 1,
+        "nodes":[
+            {
+                "index": 1,
+                "rotation": 0,
+                "x": 0,
+                "y": -320
+            }
+        ]
+    },
+    {
+        "playerNumber": 10,
+        "nodes":[
+            {
+                "index": 1,
+                "rotation": 0,
+                "x": 0,
+                "y": -320
+            },
+            {
+                "index": 2,
+                "rotation": 0,
+                "x": -320,
+                "y": -320
+            },
+            {
+                "index": 3,
+                "rotation": 0,
+                "x": 320,
+                "y": -320
+            },
+            {
+                "index": 4,
+                "rotation": -90,
+                "x": -600,
+                "y": -140
+            },
+            {
+                "index": 5,
+                "rotation": -90,
+                "x": -600,
+                "y": 160
+            },
+            {
+                "index": 6,
+                "rotation": 180,
+                "x": 0,
+                "y": 320
+            },
+            {
+                "index": 7,
+                "rotation": 180,
+                "x": 320,
+                "y": 320
+            },
+            {
+                "index": 8,
+                "rotation": 180,
+                "x": -320,
+                "y": 320
+            },
+            {
+                "index": 9,
+                "rotation": 90,
+                "x": 600,
+                "y": -160
+            },
+            {
+                "index": 10,
+                "rotation": 90,
+                "x": 600,
+                "y": 140
+            }
+        ]
+    }
+]

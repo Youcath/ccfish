@@ -19,18 +19,18 @@ export default class NumUp extends Component {
         let str = num.toString();
         let nums = str.split('');
         if (nums.length == 1) {
-        this.onesPlace.node.active = false;
-        this.tensPlace.spriteFrame = this.numAtlas.getSpriteFrame('goldnum_' + nums[0]);
+            this.onesPlace.node.active = false;
+            this.tensPlace.spriteFrame = this.numAtlas.getSpriteFrame('goldnum_' + nums[0]);
         } else {
-        this.onesPlace.node.active = true;
-        this.tensPlace.spriteFrame = this.numAtlas.getSpriteFrame('goldnum_' + nums[0]);
-        this.onesPlace.spriteFrame = this.numAtlas.getSpriteFrame('goldnum_' + nums[1]);
+            this.onesPlace.node.active = true;
+            this.tensPlace.spriteFrame = this.numAtlas.getSpriteFrame('goldnum_' + nums[0]);
+            this.onesPlace.spriteFrame = this.numAtlas.getSpriteFrame('goldnum_' + nums[1]);
         }
         this.node.parent = find('Canvas');
         this.node.position = this.node.parent.getComponent(UITransform).convertToNodeSpaceAR(pos);
         const self = this;
 
-        let despawn = function() {
+        let despawn = function () {
             self.cointroller.despawnCoinup(self.node);
         }
 
@@ -38,7 +38,7 @@ export default class NumUp extends Component {
         this.anim.on(Animation.EventType.STOP, despawn, this);
 
     }
-    
+
 
 }
 

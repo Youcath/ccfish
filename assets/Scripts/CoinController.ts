@@ -71,6 +71,11 @@ export default class CoinController extends Component {
 
         return false;
     }
+
+    cheatCoin() {
+        this.currentValue += 100;
+        this.setValue(this.currentValue);
+    }
     gainCoins(coinPos: Vec3, coinnum: number) {
         // 上升的数字对象池
         if (this.coinUpPool.size() > 0) {

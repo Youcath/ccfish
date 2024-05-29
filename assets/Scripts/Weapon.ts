@@ -7,28 +7,28 @@ export default class Weapon extends Component {
     anim: Animation | null = null;
     curLevel: number;
     total: number;
-    
+
     init() {
         this.curLevel = 1;
         this.total = this.anim.clips.length;
     }
     plus() {
         if (this.curLevel + 1 > this.total) {
-        this.curLevel = this.total;
+            this.curLevel = this.total;
         } else {
-        this.curLevel++;
+            this.curLevel++;
         }
         this.anim.play('weapon_level_' + this.curLevel);
     }
     reduce() {
         if (this.curLevel < 2) {
-        this.curLevel = 1;
+            this.curLevel = 1;
         } else {
-        this.curLevel--;
+            this.curLevel--;
         }
         this.anim.play('weapon_level_' + this.curLevel);
     }
-    
+
 }
 
 
