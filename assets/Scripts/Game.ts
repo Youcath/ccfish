@@ -124,23 +124,27 @@ export default class Game extends Component {
                 cfish = instantiate(this.fishPrefab);
             }
             cfish.getComponent(Fish).init(this);
+            cfish.setSiblingIndex(2);
         }
     }
 
     private onTouchStart(event: EventTouch) {
-        // 触点是世界坐标，需要转换为和炮台一致的坐标系下
-        let touchPos = this.players.get(1).getComponent(UITransform).convertToNodeSpaceAR(v3(event.getUILocation().x, event.getUILocation().y));
-        // 炮台坐标
-        let weaponPos = this.players.get(1).getComponent(Player).weaponNode.getPosition();
-        // 炮台到触点的方向向量
-        let dir = touchPos.subtract(weaponPos);
-        // 计算夹角，这个夹角是带方向的
-        let angle = Utils.angle(dir, v3(0, 1));
-        //将弧度转换为欧拉角
-        let degree = angle / Math.PI * 180;
-        // 设置炮台角度
-        this.players.get(1).getComponent(Player).weaponNode.angle = degree;
-        this.players.get(1).getComponent(Player).shot();
+
+        this.players.forEach((v, k) => {
+            // 触点是世界坐标，需要转换为和炮台一致的坐标系下
+            let touchPos = v.getComponent(UITransform).convertToNodeSpaceAR(v3(event.getUILocation().x, event.getUILocation().y));
+            // 炮台坐标
+            let weaponPos = v.getComponent(Player).weaponNode.getPosition();
+            // 炮台到触点的方向向量
+            let dir = touchPos.subtract(weaponPos);
+            // 计算夹角，这个夹角是带方向的
+            let angle = Utils.angle(dir, v3(0, 1));
+            //将弧度转换为欧拉角
+            let degree = angle / Math.PI * 180;
+            // 设置炮台角度
+            v.getComponent(Player).weaponNode.angle = degree;
+            v.getComponent(Player).shot();
+        });
 
     }
 
@@ -290,7 +294,7 @@ export default class Game extends Component {
     }
 
     private onKeyPressing(event: EventKeyboard) {
-        switch (event.keyCode)  {
+        switch (event.keyCode) {
             // 玩家1
             case KeyCode.ARROW_LEFT:
                 this.players.get(1).getComponent(Player).weaponLeft();
@@ -405,7 +409,7 @@ export default class Game extends Component {
     }
 
     gainCoins(coinPos: Vec3, value: number, player: number) {
-        this.players.get(player).getComponent(Player).coinController.getComponent(CoinController).gainCoins(coinPos, value);
+        this.players.get(player).getComponent(Player).gainCoins(coinPos, value);
     }
 
     despawnFish(fish: Node) {

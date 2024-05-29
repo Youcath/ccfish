@@ -1,4 +1,4 @@
-import { _decorator, Component, Animation, Vec3, v3, Sprite, find, UITransform, BoxCollider2D, screen, bezierByTime, bezier, tween, math, Tween, Node, log, Contact2DType, Collider2D, IPhysics2DContact, RigidBody2D, size } from 'cc';
+import { _decorator, Component, Animation, Vec3, v3, Sprite, find, UITransform, BoxCollider2D, tween, math, Tween, Node, log, Contact2DType, Collider2D, IPhysics2DContact, size, v2 } from 'cc';
 const { ccclass, property } = _decorator;
 
 import { FishState, FishType } from './FishType';
@@ -49,6 +49,7 @@ export default class Fish extends Component {
         this.bezierArray.push(this.bezier7);
         this.game = game;
         this.enabled = true;
+        this.node.parent = find('Canvas');
         this.spawnFish();
     }
 
@@ -84,7 +85,7 @@ export default class Fish extends Component {
         this.fishState = FishState.alive;
         // 加到canvas节点下才可以设置zorder
         // 默认zorder为0，bg设为-1，炮台设为1
-        this.node.parent = find('Canvas');
+        
         this.lastPosition = this.node.getPosition();
         this.changeCollider();
     }
@@ -92,8 +93,8 @@ export default class Fish extends Component {
     // 重新设置碰撞区域
     private changeCollider() {
         let collider = this.node.getComponent(BoxCollider2D);
-        let contentSize = this.node.getComponent(UITransform).contentSize;
-        collider.size = contentSize;
+        collider.offset = v2(this.fishType.x, this.fishType.y);
+        collider.size = new math.Size(this.fishType.w, this.fishType.h);
     }
 
     // 小鱼游泳，贝塞尔曲线实现

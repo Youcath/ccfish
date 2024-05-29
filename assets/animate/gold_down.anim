@@ -3,19 +3,28 @@
     "__type__": "cc.AnimationClip",
     "_name": "gold_down",
     "_objFlags": 0,
+    "__editorExtras__": {
+      "embeddedPlayerGroups": []
+    },
     "_native": "",
     "sample": 20,
     "speed": 1,
-    "wrapMode": 2,
+    "wrapMode": 1,
+    "enableTrsBlending": false,
     "_duration": 0.5,
-    "_hash": 0,
+    "_hash": 500763545,
     "_tracks": [
       {
         "__id__": 1
       }
     ],
+    "_exoticAnimation": null,
     "_events": [],
-    "_exoticAnimation": null
+    "_embeddedPlayers": [],
+    "_additiveSettings": {
+      "__id__": 6
+    },
+    "_auxiliaryCurveEntries": []
   },
   {
     "__type__": "cc.animation.ObjectTrack",
@@ -23,7 +32,8 @@
       "__type__": "cc.animation.TrackBinding",
       "path": {
         "__id__": 2
-      }
+      },
+      "proxy": null
     },
     "_channel": {
       "__id__": 4
@@ -65,44 +75,49 @@
     "_values": [
       {
         "__uuid__": "488d9c1c-f5f6-4d16-ae16-344c3df2e63d@18015",
-        "__expectedType__": "cc.Asset"
+        "__expectedType__": "cc.SpriteFrame"
       },
       {
         "__uuid__": "488d9c1c-f5f6-4d16-ae16-344c3df2e63d@c2ee7",
-        "__expectedType__": "cc.Asset"
+        "__expectedType__": "cc.SpriteFrame"
       },
       {
         "__uuid__": "488d9c1c-f5f6-4d16-ae16-344c3df2e63d@2a896",
-        "__expectedType__": "cc.Asset"
+        "__expectedType__": "cc.SpriteFrame"
       },
       {
         "__uuid__": "488d9c1c-f5f6-4d16-ae16-344c3df2e63d@84962",
-        "__expectedType__": "cc.Asset"
+        "__expectedType__": "cc.SpriteFrame"
       },
       {
         "__uuid__": "488d9c1c-f5f6-4d16-ae16-344c3df2e63d@9a0ea",
-        "__expectedType__": "cc.Asset"
+        "__expectedType__": "cc.SpriteFrame"
       },
       {
         "__uuid__": "488d9c1c-f5f6-4d16-ae16-344c3df2e63d@b057b",
-        "__expectedType__": "cc.Asset"
+        "__expectedType__": "cc.SpriteFrame"
       },
       {
         "__uuid__": "488d9c1c-f5f6-4d16-ae16-344c3df2e63d@90be6",
-        "__expectedType__": "cc.Asset"
+        "__expectedType__": "cc.SpriteFrame"
       },
       {
         "__uuid__": "488d9c1c-f5f6-4d16-ae16-344c3df2e63d@31bc0",
-        "__expectedType__": "cc.Asset"
+        "__expectedType__": "cc.SpriteFrame"
       },
       {
         "__uuid__": "488d9c1c-f5f6-4d16-ae16-344c3df2e63d@a55ac",
-        "__expectedType__": "cc.Asset"
+        "__expectedType__": "cc.SpriteFrame"
       },
       {
         "__uuid__": "488d9c1c-f5f6-4d16-ae16-344c3df2e63d@c4e66",
-        "__expectedType__": "cc.Asset"
+        "__expectedType__": "cc.SpriteFrame"
       }
     ]
+  },
+  {
+    "__type__": "cc.AnimationClipAdditiveSettings",
+    "enabled": false,
+    "refClip": null
   }
 ]

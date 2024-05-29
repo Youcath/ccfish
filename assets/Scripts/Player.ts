@@ -1,4 +1,4 @@
-import { _decorator, Component, find, instantiate, Node, NodePool,  v3, Vec2, Vec3 } from 'cc';
+import { _decorator, Animation, Component, find, instantiate, Node, NodePool,  UITransform,  v3, Vec2, Vec3 } from 'cc';
 import Weapon from './Weapon';
 import CoinController from './CoinController';
 import { PlayerNodeConfig } from './PlayerInfo';
@@ -13,6 +13,7 @@ export class Player extends Component {
     game: Game;
     weaponNode: Node;
     coinController: Node;
+    anim: Node;
     oneBullet: Node;
     oneNet: Node;
     //子弹对象池
@@ -30,11 +31,14 @@ export class Player extends Component {
         this.playerIndex = config.index;
         this.weaponNode = this.node.getChildByName("weapon");
         this.coinController = this.node.getChildByName("number_controller");
+        this.anim = this.node.getChildByName("anim");
+        this.anim.active = false;
         this.coinController.getComponent(CoinController).init();
         this.weaponNode.getComponent(Weapon).init();
         this.coinController.getComponent(CoinController).currentValue = 200;
 
         this.node.parent = find('Canvas');
+        this.node.setSiblingIndex(999);
         this.node.position = v3(config.x, config.y, 0);
         this.node.angle = config.rotation;
     }
@@ -97,6 +101,16 @@ export class Player extends Component {
 
     gainCoins(coinPos: Vec3, value: number) {
         this.coinController.getComponent(CoinController).gainCoins(coinPos, value);
+        this.anim.active = true;
+        let animation = this.anim.getComponent(Animation);
+        animation.crossFade('gold_down', 1);
+
+        const self = this;
+        let finishCallback = function() {
+            self.anim.active = false;
+        };
+        animation.on(Animation.EventType.FINISHED, finishCallback, this);
+        // animation.on(Animation.EventType.FINISHED, dieCallback, this);
     }
 }
 
