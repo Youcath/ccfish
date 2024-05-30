@@ -61,6 +61,7 @@ export class Player extends Component {
             bullet.enabled = true;
             bullet.shot(this.game, level, this);
         }
+        this.weaponNode.getComponent(Animation).play('weapon_level_' + this.weaponNode.getComponent(Weapon).curLevel);
         this.touchShotTime = now;
     }
 

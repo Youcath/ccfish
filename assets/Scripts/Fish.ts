@@ -153,6 +153,10 @@ export default class Fish extends Component {
                 this.game.gainCoins(fp, this.gold, this.killerIndex);
                 this.gold = 0;
             }
+            // 只有鲨鱼才播放奖励动画
+            if (this.fishType.name.includes('shayu')) {
+                this.game.playRewardAni(this.node.position);
+            }
         } else {
             // 跑出屏幕的鱼自动回收
             this.despawnFish();

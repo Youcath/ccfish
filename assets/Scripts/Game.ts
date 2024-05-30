@@ -1,4 +1,4 @@
-import { _decorator, Component, NodePool, Prefab, Node, SpriteAtlas, AudioClip, Vec3, instantiate, find, debug, UITransform, error, resources, EventTouch, v3, director, Vec2, Input, EventKeyboard, KeyCode, input, macro } from 'cc';
+import { _decorator, Component, NodePool, Prefab, Node, SpriteAtlas, AudioClip, Vec3, instantiate, find, UITransform, error, resources, EventTouch, v3, Input, EventKeyboard, KeyCode, input, Animation } from 'cc';
 const { ccclass, property } = _decorator;
 
 import { FishType } from './FishType';
@@ -408,16 +408,29 @@ export default class Game extends Component {
         }
     }
 
-    gainCoins(coinPos: Vec3, value: number, player: number) {
+    public gainCoins(coinPos: Vec3, value: number, player: number) {
         this.players.get(player).getComponent(Player).gainCoins(coinPos, value);
     }
 
-    despawnFish(fish: Node) {
+    public despawnFish(fish: Node) {
         const self = this;
         let callback = function () {
             self.fishPool.put(fish);
         }
         this.scheduleOnce(callback);
+    }
+
+    public playRewardAni(pos: Vec3) {
+        const bomb = find('Canvas').getChildByName('bomb');
+        bomb.setPosition(pos);
+        bomb.active = true;
+        const anim = bomb.getComponent(Animation);
+        const self = this;
+        let finishCallback = function() {
+            bomb.active = false;
+        };
+        anim.play();
+        anim.on(Animation.EventType.FINISHED, finishCallback, this);
     }
 
     // gameOver() {
