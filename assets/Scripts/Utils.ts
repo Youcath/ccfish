@@ -30,7 +30,7 @@ export class Utils {
 
     /**
      * 可视范围是x ∈（-640， 640），y ∈ （-360， 360）
-     * 在x ∈（-900， 900），y ∈ （-600， 600）的外矩形框上，选择起点或终点
+     * 在x ∈（-900， 900），y ∈ （-600， 600）的外矩形框上，随机选择一个起点或终点
      * 
      * @returns 
      */
@@ -51,6 +51,21 @@ export class Utils {
             x = -900;
             y = 1200 * Math.random() - 600;
         }
+        return v3(x, y);
+    }
+
+    /**
+     * 在范围x ∈（-600， 600），y ∈ （-320， 320），随机选择一个点
+     * 
+     * @returns 
+     */
+    static getInnerPosition(): Vec3 {
+        let x = 0;
+        let y = 0
+
+        y = 640 * Math.random() - 320;
+        x = 1200 * Math.random() - 600;
+
         return v3(x, y);
     }
 }

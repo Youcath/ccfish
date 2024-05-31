@@ -20,34 +20,19 @@ export default class Fish extends Component {
     fishState: FishState = FishState.alive;
     // 保存上一次坐标,用于更新角度
     lastPosition: Vec3;
-    stopTimes: number;
     // 起始坐标
     startPosition: Vec3;
+    // 第一个控制点
+    firstPosition: Vec3;
     // 种类
     fishType: FishType;
-    // 贝塞尔曲线
-    bezier: Array<Vec3>;
     // 暂存game实例
     game: Game;
-    bezier1: Vec3[] = [v3(50, -100), v3(300, -400), v3(1500, -650)];
-    bezier2: Vec3[] = [v3(100, -200), v3(400, -300), v3(1500, -600)];
-    bezier3: Vec3[] = [v3(150, -300), v3(600, -400), v3(1500, -500)];
-    bezier4: Vec3[] = [v3(50, 50), v3(400, 100), v3(1500, 200)];
-    bezier5: Vec3[] = [v3(80, 200), v3(300, 500), v3(1500, 650)];
-    bezier6: Vec3[] = [v3(100, 100), v3(350, 400), v3(1800, 500)];
-    bezier7: Vec3[] = [v3(100, 2), v3(350, -2), v3(1500, 0)];
-    bezierArray = new Array();
+
     tween: Tween<Node> | undefined;
     killerIndex: number;
 
     init(game: Game) {
-        this.bezierArray.push(this.bezier1);
-        this.bezierArray.push(this.bezier2);
-        this.bezierArray.push(this.bezier3);
-        this.bezierArray.push(this.bezier4);
-        this.bezierArray.push(this.bezier5);
-        this.bezierArray.push(this.bezier6);
-        this.bezierArray.push(this.bezier7);
         this.game = game;
         this.enabled = true;
         this.node.active = true;
@@ -69,14 +54,11 @@ export default class Fish extends Component {
         let randomFish = Math.floor(Math.random() * fishStr);
         this.fishType = this.game.fishTypes[randomFish];
         // 位置
-        let pos = v3(-Math.random() * 100 - 200, (Math.random() - 0.5) * 2 * 300 + 350, 0);
-        this.node.position = find('Canvas').getComponent(UITransform).convertToNodeSpaceAR(pos);
-        this.startPosition = this.node.position;
-        let index = Math.floor(Math.random() * this.bezierArray.length);
-        this.bezier = this.bezierArray[index];
+        this.startPosition = Utils.getOutPosition();
+        this.node.position = this.startPosition;
         // 贝塞尔曲线第一个控制点，用来计算初始角度
-        let firstp = this.bezier[0];
-        let k = Math.atan((firstp.y) / (firstp.x));
+        this.firstPosition = Utils.getInnerPosition();
+        let k = Math.atan((this.firstPosition.y) / (this.firstPosition.x));
         this.node.angle = -k * 180 / 3.14;
         this.node.getComponent(Sprite).spriteFrame = this.game.spAtlas.getSpriteFrame(this.fishType.name + '_run_0');
         // 取出鱼的血量
@@ -88,7 +70,7 @@ export default class Fish extends Component {
         this.lastPosition = this.node.getPosition();
         this.changeCollider();
         this.anim.play(this.fishType.name + '_run');
-        this.swimming(this.bezier);
+        this.swimming();
     }
 
     // 重新设置碰撞区域
@@ -99,39 +81,41 @@ export default class Fish extends Component {
     }
 
     // 小鱼游泳，贝塞尔曲线实现
-    private swimming(trace: Array<Vec3>) {
-        let duration = Math.random() * 10 + 10;
+    private swimming() {
+        let duration = Math.random() * 8 + 8;
         const tempVec3 = v3();
-        this.tween = tween(this.node).to(duration, { position: trace[2] }, {
+        const finalPos = Utils.getOutPosition();  // 终点
+        const secondPos = Utils.getInnerPosition(); // 第二个控制点
+        this.tween = tween(this.node).to(duration, { position: finalPos }, {
             onUpdate: (target, ratio) => {
-                Utils.bezierCurve3(ratio, this.startPosition, trace[0], trace[1], trace[2], tempVec3);
+                Utils.bezierCurve(ratio, this.startPosition, this.firstPosition, secondPos, finalPos, tempVec3);
                 this.node.setPosition(tempVec3.clone());
             }
-        }).start();
+        })
+        .call(() => {
+            this.despawnFish();
+        })
+        .start();
     }
 
     protected update(dt: number): void {
-        let currentPos = this.node.getPosition();
-        // 如果位移不超过1 直接销毁
-        let ds = this.lastPosition.clone().subtract(currentPos).length();
-        if (this.stopTimes >= 60) {
-            this.despawnFish();
-            return;
+        if (this.lastPosition) {
+            let currentPos = this.node.getPosition();
+            // 如果位移不超过1 直接销毁
+            let ds = this.lastPosition.clone().subtract(currentPos).length();
+            if (ds < 1) {
+                return;
+            }
+            // 移动的方向向量
+            // 求角度
+            let dir = currentPos.clone().subtract(this.lastPosition);
+            let angle = Utils.angle(dir, v3(1, 0))
+            // 转为欧拉角
+            let degree = angle / Math.PI * 180;
+            this.node.angle = degree;
+            this.lastPosition = currentPos;
+            this.beAttack();
         }
-        if (ds < 1) {
-            this.stopTimes++;
-            return;
-        }
-        this.stopTimes = 0;
-        // 移动的方向向量
-        // 求角度
-        let dir = currentPos.clone().subtract(this.lastPosition);
-        let angle = Utils.angle(dir, v3(1, 0))
-        // 转为欧拉角
-        let degree = angle / Math.PI * 180;
-        this.node.angle = degree;
-        this.lastPosition = currentPos;
-        this.beAttack();
     }
 
     private beAttack() {
@@ -162,21 +146,21 @@ export default class Fish extends Component {
                 this.game.playRewardAni(this.node.position);
             }
         } else {
-            // 跑出屏幕的鱼自动回收
-            if (this.node.getPosition().x > 0
-                || this.node.getPosition().x < -1000
-                || this.node.getPosition().y > 600
-                || this.node.getPosition().y < -900
-            ) {
-                this.despawnFish();
-            }
+            // // 跑出屏幕的鱼自动回收
+            // if (this.node.getPosition().x >= 900
+            //     || this.node.getPosition().x <= -900
+            //     || this.node.getPosition().y >= 600
+            //     || this.node.getPosition().y <= -600
+            // ) {
+            //     this.despawnFish();
+            // }
         }
     }
 
     private despawnFish() {
 
         // 可以不移除节点，停止所有动作也可以完成
-
+        this.node.active = false;
         this.tween.stop();
         this.game.despawnFish(this.node);
         log('despawn one Fish.');
