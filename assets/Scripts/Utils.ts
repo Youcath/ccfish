@@ -1,9 +1,9 @@
-import { _decorator, bezier, Component, Node, Vec3 } from 'cc';
+import { _decorator, bezier, v3, Vec3 } from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('Utils')
 export class Utils {
-    
+
     static bezierCurve(t: number, p1: Vec3, cp1: Vec3, cp2: Vec3, p2: Vec3, out: Vec3) {
         out.x = bezier(p1.x, cp1.x, cp2.x, p2.x, t);
         out.y = bezier(p1.y, cp1.y, cp2.y, p2.y, t);
@@ -24,8 +24,34 @@ export class Utils {
         if (a.x * b.y - a.y * b.x > 0) {
             return -ra;
         } else {
-                return ra;
+            return ra;
         }
+    }
+
+    /**
+     * 可视范围是x ∈（-640， 640），y ∈ （-360， 360）
+     * 在x ∈（-900， 900），y ∈ （-600， 600）的外矩形框上，选择起点或终点
+     * 
+     * @returns 
+     */
+    static getOutPosition(): Vec3 {
+        let n = Math.random() * 4;
+        let x = 0;
+        let y = 0
+        if (n < 1) {
+            y = 600;
+            x = 1800 * Math.random() - 900;
+        } else if (n < 2) {
+            x = 900;
+            y = 1200 * Math.random() - 600;
+        } else if (n < 3) {
+            y = -600;
+            x = 1800 * Math.random() - 900;
+        } else {
+            x = -900;
+            y = 1200 * Math.random() - 600;
+        }
+        return v3(x, y);
     }
 }
 

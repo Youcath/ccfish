@@ -1,4 +1,4 @@
-import { _decorator, Component, NodePool, Prefab, Node, SpriteAtlas, AudioClip, Vec3, instantiate, find, UITransform, error, resources, EventTouch, v3, Input, EventKeyboard, KeyCode, input, Animation } from 'cc';
+import { _decorator, Component, NodePool, Prefab, Node, SpriteAtlas, AudioClip, Vec3, instantiate, find, UITransform, error, resources, EventTouch, v3, Input, EventKeyboard, KeyCode, input, Animation, log } from 'cc';
 const { ccclass, property } = _decorator;
 
 import { FishType } from './FishType';
@@ -45,6 +45,14 @@ export default class Game extends Component {
     start() {
         // 播放背景音乐
         AudioMgr.inst.play(this.bgm);
+
+        this.schedule(this.printNodeNumber, 1);
+    }
+
+    private printNodeNumber() {
+        let count = this.node.children.length;
+        log('node number: ' + count);
+        log('pool size: ' + this.fishPool.size());
     }
 
     private initPools() {
@@ -66,7 +74,7 @@ export default class Game extends Component {
             }
             // 加载之后转类型
             self.fishTypes = jsonAsset.json;
-            self.schedule(self.creatFish, 1.2);
+            self.schedule(self.creatFish, 3);
         });
     }
 
@@ -115,7 +123,7 @@ export default class Game extends Component {
 
     private creatFish() {
         // 一次创建8条鱼
-        let fishCount = 8;
+        let fishCount = 3;
         for (let i = 0; i < fishCount; ++i) {
             let cfish: Node = null;
             if (this.fishPool.size() > 0) {
@@ -129,7 +137,7 @@ export default class Game extends Component {
     }
 
     private onTouchStart(event: EventTouch) {
-
+        // 所有炮台往触点发射炮弹
         this.players.forEach((v, k) => {
             // 触点是世界坐标，需要转换为和炮台一致的坐标系下
             let touchPos = v.getComponent(UITransform).convertToNodeSpaceAR(v3(event.getUILocation().x, event.getUILocation().y));
@@ -161,7 +169,7 @@ export default class Game extends Component {
             case KeyCode.ENTER:
                 this.players.get(1).getComponent(Player).shot();
                 break;
-            case KeyCode.NUM_1:
+            case KeyCode.DIGIT_1:
                 this.players.get(1).getComponent(Player).cheatCoins();
                 break;
 
@@ -172,10 +180,10 @@ export default class Game extends Component {
             case KeyCode.KEY_S:
                 this.players.get(2).getComponent(Player).weaponRight();
                 break;
-            case KeyCode.DIGIT_2:
+            case KeyCode.KEY_X:
                 this.players.get(2).getComponent(Player).shot();
                 break;
-            case KeyCode.NUM_2:
+            case KeyCode.DIGIT_2:
                 this.players.get(2).getComponent(Player).cheatCoins();
                 break;
 
@@ -186,10 +194,10 @@ export default class Game extends Component {
             case KeyCode.KEY_D:
                 this.players.get(3).getComponent(Player).weaponRight();
                 break;
-            case KeyCode.DIGIT_3:
+            case KeyCode.KEY_C:
                 this.players.get(3).getComponent(Player).shot();
                 break;
-            case KeyCode.NUM_3:
+            case KeyCode.DIGIT_3:
                 this.players.get(3).getComponent(Player).cheatCoins();
                 break;
 
@@ -200,10 +208,10 @@ export default class Game extends Component {
             case KeyCode.KEY_F:
                 this.players.get(4).getComponent(Player).weaponRight();
                 break;
-            case KeyCode.DIGIT_4:
+            case KeyCode.KEY_V:
                 this.players.get(4).getComponent(Player).shot();
                 break;
-            case KeyCode.NUM_4:
+            case KeyCode.DIGIT_4:
                 this.players.get(4).getComponent(Player).cheatCoins();
                 break;
 
@@ -214,10 +222,10 @@ export default class Game extends Component {
             case KeyCode.KEY_G:
                 this.players.get(5).getComponent(Player).weaponRight();
                 break;
-            case KeyCode.DIGIT_5:
+            case KeyCode.KEY_B:
                 this.players.get(5).getComponent(Player).shot();
                 break;
-            case KeyCode.NUM_5:
+            case KeyCode.DIGIT_5:
                 this.players.get(5).getComponent(Player).cheatCoins();
                 break;
 
@@ -228,10 +236,10 @@ export default class Game extends Component {
             case KeyCode.KEY_H:
                 this.players.get(6).getComponent(Player).weaponRight();
                 break;
-            case KeyCode.DIGIT_6:
+            case KeyCode.KEY_N:
                 this.players.get(6).getComponent(Player).shot();
                 break;
-            case KeyCode.NUM_6:
+            case KeyCode.DIGIT_6:
                 this.players.get(6).getComponent(Player).cheatCoins();
                 break;
 
@@ -242,10 +250,10 @@ export default class Game extends Component {
             case KeyCode.KEY_J:
                 this.players.get(7).getComponent(Player).weaponRight();
                 break;
-            case KeyCode.DIGIT_7:
+            case KeyCode.KEY_M:
                 this.players.get(7).getComponent(Player).shot();
                 break;
-            case KeyCode.NUM_7:
+            case KeyCode.DIGIT_7:
                 this.players.get(7).getComponent(Player).cheatCoins();
                 break;
 
@@ -256,10 +264,10 @@ export default class Game extends Component {
             case KeyCode.KEY_K:
                 this.players.get(8).getComponent(Player).weaponRight();
                 break;
-            case KeyCode.DIGIT_8:
+            case KeyCode.COMMA:
                 this.players.get(8).getComponent(Player).shot();
                 break;
-            case KeyCode.NUM_8:
+            case KeyCode.DIGIT_8:
                 this.players.get(8).getComponent(Player).cheatCoins();
                 break;
 
@@ -270,10 +278,10 @@ export default class Game extends Component {
             case KeyCode.KEY_L:
                 this.players.get(9).getComponent(Player).weaponRight();
                 break;
-            case KeyCode.DIGIT_9:
+            case KeyCode.PERIOD:
                 this.players.get(9).getComponent(Player).shot();
                 break;
-            case KeyCode.NUM_9:
+            case KeyCode.DIGIT_9:
                 this.players.get(9).getComponent(Player).cheatCoins();
                 break;
 
@@ -284,10 +292,10 @@ export default class Game extends Component {
             case KeyCode.SEMICOLON:
                 this.players.get(10).getComponent(Player).weaponRight();
                 break;
-            case KeyCode.DIGIT_0:
+            case KeyCode.SLASH:
                 this.players.get(10).getComponent(Player).shot();
                 break;
-            case KeyCode.NUM_0:
+            case KeyCode.DIGIT_0:
                 this.players.get(10).getComponent(Player).cheatCoins();
                 break;
         }
@@ -307,104 +315,104 @@ export default class Game extends Component {
                 this.players.get(1).getComponent(Player).shot();
                 break;
 
-            // 玩家2
-            case KeyCode.KEY_W:
-                this.players.get(2).getComponent(Player).weaponLeft();
-                break;
-            case KeyCode.KEY_S:
-                this.players.get(2).getComponent(Player).weaponRight();
-                break;
-            case KeyCode.DIGIT_2:
-                this.players.get(2).getComponent(Player).shot();
-                break;
+           // 玩家2
+           case KeyCode.KEY_W:
+            this.players.get(2).getComponent(Player).weaponLeft();
+            break;
+        case KeyCode.KEY_S:
+            this.players.get(2).getComponent(Player).weaponRight();
+            break;
+        case KeyCode.KEY_X:
+            this.players.get(2).getComponent(Player).shot();
+            break;
 
-            // 玩家3
-            case KeyCode.KEY_E:
-                this.players.get(3).getComponent(Player).weaponLeft();
-                break;
-            case KeyCode.KEY_D:
-                this.players.get(3).getComponent(Player).weaponRight();
-                break;
-            case KeyCode.DIGIT_3:
-                this.players.get(3).getComponent(Player).shot();
-                break;
+        // 玩家3
+        case KeyCode.KEY_E:
+            this.players.get(3).getComponent(Player).weaponLeft();
+            break;
+        case KeyCode.KEY_D:
+            this.players.get(3).getComponent(Player).weaponRight();
+            break;
+        case KeyCode.KEY_C:
+            this.players.get(3).getComponent(Player).shot();
+            break;
 
-            // 玩家4
-            case KeyCode.KEY_R:
-                this.players.get(4).getComponent(Player).weaponLeft();
-                break;
-            case KeyCode.KEY_F:
-                this.players.get(4).getComponent(Player).weaponRight();
-                break;
-            case KeyCode.DIGIT_4:
-                this.players.get(4).getComponent(Player).shot();
-                break;
+        // 玩家4
+        case KeyCode.KEY_R:
+            this.players.get(4).getComponent(Player).weaponLeft();
+            break;
+        case KeyCode.KEY_F:
+            this.players.get(4).getComponent(Player).weaponRight();
+            break;
+        case KeyCode.KEY_V:
+            this.players.get(4).getComponent(Player).shot();
+            break;
 
-            // 玩家5
-            case KeyCode.KEY_T:
-                this.players.get(5).getComponent(Player).weaponLeft();
-                break;
-            case KeyCode.KEY_G:
-                this.players.get(5).getComponent(Player).weaponRight();
-                break;
-            case KeyCode.DIGIT_5:
-                this.players.get(5).getComponent(Player).shot();
-                break;
+        // 玩家5
+        case KeyCode.KEY_T:
+            this.players.get(5).getComponent(Player).weaponLeft();
+            break;
+        case KeyCode.KEY_G:
+            this.players.get(5).getComponent(Player).weaponRight();
+            break;
+        case KeyCode.KEY_B:
+            this.players.get(5).getComponent(Player).shot();
+            break;
 
-            // 玩家6
-            case KeyCode.KEY_Y:
-                this.players.get(6).getComponent(Player).weaponLeft();
-                break;
-            case KeyCode.KEY_H:
-                this.players.get(6).getComponent(Player).weaponRight();
-                break;
-            case KeyCode.DIGIT_6:
-                this.players.get(6).getComponent(Player).shot();
-                break;
+        // 玩家6
+        case KeyCode.KEY_Y:
+            this.players.get(6).getComponent(Player).weaponLeft();
+            break;
+        case KeyCode.KEY_H:
+            this.players.get(6).getComponent(Player).weaponRight();
+            break;
+        case KeyCode.KEY_N:
+            this.players.get(6).getComponent(Player).shot();
+            break;
 
-            // 玩家7
-            case KeyCode.KEY_U:
-                this.players.get(7).getComponent(Player).weaponLeft();
-                break;
-            case KeyCode.KEY_J:
-                this.players.get(7).getComponent(Player).weaponRight();
-                break;
-            case KeyCode.DIGIT_7:
-                this.players.get(7).getComponent(Player).shot();
-                break;
+        // 玩家7
+        case KeyCode.KEY_U:
+            this.players.get(7).getComponent(Player).weaponLeft();
+            break;
+        case KeyCode.KEY_J:
+            this.players.get(7).getComponent(Player).weaponRight();
+            break;
+        case KeyCode.KEY_M:
+            this.players.get(7).getComponent(Player).shot();
+            break;
 
-            // 玩家8
-            case KeyCode.KEY_I:
-                this.players.get(8).getComponent(Player).weaponLeft();
-                break;
-            case KeyCode.KEY_K:
-                this.players.get(8).getComponent(Player).weaponRight();
-                break;
-            case KeyCode.DIGIT_8:
-                this.players.get(8).getComponent(Player).shot();
-                break;
+        // 玩家8
+        case KeyCode.KEY_I:
+            this.players.get(8).getComponent(Player).weaponLeft();
+            break;
+        case KeyCode.KEY_K:
+            this.players.get(8).getComponent(Player).weaponRight();
+            break;
+        case KeyCode.COMMA:
+            this.players.get(8).getComponent(Player).shot();
+            break;
 
-            // 玩家9
-            case KeyCode.KEY_O:
-                this.players.get(9).getComponent(Player).weaponLeft();
-                break;
-            case KeyCode.KEY_L:
-                this.players.get(9).getComponent(Player).weaponRight();
-                break;
-            case KeyCode.DIGIT_9:
-                this.players.get(9).getComponent(Player).shot();
-                break;
+        // 玩家9
+        case KeyCode.KEY_O:
+            this.players.get(9).getComponent(Player).weaponLeft();
+            break;
+        case KeyCode.KEY_L:
+            this.players.get(9).getComponent(Player).weaponRight();
+            break;
+        case KeyCode.PERIOD:
+            this.players.get(9).getComponent(Player).shot();
+            break;
 
-            // 玩家10
-            case KeyCode.KEY_P:
-                this.players.get(10).getComponent(Player).weaponLeft();
-                break;
-            case KeyCode.SEMICOLON:
-                this.players.get(10).getComponent(Player).weaponRight();
-                break;
-            case KeyCode.DIGIT_0:
-                this.players.get(10).getComponent(Player).shot();
-                break
+        // 玩家10
+        case KeyCode.KEY_P:
+            this.players.get(10).getComponent(Player).weaponLeft();
+            break;
+        case KeyCode.SEMICOLON:
+            this.players.get(10).getComponent(Player).weaponRight();
+            break;
+        case KeyCode.SLASH:
+            this.players.get(10).getComponent(Player).shot();
+            break;
         }
     }
 
@@ -413,11 +421,12 @@ export default class Game extends Component {
     }
 
     public despawnFish(fish: Node) {
-        const self = this;
-        let callback = function () {
-            self.fishPool.put(fish);
-        }
-        this.scheduleOnce(callback);
+        // const self = this;
+        // let callback = function () {
+            
+            this.fishPool.put(fish);
+        // }
+        // this.scheduleOnce(callback);
     }
 
     public playRewardAni(pos: Vec3) {

@@ -20,6 +20,7 @@ export default class Fish extends Component {
     fishState: FishState = FishState.alive;
     // 保存上一次坐标,用于更新角度
     lastPosition: Vec3;
+    stopTimes: number;
     // 起始坐标
     startPosition: Vec3;
     // 种类
@@ -49,7 +50,8 @@ export default class Fish extends Component {
         this.bezierArray.push(this.bezier7);
         this.game = game;
         this.enabled = true;
-        this.node.parent = find('Canvas');
+        this.node.active = true;
+        this.node.parent = game.node;
         this.spawnFish();
     }
 
@@ -58,8 +60,7 @@ export default class Fish extends Component {
         if (collider) {
             collider.on(Contact2DType.BEGIN_CONTACT, this.onCollisionEnter, this);
         }
-        this.anim.play(this.fishType.name + '_run');
-        this.swimming(this.bezier);
+
     }
 
     private spawnFish() {
@@ -83,11 +84,11 @@ export default class Fish extends Component {
         // 掉落金币
         this.gold = this.fishType.gold;
         this.fishState = FishState.alive;
-        // 加到canvas节点下才可以设置zorder
-        // 默认zorder为0，bg设为-1，炮台设为1
-        
+
         this.lastPosition = this.node.getPosition();
         this.changeCollider();
+        this.anim.play(this.fishType.name + '_run');
+        this.swimming(this.bezier);
     }
 
     // 重新设置碰撞区域
@@ -99,24 +100,29 @@ export default class Fish extends Component {
 
     // 小鱼游泳，贝塞尔曲线实现
     private swimming(trace: Array<Vec3>) {
-        let speed = Math.random() * 10 + 10;
+        let duration = Math.random() * 10 + 10;
         const tempVec3 = v3();
-        this.tween = tween(this.node).to(speed, { position: trace[2] }, { onUpdate: (target, ratio) => {
-            Utils.bezierCurve(ratio, this.startPosition, trace[0], trace[1], trace[2], tempVec3);
-            this.node.setPosition(tempVec3);
-        }}).start();
-    }
-    
-    update(deltaTime: number) {
-        this.updateDegree();
+        this.tween = tween(this.node).to(duration, { position: trace[2] }, {
+            onUpdate: (target, ratio) => {
+                Utils.bezierCurve3(ratio, this.startPosition, trace[0], trace[1], trace[2], tempVec3);
+                this.node.setPosition(tempVec3.clone());
+            }
+        }).start();
     }
 
-    private updateDegree() {
+    protected update(dt: number): void {
         let currentPos = this.node.getPosition();
-        // 如果位移不超过1，不改变角度
-        if (this.lastPosition.clone().subtract(currentPos).length() < 1) {
+        // 如果位移不超过1 直接销毁
+        let ds = this.lastPosition.clone().subtract(currentPos).length();
+        if (this.stopTimes >= 60) {
+            this.despawnFish();
             return;
         }
+        if (ds < 1) {
+            this.stopTimes++;
+            return;
+        }
+        this.stopTimes = 0;
         // 移动的方向向量
         // 求角度
         let dir = currentPos.clone().subtract(this.lastPosition);
@@ -127,17 +133,15 @@ export default class Fish extends Component {
         this.lastPosition = currentPos;
         this.beAttack();
     }
-    
+
     private beAttack() {
         if (this.isDie()) {
             // 停止贝塞尔曲线动作
             this.tween.stop();
             const self = this;
-            let dieCallback = function() {
+            let dieCallback = function () {
                 // 死亡动画播放完回收鱼
-                log('fish die');
-                self.tween.stop();
-                self.game.despawnFish(this.node);
+                this.despawnFish();
             }
 
             let collider = this.node.getComponent(BoxCollider2D);
@@ -159,20 +163,24 @@ export default class Fish extends Component {
             }
         } else {
             // 跑出屏幕的鱼自动回收
-            this.despawnFish();
+            if (this.node.getPosition().x > 0
+                || this.node.getPosition().x < -1000
+                || this.node.getPosition().y > 600
+                || this.node.getPosition().y < -900
+            ) {
+                this.despawnFish();
+            }
         }
     }
 
     private despawnFish() {
-        if (this.node.getPosition().x > 900 
-        || this.node.getPosition().x < -1000
-        || this.node.getPosition().y > 600
-        || this.node.getPosition().y < -900
-        ) {
-            // 可以不移除节点，停止所有动作也可以完成
-            this.tween.stop();
-            this.game.despawnFish(this.node);
-        }
+
+        // 可以不移除节点，停止所有动作也可以完成
+
+        this.tween.stop();
+        this.game.despawnFish(this.node);
+        log('despawn one Fish.');
+
     }
 
     // 碰撞检测，鱼被打死的逻辑
@@ -210,32 +218,32 @@ export default class Fish extends Component {
 // import Bullet from './Bullet';
 // import Fluxay from './FluxayFrag';
 // const { ccclass, property } = cc._decorator;
-// 
-// 
-// 
+//
+//
+//
 // @ccclass
 // export default class Fish extends cc.Component {
-// 
+//
 //     // animation 这个属性声明类型，为了在编辑器面板显示类型
 //     @property(cc.Animation)
 //     anim: cc.Animation = null;//显示申明类型，才能有代码提示
-// 
+//
 //     // Health point 血量 默认10
 //     hp: number = 10;
 //     // gold 打死掉落金币数量
 //     gold: number = 2;
-// 
+//
 //     // fish state 鱼的生命状态，默认都是活的
 //     fishState: FishState = FishState.alive;
-// 
+//
 //     // 保存上一次坐标,用于更新角度
 //     lastPosition: cc.Vec3;
-// 
+//
 //     fishType: FishType;
-// 
+//
 //     //暂存game实例
 //     game: Game;
-// 
+//
 //     bezier1: cc.Vec3[] = [cc.v3(50, -100), cc.v3(300, -400), cc.v3(1800, -650)];
 //     bezier2: cc.Vec3[] = [cc.v3(100, -200), cc.v3(400, -300), cc.v3(1800, -600)];
 //     bezier3: cc.Vec3[] = [cc.v3(150, -300), cc.v3(600, -400), cc.v3(1800, -500)];
@@ -244,7 +252,7 @@ export default class Fish extends Component {
 //     bezier6: cc.Vec3[] = [cc.v3(100, 100), cc.v3(350, 400), cc.v3(1800, 500)];
 //     bezier7: cc.Vec3[] = [cc.v3(100, 2), cc.v3(350, -2), cc.v3(1800, 0)];
 //     bezierArray = new Array();
-// 
+//
 //     init(game: Game) {
 //         this.bezierArray.push(this.bezier1);
 //         this.bezierArray.push(this.bezier2);
@@ -257,7 +265,7 @@ export default class Fish extends Component {
 //         this.enabled = true;
 //         this.spawnFish(game);
 //     }
-// 
+//
 //     // spawnFish(fishType:FishType) {
 //     spawnFish(game: Game) {
 //         let fishStr = game.fishTypes.length;
@@ -285,15 +293,15 @@ export default class Fish extends Component {
 //         this.lastPosition = this.node.getPosition();
 //         this.changeCollider();
 //         this.swimming(bezier);
-// 
+//
 //     }
-// 
+//
 //     // 重新设置碰撞区域
 //     changeCollider() {
 //         let collider = this.node.getComponent(cc.BoxCollider);
 //         collider.size = this.node.getContentSize();
 //     }
-// 
+//
 //     // 小鱼游泳，贝塞尔曲线实现
 //     swimming(trace: any) {
 //         let windowSize = cc.winSize;
@@ -302,15 +310,15 @@ export default class Fish extends Component {
 //         let bezerby = cc.bezierBy(speed, trace);
 //         this.node.runAction(bezerby);
 //     }
-// 
+//
 //     onLoad() {
 //     }
-// 
+//
 //     update(dt) {
 //         // this.updateDegree();
 //         this.updateDegree();
 //     }
-// 
+//
 //     updateDegree() {
 //         let currentPos = this.node.getPosition();
 //         // 如果位移不超过1，不改变角度
@@ -327,7 +335,7 @@ export default class Fish extends Component {
 //         this.lastPosition = currentPos;
 //         this.beAttack();
 //     }
-//     
+//
 //     beAttack() {
 //         if (this.isDie()) {
 //             // 停止贝塞尔曲线动作
@@ -345,14 +353,14 @@ export default class Fish extends Component {
 //             this.despawnFish();
 //         }
 //     }
-// 
+//
 //     dieCallback() {
 //         // 死亡动画播放完回收鱼
 //         cc.log('fish die');
 //         this.node.stopAllActions();
 //         this.game.despawnFish(this.node);
 //     }
-// 
+//
 //     despawnFish() {
 //         if (this.node.x > 900
 //             || this.node.x < -1000
@@ -365,7 +373,7 @@ export default class Fish extends Component {
 //             this.game.despawnFish(this.node);
 //         }
 //     }
-// 
+//
 //     // 碰撞检测，鱼被打死的逻辑
 //     isDie(): boolean {
 //         if (this.fishState == FishState.dead) {
@@ -373,7 +381,7 @@ export default class Fish extends Component {
 //         }
 //         return false;
 //     }
-// 
+//
 //     onCollisionEnter(other, self) {
 //         let bullet = <Bullet>other.node.getComponent(Bullet);
 //         this.hp -= bullet.getAttackValue();
@@ -381,5 +389,5 @@ export default class Fish extends Component {
 //             this.fishState = FishState.dead;
 //         }
 //     }
-// 
+//
 // }

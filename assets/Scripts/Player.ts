@@ -111,7 +111,6 @@ export class Player extends Component {
             self.anim.active = false;
         };
         animation.on(Animation.EventType.FINISHED, finishCallback, this);
-        // animation.on(Animation.EventType.FINISHED, dieCallback, this);
     }
 }
 
