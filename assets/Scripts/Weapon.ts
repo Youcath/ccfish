@@ -1,4 +1,4 @@
-import { _decorator, Component, Animation } from 'cc';
+import { _decorator, Component, Animation, AudioSource } from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('Weapon')
@@ -7,9 +7,11 @@ export default class Weapon extends Component {
     anim: Animation | null = null;
     curLevel: number;
     total: number;
+    audio: AudioSource;
 
     init() {
         this.curLevel = 1;
+        this.audio = this.node.getComponent(AudioSource);
         this.total = this.anim.clips.length;
     }
     plus() {
@@ -18,6 +20,7 @@ export default class Weapon extends Component {
         } else {
             this.curLevel++;
         }
+        this.audio.play();
         this.anim.play('weapon_level_' + this.curLevel);
     }
     reduce() {
@@ -26,6 +29,7 @@ export default class Weapon extends Component {
         } else {
             this.curLevel--;
         }
+        this.audio.play();
         this.anim.play('weapon_level_' + this.curLevel);
     }
 

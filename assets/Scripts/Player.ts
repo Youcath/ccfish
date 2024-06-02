@@ -1,4 +1,4 @@
-import { _decorator, Animation, Component, find, instantiate, Node, NodePool,  UITransform,  v3, Vec2, Vec3 } from 'cc';
+import { _decorator, Animation, Component, find, instantiate, Node, NodePool,  AudioSource,  v3, Vec2, Vec3 } from 'cc';
 import Weapon from './Weapon';
 import CoinController from './CoinController';
 import { PlayerNodeConfig } from './PlayerInfo';
@@ -20,6 +20,7 @@ export class Player extends Component {
     bulletPool: NodePool;
     // 网对象池
     netsPool: NodePool;
+    audio: AudioSource;
 
     private bulletInterval = 0.4;
     private touchShotTime = 0;
@@ -36,6 +37,7 @@ export class Player extends Component {
         this.coinController.getComponent(CoinController).init();
         this.weaponNode.getComponent(Weapon).init();
         this.coinController.getComponent(CoinController).currentValue = 200;
+        this.audio = this.node.getComponent(AudioSource);
 
         this.node.parent = find('Canvas');
         this.node.setSiblingIndex(999);
@@ -61,6 +63,7 @@ export class Player extends Component {
             bullet.enabled = true;
             bullet.shot(this.game, level, this);
         }
+        this.audio.play();
         this.weaponNode.getComponent(Animation).play('weapon_level_' + this.weaponNode.getComponent(Weapon).curLevel);
         this.touchShotTime = now;
     }
@@ -102,15 +105,15 @@ export class Player extends Component {
 
     gainCoins(coinPos: Vec3, value: number) {
         this.coinController.getComponent(CoinController).gainCoins(coinPos, value);
-        this.anim.active = true;
-        let animation = this.anim.getComponent(Animation);
-        animation.crossFade('gold_down', 1);
+        // this.anim.active = true;
+        // let animation = this.anim.getComponent(Animation);
+        // animation.crossFade('gold_down', 1);
 
-        const self = this;
-        let finishCallback = function() {
-            self.anim.active = false;
-        };
-        animation.on(Animation.EventType.FINISHED, finishCallback, this);
+        // const self = this;
+        // let finishCallback = function() {
+        //     self.anim.active = false;
+        // };
+        // animation.on(Animation.EventType.FINISHED, finishCallback, this);
     }
 }
 

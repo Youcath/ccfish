@@ -1,4 +1,4 @@
-import { _decorator, Component, Animation, Vec3, Director, Tween, TweenAction, math } from 'cc';
+import { _decorator, Component, Animation, Vec3, Director, Tween, TweenAction, math, find, UITransform } from 'cc';
 const { ccclass, property } = _decorator;
 
 import CoinController from './CoinController'
@@ -13,14 +13,15 @@ export default class Coins extends Component {
         this.anim.play('gold_down');
     }
     goDown(pos: Vec3, toPos?: Vec3) {
-        this.node.parent = Director.instance.getScene()
-        this.node.position = pos;
+        this.node.parent = find('Canvas');
+        this.node.position = this.node.parent.getComponent(UITransform).convertToNodeSpaceAR(pos);
+        let to = this.node.parent.getComponent(UITransform).convertToNodeSpaceAR(toPos);
         let tween = new Tween(this.node);
         const self = this;
         let callback = function() {
             self.cointroller.despawnCoins(self.node);
         }
-        tween.to(0.8, {scale: new math.Vec3(0.5, 0.5, 0.5), position: toPos})
+        tween.to(0.8, {scale: new math.Vec3(0.5, 0.5, 0.5), position: to})
         .call(callback).start();
     }
     

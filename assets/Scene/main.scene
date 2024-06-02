@@ -181,7 +181,7 @@
     "_priority": 0,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 435.5741127348643,
+    "_orthoHeight": 360,
     "_near": 0,
     "_far": 1000,
     "_color": {
@@ -274,7 +274,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 1280,
-      "height": 960
+      "height": 720
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -304,7 +304,7 @@
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "b1e97bc9-c0f2-4f32-bddf-988b9e8e37a6@f9941",
+      "__uuid__": "225c0364-d653-476a-b455-d8fdc578a17a@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 0,

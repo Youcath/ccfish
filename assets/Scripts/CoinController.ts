@@ -1,4 +1,4 @@
-import { _decorator, Component, Prefab, Sprite, SpriteAtlas, NodePool, Node, Vec3, instantiate, UITransform } from 'cc';
+import { _decorator, Component, Prefab, Sprite, SpriteAtlas, NodePool, Node, Vec3, instantiate, UITransform, find, AudioSource, resources, AudioClip } from 'cc';
 const { ccclass, property } = _decorator;
 
 import Coins from './Coins';
@@ -28,12 +28,19 @@ export default class CoinController extends Component {
     currentValue: number = 0;
     @property
     toValue: number = 0;
+    @property(AudioClip)
+    gotSound1: AudioClip;
+    @property(AudioClip)
+    gotSound2: AudioClip;
+    @property(AudioClip)
+    gotSound3: AudioClip;
     coinUpPool: NodePool;
     coinsPool: NodePool;
     //    // +金币数字
     coin_up: Node;
     //    // 获得金币
     oneCoin: Node;
+    audio: AudioSource;
     //    // LIFE-CYCLE CALLBACKS:
     onLoad() {
 
@@ -42,6 +49,7 @@ export default class CoinController extends Component {
         this.coinUpPool = new NodePool();
         this.coinsPool = new NodePool();
         this.setValue(this.currentValue);
+        this.audio = this.node.getComponent(AudioSource);
     }
     //    // 数字固定长度lenght，不够的补0
     prefixInteger(num: number, length: number) {
@@ -94,15 +102,29 @@ export default class CoinController extends Component {
         }
         this.oneCoin.getComponent(Coins).init(this);
         // 转为世界坐标
-        let toPos = this.node.getComponent(UITransform).convertToWorldSpaceAR(this.number3.node.position);
+        let toPos = this.number3.node.parent.getComponent(UITransform).convertToWorldSpaceAR(this.number3.node.getPosition());
         this.oneCoin.getComponent(Coins).goDown(coinPos, toPos);
         this.addCoins(coinnum);
+
+        if (coinnum <= 10) {
+            this.playSound(this.gotSound1);
+        } else if (coinnum < 50) {
+            this.playSound(this.gotSound2);
+        } else {
+            this.playSound(this.gotSound3);
+        }
     }
     despawnCoins(coin: Node) {
         this.coinsPool.put(coin);
     }
     despawnCoinup(nup: Node) {
         this.coinUpPool.put(nup);
+    }
+
+    private playSound(sound: AudioClip) {
+        this.audio.stop();
+        this.audio.clip = sound;
+        this.audio.play();
     }
 }
 
@@ -113,69 +135,69 @@ export default class CoinController extends Component {
 // import Coins from './Coins';
 // import NumUp from './NumUp';
 // const { ccclass, property } = cc._decorator;
-// 
+//
 // @ccclass
 // export default class CoinController extends cc.Component {
-// 
+//
 //     @property(cc.Prefab)
 //     coinPlusPrefab: cc.Prefab = null;
-// 
+//
 //     @property(cc.Prefab)
 //     coinsPrefab: cc.Prefab = null;
-// 
+//
 //     @property(cc.Sprite)
 //     number1: cc.Sprite = null;
-// 
+//
 //     @property(cc.Sprite)
 //     number2: cc.Sprite = null;
-// 
+//
 //     @property(cc.Sprite)
 //     number3: cc.Sprite = null;
-// 
+//
 //     @property(cc.Sprite)
 //     number4: cc.Sprite = null;
-// 
+//
 //     @property(cc.Sprite)
 //     number5: cc.Sprite = null;
-// 
+//
 //     @property(cc.Sprite)
 //     number6: cc.Sprite = null;
-// 
+//
 //     @property(cc.SpriteAtlas)
 //     timerAtlas: cc.SpriteAtlas = null;
-// 
+//
 //     @property
 //     currentValue: number = 0;
-// 
+//
 //     @property
 //     toValue: number = 0;
-// 
+//
 //     coinUpPool: cc.NodePool;
 //     coinsPool: cc.NodePool;
-// 
+//
 //     // +金币数字
 //     coin_up: cc.Node;
-// 
+//
 //     // 获得金币
 //     oneCoin: cc.Node;
-// 
+//
 //     // LIFE-CYCLE CALLBACKS:
-// 
+//
 //     onLoad() {
-// 
+//
 //     }
-// 
+//
 //     init() {
 //         this.coinUpPool = new cc.NodePool();
 //         this.coinsPool = new cc.NodePool();
 //         this.setValue(this.currentValue);
 //     }
-// 
+//
 //     // 数字固定长度lenght，不够的补0
 //     prefixInteger(num: number, length: number) {
 //         return (Array(length).join('0') + num).slice(-length);
 //     }
-// 
+//
 //     setValue(value: number) {
 //         let str = this.prefixInteger(value, 6);
 //         let nums = str.split('');
@@ -186,23 +208,23 @@ export default class CoinController extends Component {
 //         this.number5.spriteFrame = this.timerAtlas.getSpriteFrame(nums[4].toString());
 //         this.number6.spriteFrame = this.timerAtlas.getSpriteFrame(nums[5].toString());
 //     }
-// 
+//
 //     // 获取金币加数
 //     addCoins(value: number) {
 //         this.currentValue += value;
 //         this.setValue(this.currentValue);
 //     }
-// 
+//
 //     // 发射子弹消耗金币
 //     reduceCoin(level: number): boolean{
 //         if (this.currentValue >= level) {
 //             this.setValue(this.currentValue-=level);
 //             return true;
-//         } 
-//         
+//         }
+//
 //         return false;
 //     }
-// 
+//
 //     gainCoins(coinPos: cc.Vec2, coinnum: number) {
 //         // 上升的数字对象池
 //         if (this.coinUpPool.size() > 0) {
@@ -210,26 +232,26 @@ export default class CoinController extends Component {
 //         } else {
 //             this.coin_up = cc.instantiate(this.coinPlusPrefab);
 //         }
-// 
+//
 //         this.coin_up.getComponent(NumUp).init(coinPos, coinnum, this);
-// 
+//
 //         // 金币对象池
 //         if (this.coinsPool.size() > 0) {
 //             this.oneCoin = this.coinsPool.get();
 //         } else {
 //             this.oneCoin = cc.instantiate(this.coinsPrefab);
-//         }        
+//         }
 //         this.oneCoin.getComponent(Coins).init(this);
 //         // 转为世界坐标
 //         let toPos = this.node.convertToWorldSpaceAR(this.number3.node.position);
 //         this.oneCoin.getComponent(Coins).goDown(coinPos, toPos);
 //         this.addCoins(coinnum);
 //     }
-// 
+//
 //     despawnCoins(coin:cc.Node) {
 //         this.coinsPool.put(coin);
 //     }
-// 
+//
 //     despawnCoinup(nup:cc.Node) {
 //         this.coinUpPool.put(nup);
 //     }
