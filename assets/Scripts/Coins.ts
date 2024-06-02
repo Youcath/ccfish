@@ -21,7 +21,7 @@ export default class Coins extends Component {
         let callback = function() {
             self.cointroller.despawnCoins(self.node);
         }
-        tween.to(0.8, {scale: new math.Vec3(0.5, 0.5, 0.5), position: to})
+        tween.to(1.5, {scale: new math.Vec3(0.5, 0.5, 0.5), position: to})
         .call(callback).start();
     }
     

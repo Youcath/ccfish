@@ -1,4 +1,4 @@
-import { _decorator, Component, NodePool, Prefab, Node, SpriteAtlas, AudioClip, Vec3, instantiate, find, UITransform, error, resources, EventTouch, v3, Input, EventKeyboard, KeyCode, input, Animation, log } from 'cc';
+import { _decorator, Component, NodePool, Prefab, Node, SpriteAtlas, AudioClip, Vec3, instantiate, find, UITransform, error, resources, EventTouch, v3, Input, EventKeyboard, KeyCode, input, Animation, log, Camera, tween, Tween } from 'cc';
 const { ccclass, property } = _decorator;
 
 import { FishType } from './FishType';
@@ -27,6 +27,7 @@ export default class Game extends Component {
     playerConfig: Map<number, Array<PlayerNodeConfig>>;
     players: Map<number, Node>;
     oneFish: Node;
+    camera: Node;
 
     playerCount = 10;
 
@@ -46,13 +47,7 @@ export default class Game extends Component {
         // 播放背景音乐
         AudioMgr.inst.play(this.bgm);
 
-        this.schedule(this.printNodeNumber, 1);
-    }
-
-    private printNodeNumber() {
-        let count = this.node.children.length;
-        log('node number: ' + count);
-        log('pool size: ' + this.fishPool.size());
+        this.camera = this.node.getChildByName('Camera');
     }
 
     private initPools() {
@@ -436,6 +431,11 @@ export default class Game extends Component {
         };
         anim.play();
         anim.on(Animation.EventType.FINISHED, finishCallback, this);
+        tween(this.camera.getComponent(Camera)).to(1.6, { orthoHeight: 200 }).to(1, { orthoHeight: 360 }).union()
+            .start();
+        tween(this.camera).to(1.6, { position: pos }).to(1, { position: v3() })
+            .start();
+
     }
 
     // gameOver() {

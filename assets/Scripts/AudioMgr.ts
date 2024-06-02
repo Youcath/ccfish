@@ -40,6 +40,7 @@ export class AudioMgr {
         if (sound instanceof AudioClip) {
             this._audioSource.stop();
             this._audioSource.clip = sound;
+            this._audioSource.loop = true;
             this._audioSource.play();
             this.audioSource.volume = volume;
         }
@@ -51,6 +52,7 @@ export class AudioMgr {
                 else {
                     this._audioSource.stop();
                     this._audioSource.clip = clip;
+                    this._audioSource.loop = true;
                     this._audioSource.play();
                     this.audioSource.volume = volume;
                 }
