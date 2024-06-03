@@ -1,4 +1,4 @@
-import { _decorator, Component, NodePool, Prefab, Node, SpriteAtlas, AudioClip, Vec3, instantiate, find, UITransform, error, resources, EventTouch, v3, Input, EventKeyboard, KeyCode, input, Animation, log, Camera, tween, Tween } from 'cc';
+import { _decorator, Component, NodePool, Prefab, Node, SpriteAtlas, AudioClip, Vec3, instantiate, find, UITransform, error, resources, EventTouch, v3, Input, EventKeyboard, KeyCode, input, Animation, tween, view, ResolutionPolicy } from 'cc';
 const { ccclass, property } = _decorator;
 
 import { FishType } from './FishType';
@@ -41,6 +41,8 @@ export default class Game extends Component {
         this.loadPlayer();
 
         this.initInput();
+
+        view.setDesignResolutionSize(1280, 720, ResolutionPolicy.EXACT_FIT);
     }
 
     start() {
@@ -431,11 +433,18 @@ export default class Game extends Component {
         };
         anim.play();
         anim.on(Animation.EventType.FINISHED, finishCallback, this);
-        tween(this.camera.getComponent(Camera)).to(1.6, { orthoHeight: 200 }).to(1, { orthoHeight: 360 }).union()
-            .start();
-        tween(this.camera).to(1.6, { position: pos }).to(1, { position: v3() })
-            .start();
 
+        //震动方向为向量（3， 10）
+        tween(this.camera).by(0.8, { position: v3(3, 10) }, {
+            easing: this.easing
+        }).start();
+
+    }
+
+    // x ∈ （0，1） 
+    easing(x: number): number {
+        // 震动插值函数，震动4个周期，振幅逐渐趋于0
+        return (1 - x) * Math.sin(x * 8 * Math.PI);
     }
 
     // gameOver() {
