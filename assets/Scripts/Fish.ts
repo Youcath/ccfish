@@ -122,12 +122,16 @@ export default class Fish extends Component {
         if (this.isDie()) {
             // 停止贝塞尔曲线动作
             this.tween.stop();
+            // 只有鲨鱼才播放奖励动画
+            if (this.fishType.name.includes('shayu')) {
+                this.game.showBomb(this.node.position);
+                this.node.setSiblingIndex(999);
+            }
             const self = this;
             let dieCallback = function () {
                 // 死亡动画播放完回收鱼
                 this.despawnFish();
             }
-
             let collider = this.node.getComponent(BoxCollider2D);
             collider.size = size(0, 0);
             //播放死亡动画
@@ -140,10 +144,6 @@ export default class Fish extends Component {
             if (this.gold > 0) {
                 this.game.gainCoins(fp, this.gold, this.killerIndex);
                 this.gold = 0;
-            }
-            // 只有鲨鱼才播放奖励动画
-            if (this.fishType.name.includes('shayu')) {
-                this.game.playRewardAni(this.node.position);
             }
         } else {
             // // 跑出屏幕的鱼自动回收
@@ -158,13 +158,11 @@ export default class Fish extends Component {
     }
 
     private despawnFish() {
-
         // 可以不移除节点，停止所有动作也可以完成
         this.node.active = false;
         this.tween.stop();
         this.game.despawnFish(this.node);
         log('despawn one Fish.');
-
     }
 
     // 碰撞检测，鱼被打死的逻辑

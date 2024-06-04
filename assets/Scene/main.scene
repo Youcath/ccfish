@@ -10273,7 +10273,7 @@
     "_string": "调试",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 20,
+    "_actualFontSize": 22.944444444444443,
     "_fontSize": 20,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
@@ -10541,6 +10541,18 @@
       "__uuid__": "82dfd553-ef79-44b8-8061-71a0b0b14784",
       "__expectedType__": "cc.Prefab"
     },
+    "playerPrefab": {
+      "__uuid__": "b9c4e8ac-0a96-480c-ad1a-f63cb70b64ef",
+      "__expectedType__": "cc.Prefab"
+    },
+    "bombPrefab": {
+      "__uuid__": "d02eccfe-28c8-412f-9db6-4709dedba0a8",
+      "__expectedType__": "cc.Prefab"
+    },
+    "maskPrefab": {
+      "__uuid__": "05771c68-a21e-470c-8893-cc0033833bcf",
+      "__expectedType__": "cc.Prefab"
+    },
     "spAtlas": {
       "__uuid__": "86fe4526-9483-4c85-b7c9-b3a4ec696d58",
       "__expectedType__": "cc.SpriteAtlas"
@@ -10548,10 +10560,6 @@
     "bgm": {
       "__uuid__": "f9169a66-6ed8-4787-9dc4-10cd0255e51c",
       "__expectedType__": "cc.AudioClip"
-    },
-    "playerPrefab": {
-      "__uuid__": "b9c4e8ac-0a96-480c-ad1a-f63cb70b64ef",
-      "__expectedType__": "cc.Prefab"
     },
     "_id": "58Z3InTPBBqLVKcq0Uv8Jm"
   },

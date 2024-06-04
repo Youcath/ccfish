@@ -1,4 +1,4 @@
-import { _decorator, Component, NodePool, Prefab, Node, SpriteAtlas, AudioClip, Vec3, instantiate, find, UITransform, error, resources, EventTouch, v3, Input, EventKeyboard, KeyCode, input, Animation, tween, view, ResolutionPolicy, Camera } from 'cc';
+import { _decorator, Component, NodePool, Prefab, Node, SpriteAtlas, AudioClip, Vec3, instantiate, find, UITransform, error, resources, EventTouch, v3, Input, EventKeyboard, KeyCode, input, Animation, tween, view, Mask, Camera } from 'cc';
 const { ccclass, property } = _decorator;
 
 import { FishType } from './FishType';
@@ -9,20 +9,27 @@ import { AudioMgr } from './AudioMgr';
 import { PlayerInfo, PlayerNodeConfig } from './PlayerInfo';
 import { Player } from './Player';
 import Weapon from './Weapon';
+import { Bomb } from './Bomb';
+import { BombMask } from './BombMask';
 
 @ccclass('Game')
 export default class Game extends Component {
     @property(Prefab) fishPrefab: Prefab | null = null;
     @property(Prefab) bulletPrefab: Prefab | null = null;
     @property(Prefab) netPrefab: Prefab | null = null;
+    @property(Prefab) playerPrefab: Prefab | null = null;
+    @property(Prefab) bombPrefab: Prefab | null = null;
+    @property(Prefab) maskPrefab: Prefab | null = null;
     @property(SpriteAtlas) spAtlas: SpriteAtlas | null = null;
     @property(AudioClip) bgm: AudioClip | null = null;
 
-    @property(Prefab) playerPrefab: Prefab | null = null;
 
     //鱼对象池
     fishPool: NodePool;
-
+    // 爆炸对象池
+    bombPool: NodePool;
+    // 蒙层
+    mask: Node;
     fishTypes: FishType[];
     playerInfo: PlayerInfo[];
     playerConfig: Map<number, Array<PlayerNodeConfig>>;
@@ -45,7 +52,7 @@ export default class Game extends Component {
 
         this.initInput();
 
-        view.setDesignResolutionSize(1280, 720, ResolutionPolicy.EXACT_FIT);
+        // view.setDesignResolutionSize(1280, 720, ResolutionPolicy.EXACT_FIT);
     }
 
     start() {
@@ -57,12 +64,15 @@ export default class Game extends Component {
     }
 
     private initPools() {
+        // 鱼
         this.fishPool = new NodePool("Fish");
         let initCount = 10;
         for (let i = 0; i < initCount; ++i) {
             let fishPre = instantiate(this.fishPrefab);
             this.fishPool.put(fishPre);
         }
+        // 爆炸
+        this.bombPool = new NodePool("Bomb");
     }
 
     private loadFish() {
@@ -452,38 +462,39 @@ export default class Game extends Component {
     }
 
     public despawnFish(fish: Node) {
-
         this.fishPool.put(fish);
     }
 
-    public playRewardAni(pos: Vec3) {
-        const bomb = find('Canvas').getChildByName('bomb');
-        bomb.setPosition(pos);
-        bomb.active = true;
-        const anim = bomb.getComponent(Animation);
-        const self = this;
-        let finishCallback = function () {
-            bomb.active = false;
-        };
-        anim.play();
-        anim.on(Animation.EventType.FINISHED, finishCallback, this);
+    public showBomb(pos: Vec3) {
+        // 蒙层
+        if (this.mask == null) {
+            this.mask = instantiate(this.maskPrefab);
+            this.mask.getComponent(BombMask).init();
+        }
+        const mask = this.mask.getComponent(BombMask);
+        mask.appear();        
 
-        //震动方向为向量（3， 10）
+        // 爆炸
+        let bomb: Node | null = null;
+        if (this.bombPool.size() > 0) {
+            bomb = this.bombPool.get(this);
+        } else {
+            bomb = instantiate(this.bombPrefab);
+        }
+        bomb.getComponent(Bomb).init(pos, () => {
+            mask.disappear();
+        });
+
+        // 震动方向为向量（3， 10）
         tween(this.camera).by(1.2, { position: v3(2 * Math.random() + 1, 5 * Math.random() + 5) }, {
-            easing: this.easing
+            easing: Utils.easing
         }).start();
         let camera = this.camera.getComponent(Camera);
         if (camera) {
             tween(camera).by(1.5, { orthoHeight: 3 * Math.random() + 2 }, {
-                easing: this.easing
+                easing: Utils.easing
             }).start();
         }
-    }
-
-    // x ∈ （0，1） 
-    easing(x: number): number {
-        // 震动插值函数，震动4个周期，振幅逐渐趋于0
-        return (1 - x) * Math.sin(x * 8 * Math.PI);
     }
 
     // gameOver() {

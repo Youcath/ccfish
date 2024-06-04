@@ -5,8 +5,8 @@ import { Player } from './Player';
 
 @ccclass('Net')
 export default class Net extends Component {
-    @property(Animation)
-    anim: Animation | null = null;
+    @property(Animation) anim: Animation | null = null;
+    
     game: Player;
     private attack = 1;
     bulletLeve: number = 1;

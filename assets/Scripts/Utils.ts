@@ -68,5 +68,11 @@ export class Utils {
 
         return v3(x, y);
     }
+
+    // x ∈ （0，1） 
+    static easing(x: number): number {
+        // 震动插值函数，震动4个周期，振幅逐渐趋于0
+        return (1 - x) * Math.sin(x * 8 * Math.PI);
+    }
 }
 
