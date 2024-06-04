@@ -1,4 +1,4 @@
-import { _decorator, Component, NodePool, Prefab, Node, SpriteAtlas, AudioClip, Vec3, instantiate, find, UITransform, error, resources, EventTouch, v3, Input, EventKeyboard, KeyCode, input, Animation, tween, view, ResolutionPolicy } from 'cc';
+import { _decorator, Component, NodePool, Prefab, Node, SpriteAtlas, AudioClip, Vec3, instantiate, find, UITransform, error, resources, EventTouch, v3, Input, EventKeyboard, KeyCode, input, Animation, tween, view, ResolutionPolicy, Camera } from 'cc';
 const { ccclass, property } = _decorator;
 
 import { FishType } from './FishType';
@@ -8,6 +8,7 @@ import { Utils } from './Utils';
 import { AudioMgr } from './AudioMgr';
 import { PlayerInfo, PlayerNodeConfig } from './PlayerInfo';
 import { Player } from './Player';
+import Weapon from './Weapon';
 
 @ccclass('Game')
 export default class Game extends Component {
@@ -28,6 +29,8 @@ export default class Game extends Component {
     players: Map<number, Node>;
     oneFish: Node;
     camera: Node;
+
+    debugLayout: Node;
 
     playerCount = 10;
 
@@ -50,6 +53,7 @@ export default class Game extends Component {
         AudioMgr.inst.play(this.bgm);
 
         this.camera = this.node.getChildByName('Camera');
+        this.debugLayout = this.node.getChildByName('DebugLayout');
     }
 
     private initPools() {
@@ -151,6 +155,36 @@ export default class Game extends Component {
             v.getComponent(Player).shot();
         });
 
+    }
+
+    debugButton(event: Event) {
+        if (this.debugLayout) {
+            if (this.debugLayout.active) {
+                this.debugLayout.active = false;
+            } else {
+                this.debugLayout.active = true;
+            }
+        }
+    }
+
+    switchButtonAll(event: Event, customEventData: number) {
+        for (let i = 1; i <= 10; i++) {
+            this.switchButton(event, i + '');
+        }
+    }
+
+    switchButton(event: Event, customEventData: string) {
+        this.players.get(Number.parseInt(customEventData)).getComponent(Player).weaponNode.getComponent(Weapon).plus();
+    }
+
+    cheatButtonAll(event: Event, customEventData: number) {
+        for (let i = 1; i <= 10; i++) {
+            this.cheatButton(event, i + '');
+        }
+    }
+
+    cheatButton(event: Event, customEventData: string) {
+        this.players.get(Number.parseInt(customEventData)).getComponent(Player).cheatCoins();
     }
 
     private onKeyDown(event: EventKeyboard) {
@@ -435,10 +469,15 @@ export default class Game extends Component {
         anim.on(Animation.EventType.FINISHED, finishCallback, this);
 
         //震动方向为向量（3， 10）
-        tween(this.camera).by(0.8, { position: v3(3, 10) }, {
+        tween(this.camera).by(1.2, { position: v3(2 * Math.random() + 1, 5 * Math.random() + 5) }, {
             easing: this.easing
         }).start();
-
+        let camera = this.camera.getComponent(Camera);
+        if (camera) {
+            tween(camera).by(1.5, { orthoHeight: 3 * Math.random() + 2 }, {
+                easing: this.easing
+            }).start();
+        }
     }
 
     // x ∈ （0，1） 

@@ -16,7 +16,7 @@ export default class Weapon extends Component {
     }
     plus() {
         if (this.curLevel + 1 > this.total) {
-            this.curLevel = this.total;
+            this.curLevel = 1;
         } else {
             this.curLevel++;
         }
