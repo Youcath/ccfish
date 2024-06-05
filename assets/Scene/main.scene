@@ -102,7 +102,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 640,
-      "y": 360.00000000000006,
+      "y": 359.99999999999994,
       "z": 0
     },
     "_lrot": {
@@ -10273,7 +10273,7 @@
     "_string": "调试",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 22.944444444444443,
+    "_actualFontSize": 21.944444444444446,
     "_fontSize": 20,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
@@ -10464,7 +10464,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 1280,
-      "height": 720
+      "height": 719.9999999999998
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -10547,6 +10547,10 @@
     },
     "bombPrefab": {
       "__uuid__": "d02eccfe-28c8-412f-9db6-4709dedba0a8",
+      "__expectedType__": "cc.Prefab"
+    },
+    "goldCoinPrefab": {
+      "__uuid__": "197b00e3-b0b3-4ded-b849-37d818bb84f8",
       "__expectedType__": "cc.Prefab"
     },
     "maskPrefab": {

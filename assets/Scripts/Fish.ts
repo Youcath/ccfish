@@ -124,7 +124,7 @@ export default class Fish extends Component {
             this.tween.stop();
             // 只有鲨鱼才播放奖励动画
             if (this.fishType.name.includes('shayu')) {
-                this.game.showBomb(this.node.position);
+                this.game.showBomb(this.node.position, this.fishType.name);
                 this.node.setSiblingIndex(999);
             }
             const self = this;

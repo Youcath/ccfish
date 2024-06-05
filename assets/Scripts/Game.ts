@@ -10,6 +10,7 @@ import { PlayerInfo, PlayerNodeConfig } from './PlayerInfo';
 import { Player } from './Player';
 import Weapon from './Weapon';
 import { Bomb } from './Bomb';
+import { GoldCoin } from './GoldCoin';
 import { BombMask } from './BombMask';
 
 @ccclass('Game')
@@ -19,6 +20,7 @@ export default class Game extends Component {
     @property(Prefab) netPrefab: Prefab | null = null;
     @property(Prefab) playerPrefab: Prefab | null = null;
     @property(Prefab) bombPrefab: Prefab | null = null;
+    @property(Prefab) goldCoinPrefab: Prefab | null = null;
     @property(Prefab) maskPrefab: Prefab | null = null;
     @property(SpriteAtlas) spAtlas: SpriteAtlas | null = null;
     @property(AudioClip) bgm: AudioClip | null = null;
@@ -28,6 +30,8 @@ export default class Game extends Component {
     fishPool: NodePool;
     // 爆炸对象池
     bombPool: NodePool;
+    // 金币对象池
+    goldCoinPool: NodePool;
     // 蒙层
     mask: Node;
     fishTypes: FishType[];
@@ -73,6 +77,8 @@ export default class Game extends Component {
         }
         // 爆炸
         this.bombPool = new NodePool("Bomb");
+        // 金币
+        this.goldCoinPool = new NodePool("GoldCoin");
     }
 
     private loadFish() {
@@ -465,7 +471,7 @@ export default class Game extends Component {
         this.fishPool.put(fish);
     }
 
-    public showBomb(pos: Vec3) {
+    public showBomb(pos: Vec3, fishType: string) {
         // 蒙层
         if (this.mask == null) {
             this.mask = instantiate(this.maskPrefab);
@@ -473,18 +479,30 @@ export default class Game extends Component {
         }
         const mask = this.mask.getComponent(BombMask);
         mask.appear();        
-
-        // 爆炸
-        let bomb: Node | null = null;
-        if (this.bombPool.size() > 0) {
-            bomb = this.bombPool.get(this);
+        
+        if (fishType.includes("jinshayu")) {
+            // 金币
+            let goldCoin: Node | null = null;
+            if (this.goldCoinPool.size() > 0) {
+                goldCoin = this.goldCoinPool.get(this);
+            } else {
+                goldCoin = instantiate(this.goldCoinPrefab);
+            }
+            goldCoin.getComponent(GoldCoin).init(pos, () => {
+                mask.disappear();
+            });
         } else {
-            bomb = instantiate(this.bombPrefab);
+            // 爆炸
+            let bomb: Node | null = null;
+            if (this.bombPool.size() > 0) {
+                bomb = this.bombPool.get(this);
+            } else {
+                bomb = instantiate(this.bombPrefab);
+            }
+            bomb.getComponent(Bomb).init(pos, () => {
+                mask.disappear();
+            });
         }
-        bomb.getComponent(Bomb).init(pos, () => {
-            mask.disappear();
-        });
-
         // 震动方向为向量（3， 10）
         tween(this.camera).by(1.2, { position: v3(2 * Math.random() + 1, 5 * Math.random() + 5) }, {
             easing: Utils.easing
