@@ -50,16 +50,23 @@ export default class Fish extends Component {
 
     private spawnFish() {
         // 种类
-        let fishStr = this.game.fishTypes.length;
-        let randomFish = Math.floor(Math.random() * fishStr);
-        this.fishType = this.game.fishTypes[randomFish];
+        let randomFish = Math.random() * this.game.totalWeight;
+        let typeIndex = 0;
+        let tmp = 0;
+        for (; typeIndex < this.game.fishTypes.length; typeIndex++) {
+            tmp += this.game.fishTypes[typeIndex].weight;
+            if (tmp > randomFish) {
+                break;
+            }
+        }
+        this.fishType = this.game.fishTypes[typeIndex];
         // 位置
         this.startPosition = Utils.getOutPosition();
         this.node.position = this.startPosition;
         // 贝塞尔曲线第一个控制点，用来计算初始角度
         this.firstPosition = Utils.getInnerPosition();
         let k = Math.atan((this.firstPosition.y) / (this.firstPosition.x));
-        this.node.angle = -k * 180 / 3.14;
+        this.node.angle = -k * 180 / Math.PI;
         this.node.getComponent(Sprite).spriteFrame = this.game.spAtlas.getSpriteFrame(this.fishType.name + '_run_0');
         // 取出鱼的血量
         this.hp = this.fishType.hp;
@@ -185,7 +192,7 @@ export default class Fish extends Component {
         let net: Net = other.node.getComponent(Net);
         if (net) {
             let dmg = net.getAttackValue();
-            if (bullet.master.weaponMode == 2) {
+            if (net.game.weaponMode == 2) {
                 dmg *= 2;
             }
             this.hp -= dmg;

@@ -41,6 +41,7 @@ export default class Game extends Component {
 
     bombShowing = false;
     playerCount = 10;
+    totalWeight = 0; 
 
     onLoad() {
         // 初始化pool
@@ -86,6 +87,10 @@ export default class Game extends Component {
             }
             // 加载之后转类型
             self.fishTypes = jsonAsset.json;
+            self.totalWeight = 0;
+            for (let i = 0; i < self.fishTypes.length; i++) {
+                self.totalWeight += self.fishTypes[i].weight;
+            }
             self.schedule(self.creatFish, 3);
         });
     }
@@ -135,7 +140,7 @@ export default class Game extends Component {
 
     private creatFish() {
         // 一次创建8条鱼
-        let fishCount = 1
+        let fishCount = 8;
         for (let i = 0; i < fishCount; ++i) {
             let cfish: Node = null;
             if (this.fishPool.size() > 0) {
