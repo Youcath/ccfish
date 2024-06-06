@@ -124,7 +124,7 @@ export default class Fish extends Component {
             this.tween.stop();
             // 只有鲨鱼才播放奖励动画
             if (this.fishType.name.includes('shayu')) {
-                this.game.showBomb(this.node.position, this.fishType.name);
+                this.game.showBomb(this.node.position);
                 this.node.setSiblingIndex(999);
             }
             const self = this;
@@ -173,16 +173,22 @@ export default class Fish extends Component {
     private onCollisionEnter(self: Collider2D, other: Collider2D, contact: IPhysics2DContact | null) {
         let bullet: Bullet = other.node.getComponent(Bullet);
         if (bullet) {
-            this.hp -= bullet.getAttackValue();
-            if (this.hp <= 0) {
-                this.fishState = FishState.dead;
-                this.killerIndex = bullet.masterIndex;
+            if (bullet.master.weaponMode == 1) {
+                this.hp -= bullet.getAttackValue();
+                if (this.hp <= 0) {
+                    this.fishState = FishState.dead;
+                    this.killerIndex = bullet.masterIndex;
+                }
+                return;
             }
-            return;
         }
         let net: Net = other.node.getComponent(Net);
         if (net) {
-            this.hp -= net.getAttackValue();
+            let dmg = net.getAttackValue();
+            if (bullet.master.weaponMode == 2) {
+                dmg *= 2;
+            }
+            this.hp -= dmg;
             if (this.hp <= 0) {
                 this.fishState = FishState.dead;
                 this.killerIndex = net.masterIndex;

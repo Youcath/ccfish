@@ -357,8 +357,8 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 72,
-      "y": -20,
+      "x": 42,
+      "y": -26,
       "z": 0
     },
     "_lrot": {
@@ -586,8 +586,8 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 12,
-      "y": -20,
+      "x": 42,
+      "y": -26,
       "z": 0
     },
     "_lrot": {
@@ -771,7 +771,7 @@
     },
     "component": "",
     "_componentId": "20cc77d8/1GWqTQQJry8tDM",
-    "handler": "reduce",
+    "handler": "plus",
     "customEventData": ""
   },
   {

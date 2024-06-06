@@ -1,4 +1,4 @@
-import { _decorator, Animation, Component, find, instantiate, Node, NodePool,  AudioSource,  v3, Vec2, Vec3 } from 'cc';
+import { _decorator, Animation, Component, find, instantiate, Node, NodePool, AudioSource, v3, Vec2, Vec3, UITransform, v2 } from 'cc';
 import Weapon from './Weapon';
 import CoinController from './CoinController';
 import { PlayerNodeConfig } from './PlayerInfo';
@@ -13,6 +13,8 @@ export class Player extends Component {
     game: Game;
     weaponNode: Node;
     coinController: Node;
+    plusNode: Node;
+    minusNode: Node;
     anim: Node;
     oneBullet: Node;
     oneNet: Node;
@@ -21,6 +23,7 @@ export class Player extends Component {
     // 网对象池
     netsPool: NodePool;
     audio: AudioSource;
+    weaponMode = 1;
 
     private bulletInterval = 0.4;
     private touchShotTime = 0;
@@ -32,6 +35,8 @@ export class Player extends Component {
         this.playerIndex = config.index;
         this.weaponNode = this.node.getChildByName("weapon");
         this.coinController = this.node.getChildByName("number_controller");
+        this.plusNode = this.node.getChildByName("plus");
+        this.minusNode = this.node.getChildByName("minus");
         this.anim = this.node.getChildByName("anim");
         this.anim.active = false;
         this.coinController.getComponent(CoinController).init();
@@ -43,29 +48,77 @@ export class Player extends Component {
         this.node.setSiblingIndex(999);
         this.node.position = v3(config.x, config.y, 0);
         this.node.angle = config.rotation;
+        this.showSwitchButton();
     }
 
     shot() {
-        let now = new Date().getTime();
-        if (now - this.touchShotTime < this.bulletInterval * 1000) {
-            return;
-        }
         let level = this.weaponNode.getComponent(Weapon).curLevel;
-        if (this.bulletPool.size() > 0) {
-            this.oneBullet = this.bulletPool.get(this);
-        } else {
-            this.oneBullet = instantiate(this.game.bulletPrefab);
-        }
         // 剩余金币
         let left = this.coinController.getComponent(CoinController).reduceCoin(level);
-        if (left) {
-            let bullet = this.oneBullet.getComponent(Bullet);
-            bullet.enabled = true;
-            bullet.shot(this.game, level, this);
+        if (this.weaponMode == 1) {
+            let now = new Date().getTime();
+            if (now - this.touchShotTime < this.bulletInterval * 1000) {
+                return;
+            }
+            if (this.bulletPool.size() > 0) {
+                this.oneBullet = this.bulletPool.get(this);
+            } else {
+                this.oneBullet = instantiate(this.game.bulletPrefab);
+            }
+            if (left) {
+                let bullet = this.oneBullet.getComponent(Bullet);
+                bullet.enabled = true;
+                bullet.shot(this.game, level, this);
+            }
+            this.audio.play();
+            this.weaponNode.getComponent(Animation).play('weapon_level_' + this.weaponNode.getComponent(Weapon).curLevel);
+            this.touchShotTime = now;
+        } else if (this.weaponMode == 2) {
+            if (left) {
+                if (this.oneBullet == null) {
+                    // 没有子弹在飞
+                    if (this.bulletPool.size() > 0) {
+                        this.oneBullet = this.bulletPool.get(this);
+                    } else {
+                        this.oneBullet = instantiate(this.game.bulletPrefab);
+                    }
+
+
+                    let bullet = this.oneBullet.getComponent(Bullet);
+                    bullet.enabled = true;
+                    bullet.shot(this.game, level, this);
+
+                    this.audio.play();
+                    this.weaponNode.getComponent(Animation).play('weapon_level_' + this.weaponNode.getComponent(Weapon).curLevel);
+                } else {
+                    // 获取子弹的世界坐标
+                    let pos = find('Canvas').getComponent(UITransform).convertToWorldSpaceAR(this.oneBullet.getPosition());
+                    this.despawnBullet(this.oneBullet);
+                    this.oneBullet = null;
+                    this.castNet(v2(pos.x, pos.y));
+                }
+            }
         }
-        this.audio.play();
-        this.weaponNode.getComponent(Animation).play('weapon_level_' + this.weaponNode.getComponent(Weapon).curLevel);
-        this.touchShotTime = now;
+
+    }
+
+    private showSwitchButton() {
+        if (this.weaponMode == 1) {
+            this.plusNode.active = true;
+            this.minusNode.active = false;
+        } else {
+            this.plusNode.active = false;
+            this.minusNode.active = true;
+        }
+    }
+
+    switchMode() {
+        if (this.weaponMode == 1) {
+            this.weaponMode = 2;
+        } else {
+            this.weaponMode = 1;
+        }
+        this.showSwitchButton();
     }
 
     cheatCoins() {
@@ -81,7 +134,7 @@ export class Player extends Component {
     }
 
 
-    castNet(position:Vec2) {
+    castNet(position: Vec2) {
         if (this.netsPool.size() > 0) {
             this.oneNet = this.netsPool.get(this);
         } else {
@@ -91,7 +144,7 @@ export class Player extends Component {
         this.oneNet.getComponent(Net).init(position, this, bulletLevel);
     }
 
-    despawnBullet(bullet:Node) {
+    despawnBullet(bullet: Node) {
         const self = this;
         let callback = function () {
             self.bulletPool.put(bullet);
