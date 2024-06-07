@@ -4,17 +4,15 @@ const { ccclass, property } = _decorator;
 @ccclass('BombMask')
 export class BombMask extends Component {
 
-    init() {
+    appear() {
         this.node.parent = find('Canvas');
         this.node.setSiblingIndex(999);
-    }
-
-    appear() {
         this.node.active = true;
     }
 
     disappear() {
         this.node.active = false;
     }
+    
 }
 

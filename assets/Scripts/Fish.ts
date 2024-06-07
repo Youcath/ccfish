@@ -7,7 +7,6 @@ import Bullet from './Bullet';
 import Net from './Net';
 import { Utils } from './Utils';
 import { Bomb } from './Bomb'
-import { GoldBonus } from './GoldBonus'
 
 
 @ccclass('Fish')
@@ -17,8 +16,6 @@ export default class Fish extends Component {
 
     // 爆炸
     bomb: Node;
-    // 金币奖励
-    gold_bonus: Node;
     // Health point 血量 默认10
     hp: number = 10;
     // gold 打死掉落金币数量
@@ -45,7 +42,6 @@ export default class Fish extends Component {
         this.node.active = true;
         this.node.parent = game.node;
         this.bomb = this.node.getChildByName('bomb');
-        this.gold_bonus = this.node.getChildByName('gold_bonus');
         this.spawnFish();
     }
 
@@ -54,7 +50,6 @@ export default class Fish extends Component {
         if (collider) {
             collider.on(Contact2DType.BEGIN_CONTACT, this.onCollisionEnter, this);
         }
-
     }
 
     private spawnFish() {
@@ -140,40 +135,30 @@ export default class Fish extends Component {
             this.tween.stop();
             let collider = this.node.getComponent(BoxCollider2D);
             collider.size = size(0, 0);
-            this.anim.play(this.fishType.name + '_die');
-            if (this.fishType.name.includes('shayu')) {
-    
-                // 展示蒙层
-                this.game.showMask();
-                this.node.setSiblingIndex(999);
-                this.bomb.getComponent(Bomb).show(this.node.position);
-                this.game.showCameraEasing();
-            }
-            const self = this;
-            const commonCallback = () => {
-                self.game.hiddenMask();
-                self.despawnFish();
-            };
-            // 被打死的动画播放完成之后回调
-            this.anim!.on(Animation.EventType.FINISHED, () => {
-                
-                if (self.fishType.name.includes('shayu')) {
-                    const fishType = self.fishType.name;
-                    if (fishType.includes('jinshayu')) {
-                        this.node.active = false;
-                        this.gold_bonus.getComponent(GoldBonus).show(commonCallback);
-                    } else {
-                        commonCallback();
-                    }
-                } else {
-                    self.despawnFish();
-                }
-            }, this);    
             // 播放金币动画，转为世界坐标
             let fp = this.node.parent.getComponent(UITransform).convertToWorldSpaceAR(this.node.position);
             if (this.gold > 0) {
                 this.game.gainCoins(fp, this.gold, this.killerIndex);
                 this.gold = 0;
+            }
+            if (this.fishType.name.includes('jinshayu')) {
+                this.despawnFish();
+                this.game.showBonus();
+            } else {
+                this.anim.play(this.fishType.name + '_die');
+                if (this.fishType.name.includes('shayu')) {
+                    this.game.showMask();
+                    this.node.setSiblingIndex(999);
+                    this.bomb.getComponent(Bomb).show(this.node.position);
+                    this.game.showCameraEasing();
+                    this.anim!.on(Animation.EventType.FINISHED, () => {
+                        console.log("beAttack");
+                        this.game.hiddenMask();
+                        this.despawnFish();
+                    }, this, true);    
+                } else {
+                    this.anim!.on(Animation.EventType.FINISHED, this.despawnFish, this, true);    
+                }
             }
         }
     }

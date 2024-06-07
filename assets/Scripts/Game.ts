@@ -9,6 +9,7 @@ import { PlayerInfo, PlayerNodeConfig } from './PlayerInfo';
 import { Player } from './Player';
 import Weapon from './Weapon';
 import { BombMask } from './BombMask';
+import { GoldBonus } from './GoldBonus';
 
 @ccclass('Game')
 export default class Game extends Component {
@@ -16,18 +17,20 @@ export default class Game extends Component {
     @property(Prefab) bulletPrefab: Prefab | null = null;
     @property(Prefab) netPrefab: Prefab | null = null;
     @property(Prefab) playerPrefab: Prefab | null = null;
-    @property(Prefab) bombPrefab: Prefab | null = null;
     @property(Prefab) maskPrefab: Prefab | null = null;
+    @property(Prefab) bonusPrefab: Prefab | null = null;
     @property(SpriteAtlas) spAtlas: SpriteAtlas | null = null;
     @property(AudioClip) bgm: AudioClip | null = null;
 
 
-    //鱼对象池
+    // 鱼对象池
     fishPool: NodePool;
     // 爆炸对象池
     bombPool: NodePool;
     // 蒙层
     mask: Node;
+    // 奖励动画
+    bonus: Node;
     fishTypes: FishType[];
     playerInfo: PlayerInfo[];
     playerConfig: Map<number, Array<PlayerNodeConfig>>;
@@ -38,6 +41,7 @@ export default class Game extends Component {
     debugLayout: Node;
 
     maskShowing = 0;
+    bonusShowing = false;
     cameraEasing = false;
     playerCount = 10;
     totalWeight = 0; 
@@ -485,21 +489,20 @@ export default class Game extends Component {
 
     public showMask() {
         this.maskShowing++;
+        console.log("showMask: " + this.maskShowing);
         if (this.maskShowing > 1) {
             return;
         }
-        
         // 蒙层
         if (this.mask == null) {
             this.mask = instantiate(this.maskPrefab);
-            this.mask.getComponent(BombMask).init();
         }
-        const mask = this.mask.getComponent(BombMask);
-        mask.appear();
+        this.mask.getComponent(BombMask).appear();
     }
 
     public hiddenMask() {
         this.maskShowing--;
+        console.log("hiddenMask: " + this.maskShowing);
         if (this.maskShowing > 0) {
             return;
         }
@@ -507,7 +510,24 @@ export default class Game extends Component {
         if (mask) {
             mask.disappear();
         }
-       
+    }
+
+    public showBonus() {
+        if (this.bonusShowing) {
+            return;
+        }
+        this.bonusShowing = true;
+        // 展示蒙层
+        this.showMask();
+        // 奖励动画
+        if (this.bonus == null) {
+            this.bonus = instantiate(this.bonusPrefab);
+        }
+        this.bonus.getComponent(GoldBonus).appear(() => {
+            this.bonusShowing = false;
+            console.log("showBonus");
+            this.hiddenMask();
+        });
     }
 
     public showCameraEasing() {

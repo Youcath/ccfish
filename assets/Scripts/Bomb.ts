@@ -13,7 +13,7 @@ export class Bomb extends Component {
             this.node.active = false;
         };
         const anim = this.node.getComponent(Animation);
-        anim.on(Animation.EventType.FINISHED, finishCallback, this);
+        anim.on(Animation.EventType.FINISHED, finishCallback, this, true);
         anim.play();
     }
 }

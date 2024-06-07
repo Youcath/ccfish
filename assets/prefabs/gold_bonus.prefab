@@ -116,7 +116,7 @@
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "bb06bacd-c0ae-4ee5-b704-81a68d100329@f9941",
+      "__uuid__": "047656f6-f1ba-4f80-853e-f10e005bc9ad@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 0,
@@ -129,7 +129,7 @@
     },
     "_fillStart": 0,
     "_fillRange": 0,
-    "_isTrimmedMode": true,
+    "_isTrimmedMode": false,
     "_useGrayscale": false,
     "_atlas": null,
     "_id": ""
@@ -178,9 +178,6 @@
     "_enabled": true,
     "__prefab": {
       "__id__": 9
-    },
-    "anim": {
-      "__id__": 6
     },
     "_id": ""
   },
