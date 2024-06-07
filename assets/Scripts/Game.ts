@@ -3,13 +3,11 @@ const { ccclass, property } = _decorator;
 
 import { FishType } from './FishType';
 import Fish from './Fish';
-import CoinController from './CoinController';
 import { Utils } from './Utils';
 import { AudioMgr } from './AudioMgr';
 import { PlayerInfo, PlayerNodeConfig } from './PlayerInfo';
 import { Player } from './Player';
 import Weapon from './Weapon';
-import { Bomb } from './Bomb';
 import { BombMask } from './BombMask';
 
 @ccclass('Game')
@@ -39,7 +37,9 @@ export default class Game extends Component {
 
     debugLayout: Node;
 
-    bombShowing = false;
+    maskShowing = false;
+    cameraEasing = false;
+    cancelInput = false;
     playerCount = 10;
     totalWeight = 0; 
 
@@ -132,6 +132,14 @@ export default class Game extends Component {
         input.on(Input.EventType.KEY_PRESSING, this.onKeyPressing, this);
     }
 
+    public cancelAllInput() {
+        this.cancelInput = true;
+    }
+
+    public recoverAllInput() {
+        this.cancelInput = false;
+    }
+
     private createPlayerNode(config: PlayerNodeConfig): Node {
         let node = instantiate(this.playerPrefab);
         node.getComponent(Player).init(config, this);
@@ -154,6 +162,8 @@ export default class Game extends Component {
     }
 
     private onTouchStart(event: EventTouch) {
+        if (this,this.cancelInput) return;
+
         // 所有炮台往触点发射炮弹
         this.players.forEach((v, k) => {
             // 触点是世界坐标，需要转换为和炮台一致的坐标系下
@@ -213,6 +223,8 @@ export default class Game extends Component {
     }
 
     private onKeyDown(event: EventKeyboard) {
+        if (this,this.cancelInput) return;
+
         switch (event.keyCode) {
             // 玩家1
             case KeyCode.ARROW_LEFT:
@@ -358,6 +370,8 @@ export default class Game extends Component {
     }
 
     private onKeyPressing(event: EventKeyboard) {
+        if (this,this.cancelInput) return;
+
         switch (event.keyCode) {
             // 玩家1
             case KeyCode.ARROW_LEFT:
@@ -480,30 +494,33 @@ export default class Game extends Component {
         this.fishPool.put(fish);
     }
 
-    public showBomb(pos: Vec3) {
-        if (this.bombShowing) {
+    public showMask() {
+        if (this.maskShowing) {
             return;
         }
-        this.bombShowing = true;
+        this.maskShowing = true;
         // 蒙层
         if (this.mask == null) {
             this.mask = instantiate(this.maskPrefab);
             this.mask.getComponent(BombMask).init();
         }
         const mask = this.mask.getComponent(BombMask);
-        mask.appear();        
+        mask.appear();
+    }
 
-        // 爆炸
-        let bomb: Node | null = null;
-        if (this.bombPool.size() > 0) {
-            bomb = this.bombPool.get(this);
-        } else {
-            bomb = instantiate(this.bombPrefab);
-        }
-        bomb.getComponent(Bomb).init(pos, () => {
+    public hiddenMask() {
+        const mask = this.mask.getComponent(BombMask);
+        if (mask) {
             mask.disappear();
-        });
+        }
+        this.maskShowing = false;
+    }
 
+    public showCameraEasing() {
+        if (this.cameraEasing) {
+            return;
+        }
+        this.cameraEasing = true;
         // 震动方向为向量（3， 10）
         tween(this.camera).by(1.2, { position: v3(2 * Math.random() + 1, 5 * Math.random() + 5) }, {
             easing: Utils.easing
@@ -512,6 +529,9 @@ export default class Game extends Component {
         if (camera) {
             tween(camera).by(1.5, { orthoHeight: 3 * Math.random() + 2 }, {
                 easing: Utils.easing
+            })
+            .call(() => {
+                this.cameraEasing = false;
             }).start();
         }
     }
