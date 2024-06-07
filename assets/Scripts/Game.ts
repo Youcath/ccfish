@@ -1,4 +1,4 @@
-import { _decorator, Component, NodePool, Prefab, Node, SpriteAtlas, AudioClip, Vec3, instantiate, find, UITransform, error, resources, EventTouch, v3, Input, EventKeyboard, KeyCode, input, Animation, tween, view, Mask, Camera, Button, Event, Label } from 'cc';
+import { _decorator, Component, NodePool, Prefab, Node, SpriteAtlas, AudioClip, Vec3, instantiate, UITransform, error, resources, EventTouch, v3, Input, EventKeyboard, KeyCode, input, tween, Camera, Event } from 'cc';
 const { ccclass, property } = _decorator;
 
 import { FishType } from './FishType';
@@ -37,9 +37,8 @@ export default class Game extends Component {
 
     debugLayout: Node;
 
-    maskShowing = false;
+    maskShowing = 0;
     cameraEasing = false;
-    cancelInput = false;
     playerCount = 10;
     totalWeight = 0; 
 
@@ -53,8 +52,6 @@ export default class Game extends Component {
         this.loadPlayer();
 
         this.initInput();
-
-        // view.setDesignResolutionSize(1280, 720, ResolutionPolicy.EXACT_FIT);
     }
 
     start() {
@@ -132,14 +129,6 @@ export default class Game extends Component {
         input.on(Input.EventType.KEY_PRESSING, this.onKeyPressing, this);
     }
 
-    public cancelAllInput() {
-        this.cancelInput = true;
-    }
-
-    public recoverAllInput() {
-        this.cancelInput = false;
-    }
-
     private createPlayerNode(config: PlayerNodeConfig): Node {
         let node = instantiate(this.playerPrefab);
         node.getComponent(Player).init(config, this);
@@ -162,7 +151,7 @@ export default class Game extends Component {
     }
 
     private onTouchStart(event: EventTouch) {
-        if (this,this.cancelInput) return;
+        if (this.maskShowing > 0) return;
 
         // 所有炮台往触点发射炮弹
         this.players.forEach((v, k) => {
@@ -223,7 +212,7 @@ export default class Game extends Component {
     }
 
     private onKeyDown(event: EventKeyboard) {
-        if (this,this.cancelInput) return;
+        if (this.maskShowing > 0) return;
 
         switch (event.keyCode) {
             // 玩家1
@@ -370,7 +359,7 @@ export default class Game extends Component {
     }
 
     private onKeyPressing(event: EventKeyboard) {
-        if (this,this.cancelInput) return;
+        if (this.maskShowing > 0) return;
 
         switch (event.keyCode) {
             // 玩家1
@@ -495,10 +484,11 @@ export default class Game extends Component {
     }
 
     public showMask() {
-        if (this.maskShowing) {
+        this.maskShowing++;
+        if (this.maskShowing > 1) {
             return;
         }
-        this.maskShowing = true;
+        
         // 蒙层
         if (this.mask == null) {
             this.mask = instantiate(this.maskPrefab);
@@ -509,11 +499,15 @@ export default class Game extends Component {
     }
 
     public hiddenMask() {
+        this.maskShowing--;
+        if (this.maskShowing > 0) {
+            return;
+        }
         const mask = this.mask.getComponent(BombMask);
         if (mask) {
             mask.disappear();
         }
-        this.maskShowing = false;
+       
     }
 
     public showCameraEasing() {

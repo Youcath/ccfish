@@ -142,8 +142,7 @@ export default class Fish extends Component {
             collider.size = size(0, 0);
             this.anim.play(this.fishType.name + '_die');
             if (this.fishType.name.includes('shayu')) {
-                // 屏蔽输入
-                this.game.cancelAllInput();
+    
                 // 展示蒙层
                 this.game.showMask();
                 this.node.setSiblingIndex(999);
@@ -151,20 +150,23 @@ export default class Fish extends Component {
                 this.game.showCameraEasing();
             }
             const self = this;
+            const commonCallback = () => {
+                self.game.hiddenMask();
+                self.despawnFish();
+            };
             // 被打死的动画播放完成之后回调
             this.anim!.on(Animation.EventType.FINISHED, () => {
-                self.despawnFish();
+                
                 if (self.fishType.name.includes('shayu')) {
                     const fishType = self.fishType.name;
-                    const commonCallback = () => {
-                        self.game.hiddenMask();
-                        self.game.recoverAllInput();
-                    };
                     if (fishType.includes('jinshayu')) {
+                        this.node.active = false;
                         this.gold_bonus.getComponent(GoldBonus).show(commonCallback);
                     } else {
                         commonCallback();
                     }
+                } else {
+                    self.despawnFish();
                 }
             }, this);    
             // 播放金币动画，转为世界坐标
