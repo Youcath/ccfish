@@ -35,8 +35,8 @@ export default class Game extends Component {
     playerInfo: PlayerInfo[];
     playerConfig: Map<number, Array<PlayerNodeConfig>>;
     players: Map<number, Node>;
-    oneFish: Node;
     camera: Node;
+    fishes: Map<string, Node>; // 活跃的鱼集合
 
     debugLayout: Node;
 
@@ -68,6 +68,7 @@ export default class Game extends Component {
 
     private initPools() {
         // 鱼
+        this.fishes = new Map();
         this.fishPool = new NodePool("Fish");
         let initCount = 10;
         for (let i = 0; i < initCount; ++i) {
@@ -151,16 +152,31 @@ export default class Game extends Component {
             }
             cfish.getComponent(Fish).init(this);
             cfish.setSiblingIndex(2);
+            // this.fishes.put(cfish);
+            // this.onFishTouch(cfish);
         }
     }
+
+    // private onFishTouch(fish: Node) {
+    //     const callback = (event: EventTouch) => {
+    //         // let index = this.fishes.indexOf(fish);
+    //         this.players.forEach((v, k) => {
+
+    //         });
+            
+    //     };
+    //     fish.on(Input.EventType.TOUCH_START, callback, fish);
+    // }
 
     private onTouchStart(event: EventTouch) {
         if (this.maskShowing > 0) return;
 
         // 所有炮台往触点发射炮弹
         this.players.forEach((v, k) => {
+            let world = v3(event.getUILocation().x, event.getUILocation().y);
+            v.getComponent(Player).setTargetPos(world);
             // 触点是世界坐标，需要转换为和炮台一致的坐标系下
-            let touchPos = v.getComponent(UITransform).convertToNodeSpaceAR(v3(event.getUILocation().x, event.getUILocation().y));
+            let touchPos = v.getComponent(UITransform).convertToNodeSpaceAR(world);
             // 炮台坐标
             let weaponPos = v.getComponent(Player).weaponNode.getPosition();
             // 炮台到触点的方向向量
@@ -484,6 +500,10 @@ export default class Game extends Component {
     }
 
     public despawnFish(fish: Node) {
+        // let idx = this.fishes.indexOf(fish);
+        // if (idx >= 0) {
+        //     this.fishes.splice(idx, 1);
+        // }
         this.fishPool.put(fish);
     }
 

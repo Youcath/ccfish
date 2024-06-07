@@ -3,6 +3,7 @@ const { ccclass, property } = _decorator;
 
 import Coins from './Coins';
 import NumUp from './NumUp';
+import { Player } from './Player';
 
 @ccclass('CoinController')
 export default class CoinController extends Component {
@@ -40,12 +41,14 @@ export default class CoinController extends Component {
     coin_up: Node;
     //    // 获得金币
     oneCoin: Node;
+    master: Player;
     audio: AudioSource;
     //    // LIFE-CYCLE CALLBACKS:
     onLoad() {
 
     }
-    init() {
+    init(master: Player) {
+        this.master = master;
         this.coinUpPool = new NodePool();
         this.coinsPool = new NodePool();
         this.setValue(this.currentValue);
@@ -65,15 +68,19 @@ export default class CoinController extends Component {
         this.number5.spriteFrame = this.timerAtlas.getSpriteFrame(nums[4].toString());
         this.number6.spriteFrame = this.timerAtlas.getSpriteFrame(nums[5].toString());
     }
-    //    // 获取金币加数
+    // 获取金币加数
     addCoins(value: number) {
         this.currentValue += value;
         this.setValue(this.currentValue);
     }
-    //    // 发射子弹消耗金币
+    // 发射子弹消耗金币
     reduceCoin(level: number): boolean {
-        if (this.currentValue >= level) {
-            this.setValue(this.currentValue -= level);
+        let cost = level;
+        if (this.master.weaponMode == 3) {
+            cost = level * 2;
+        }
+        if (this.currentValue >= cost) {
+            this.setValue(this.currentValue -= cost);
             return true;
         }
 

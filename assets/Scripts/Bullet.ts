@@ -7,7 +7,7 @@
 //  * @FilePath: \CourseFishd:\cocos20\CCFish\assets\Script\Bullet.ts
 //  */
 
-import { _decorator, Component, UITransform, Sprite, find, Collider2D, IPhysics2DContact, BoxCollider2D, Contact2DType } from 'cc';
+import { _decorator, Component, UITransform, Sprite, find, Collider2D, IPhysics2DContact, BoxCollider2D, Contact2DType, Vec3, v2 } from 'cc';
 const { ccclass, property } = _decorator;
 
 import Game from './Game';
@@ -27,6 +27,7 @@ export default class Bullet extends Component {
     bulletLeve: number = 1;
     master: Player;
     masterIndex: number; // 属于第几位玩家的子弹
+    target: Vec3 | Node | undefined;
     shot(game: Game, level: number, master: Player) {
         this.game = game;
         this.master = master;
@@ -42,6 +43,10 @@ export default class Bullet extends Component {
         this.node.position = bpos;
     }
 
+    setTarget(target: Vec3 | Node) {
+        this.target = target;
+    }
+
     protected start(): void {
         let collider = this.getComponent(BoxCollider2D);
         if (collider) {
@@ -54,11 +59,25 @@ export default class Bullet extends Component {
         this.node.getComponent(Sprite).spriteFrame = this.game.spAtlas.getSpriteFrame('bullet' + this.bulletLeve);
     }
     update(dt) {
+        let speedRate = 1;
+        if (this.master.weaponMode == 3) {
+            // 穿透弹速度减半
+            speedRate = 0.5;
+        }
         let bx = this.node.position.x;
         let by = this.node.position.y;
-        bx += dt * this.speed * Math.sin(this.angle / 180 * 3.14);
-        by += dt * this.speed * Math.cos(this.angle / 180 * 3.14);
+        bx += dt * this.speed * Math.sin(this.angle / 180 * 3.14) * speedRate;
+        by += dt * this.speed * Math.cos(this.angle / 180 * 3.14) * speedRate;
         this.node.setPosition(bx, by);
+
+        if (this.master.weaponMode == 3 && this.target instanceof Vec3) {
+            if (this.node.getPosition().clone().subtract(this.target).length() < 8) {
+                let p = this.node.parent.getComponent(UITransform).convertToWorldSpaceAR(this.target);
+                this.master.castNet(v2(p.x, p.y));
+                this.master.despawnBullet(this.node);
+                return;
+            }
+        }
 
         // 跑出屏幕的子弹自动回收
         if (this.node.getPosition().x >= 900
@@ -71,7 +90,7 @@ export default class Bullet extends Component {
         }
     }
     onCollisionEnter(self: Collider2D, other: Collider2D, contact: IPhysics2DContact | null) {
-        if (this.master.weaponMode == 2) {
+        if (this.master.weaponMode == 2 || this.master.weaponMode == 3) {
             // do nothing
             return;
         }

@@ -23,7 +23,9 @@ export class Player extends Component {
     // 网对象池
     netsPool: NodePool;
     audio: AudioSource;
-    weaponMode = 1;
+    weaponMode = 1; // 1为普通炮弹，遇到鱼就张网；2为可控炮弹，第二次shot张网；3为穿透炮弹，在目标点张网
+    chooseFishIndex = -1;
+    targetPos: Vec3; // for weapon 3
 
     private bulletInterval = 0.4;
     private touchShotTime = 0;
@@ -39,7 +41,7 @@ export class Player extends Component {
         this.minusNode = this.node.getChildByName("minus");
         this.anim = this.node.getChildByName("anim");
         this.anim.active = false;
-        this.coinController.getComponent(CoinController).init();
+        this.coinController.getComponent(CoinController).init(this);
         this.weaponNode.getComponent(Weapon).init();
         this.coinController.getComponent(CoinController).currentValue = 200;
         this.audio = this.node.getComponent(AudioSource);
@@ -98,25 +100,60 @@ export class Player extends Component {
                     this.castNet(v2(pos.x, pos.y));
                 }
             }
+        } else if (this.weaponMode == 3) {
+            let now = new Date().getTime();
+            if (now - this.touchShotTime < this.bulletInterval * 1000) {
+                return;
+            }
+            if (this.bulletPool.size() > 0) {
+                this.oneBullet = this.bulletPool.get(this);
+            } else {
+                this.oneBullet = instantiate(this.game.bulletPrefab);
+            }
+            if (left) {
+                let bullet = this.oneBullet.getComponent(Bullet);
+                bullet.enabled = true;
+                bullet.setTarget(this.targetPos);
+                bullet.shot(this.game, level, this);
+            }
+            this.audio.play();
+            this.weaponNode.getComponent(Animation).play('weapon_level_' + this.weaponNode.getComponent(Weapon).curLevel);
+            this.touchShotTime = now;
         }
 
+    }
+
+    // 传入世界坐标
+    setTargetPos(pos: Vec3) {
+        let canvas = find('Canvas');
+        let nodePos = canvas.getComponent(UITransform).convertToNodeSpaceAR(pos);
+        this.targetPos = nodePos;
+    }
+
+    chooseFish(id: number) {
+        this.chooseFishIndex = id;
     }
 
     private showSwitchButton() {
         if (this.weaponMode == 1) {
             this.plusNode.active = true;
             this.minusNode.active = false;
+        } else if (this.weaponMode == 2) {
+            this.plusNode.active = false;
+            this.minusNode.active = true;
+            this.minusNode.angle = 0;
         } else {
             this.plusNode.active = false;
             this.minusNode.active = true;
+            this.minusNode.angle = 90;
         }
     }
 
     switchMode() {
-        if (this.weaponMode == 1) {
-            this.weaponMode = 2;
-        } else {
+        if (this.weaponMode >= 3) {
             this.weaponMode = 1;
+        } else {
+            this.weaponMode++;
         }
         this.showSwitchButton();
     }

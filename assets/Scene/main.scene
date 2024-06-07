@@ -99,7 +99,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 640,
-      "y": 359.99999999999994,
+      "y": 360.00000000000006,
       "z": 0
     },
     "_lrot": {
@@ -13754,7 +13754,7 @@
     "_string": "调试",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 21.944444444444446,
+    "_actualFontSize": 20,
     "_fontSize": 20,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
@@ -13945,7 +13945,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 1280,
-      "height": 719.9999999999998
+      "height": 720
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
