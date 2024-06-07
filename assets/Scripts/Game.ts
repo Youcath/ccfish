@@ -509,7 +509,6 @@ export default class Game extends Component {
 
     public showMask() {
         this.maskShowing++;
-        console.log("showMask: " + this.maskShowing);
         if (this.maskShowing > 1) {
             return;
         }
@@ -522,7 +521,6 @@ export default class Game extends Component {
 
     public hiddenMask() {
         this.maskShowing--;
-        console.log("hiddenMask: " + this.maskShowing);
         if (this.maskShowing > 0) {
             return;
         }
@@ -537,15 +535,12 @@ export default class Game extends Component {
             return;
         }
         this.bonusShowing = true;
-        // 展示蒙层
-        this.showMask();
         // 奖励动画
         if (this.bonus == null) {
             this.bonus = instantiate(this.bonusPrefab);
         }
         this.bonus.getComponent(GoldBonus).appear(() => {
             this.bonusShowing = false;
-            console.log("showBonus");
             this.hiddenMask();
         });
     }

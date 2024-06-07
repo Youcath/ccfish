@@ -1,4 +1,4 @@
-import { _decorator, Component, Animation, Vec3, v3, Sprite, find, UITransform, BoxCollider2D, tween, math, Tween, Node, log, Contact2DType, Collider2D, IPhysics2DContact, size, v2 } from 'cc';
+import { _decorator, Component, Animation, Vec3, v3, Sprite, find, UITransform, BoxCollider2D, tween, math, Tween, Node, log, Contact2DType, Collider2D, IPhysics2DContact, size, v2, RichText } from 'cc';
 const { ccclass, property } = _decorator;
 
 import { FishState, FishType } from './FishType';
@@ -141,18 +141,21 @@ export default class Fish extends Component {
                 this.game.gainCoins(fp, this.gold, this.killerIndex);
                 this.gold = 0;
             }
+            this.anim.play(this.fishType.name + '_die');
             if (this.fishType.name.includes('jinshayu')) {
-                this.despawnFish();
-                this.game.showBonus();
+                this.game.showMask();
+                this.node.setSiblingIndex(999);
+                this.anim!.on(Animation.EventType.FINISHED, () => {
+                    this.game.showBonus();
+                    this.despawnFish();
+                }, this, true);    
             } else {
-                this.anim.play(this.fishType.name + '_die');
                 if (this.fishType.name.includes('shayu')) {
                     this.game.showMask();
                     this.node.setSiblingIndex(999);
                     this.bomb.getComponent(Bomb).show(this.node.position);
                     this.game.showCameraEasing();
                     this.anim!.on(Animation.EventType.FINISHED, () => {
-                        console.log("beAttack");
                         this.game.hiddenMask();
                         this.despawnFish();
                     }, this, true);    
