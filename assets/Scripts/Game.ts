@@ -530,8 +530,9 @@ export default class Game extends Component {
         }
     }
 
-    public showBonus() {
+    public showBonus(callback: () => void) {
         if (this.bonusShowing) {
+            callback();
             return;
         }
         this.bonusShowing = true;
@@ -541,7 +542,7 @@ export default class Game extends Component {
         }
         this.bonus.getComponent(GoldBonus).appear(() => {
             this.bonusShowing = false;
-            this.hiddenMask();
+            callback();
         });
     }
 

@@ -141,13 +141,17 @@ export default class Fish extends Component {
                 this.game.gainCoins(fp, this.gold, this.killerIndex);
                 this.gold = 0;
             }
+            // 死亡动画
             this.anim.play(this.fishType.name + '_die');
             if (this.fishType.name.includes('jinshayu')) {
                 this.game.showMask();
                 this.node.setSiblingIndex(999);
+                const self = this;
                 this.anim!.on(Animation.EventType.FINISHED, () => {
-                    this.game.showBonus();
-                    this.despawnFish();
+                    this.game.showBonus(() => {
+                        self.game.hiddenMask();
+                    });
+                    self.despawnFish();
                 }, this, true);    
             } else {
                 if (this.fishType.name.includes('shayu')) {

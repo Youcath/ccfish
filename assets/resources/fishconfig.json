@@ -83,7 +83,7 @@
         "name": "fish_jinshayu",
         "hp": 80,
         "gold": 60,
-        "weight": 0.3,
+        "weight": 1.0,
         "w": 400,
         "h": 70,
         "x": 38,
