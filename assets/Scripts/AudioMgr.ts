@@ -48,8 +48,7 @@ export class AudioMgr {
             resources.load(sound, (err, clip: AudioClip) => {
                 if (err) {
                     console.log(err);
-                }
-                else {
+                } else {
                     this._audioSource.stop();
                     this._audioSource.clip = clip;
                     this._audioSource.loop = true;

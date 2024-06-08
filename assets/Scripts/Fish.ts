@@ -1,4 +1,4 @@
-import { _decorator, Component, Animation, Vec3, v3, Sprite, find, UITransform, BoxCollider2D, tween, math, Tween, Node, log, Contact2DType, Collider2D, IPhysics2DContact, size, v2, RichText } from 'cc';
+import { _decorator, Component, Animation, Vec3, v3, Sprite, find, UITransform, BoxCollider2D, tween, math, Tween, Node, log, Contact2DType, Collider2D, IPhysics2DContact, size, v2, RichText, Prefab, instantiate } from 'cc';
 const { ccclass, property } = _decorator;
 
 import { FishState, FishType } from './FishType';
@@ -13,6 +13,7 @@ import { Bomb } from './Bomb'
 export default class Fish extends Component {
     // animation 这个属性声明类型，为了在编辑器面板显示类型
     @property(Animation) anim: Animation | null = null;
+    @property(Prefab) bombPreb: Prefab | null = null;
 
     // 爆炸
     bomb: Node;
@@ -41,7 +42,6 @@ export default class Fish extends Component {
         this.enabled = true;
         this.node.active = true;
         this.node.parent = game.node;
-        this.bomb = this.node.getChildByName('bomb');
         this.spawnFish();
     }
 
@@ -157,6 +157,7 @@ export default class Fish extends Component {
                 if (this.fishType.name.includes('shayu')) {
                     this.game.showMask();
                     this.node.setSiblingIndex(999);
+                    this.bomb = instantiate(this.bombPreb);
                     this.bomb.getComponent(Bomb).show(this.node.position);
                     this.game.showCameraEasing();
                     this.anim!.on(Animation.EventType.FINISHED, () => {
@@ -175,7 +176,6 @@ export default class Fish extends Component {
         this.node.active = false;
         this.tween.stop();
         this.game.despawnFish(this.node);
-        log('despawn one Fish.');
     }
 
     // 碰撞检测，鱼被打死的逻辑

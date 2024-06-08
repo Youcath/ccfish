@@ -500,10 +500,6 @@ export default class Game extends Component {
     }
 
     public despawnFish(fish: Node) {
-        // let idx = this.fishes.indexOf(fish);
-        // if (idx >= 0) {
-        //     this.fishes.splice(idx, 1);
-        // }
         this.fishPool.put(fish);
     }
 
