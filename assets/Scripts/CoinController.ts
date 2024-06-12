@@ -1,4 +1,4 @@
-import { _decorator, Component, Prefab, Sprite, SpriteAtlas, NodePool, Node, Vec3, instantiate, UITransform, find, AudioSource, resources, AudioClip } from 'cc';
+import { _decorator, Component, Prefab, Sprite, SpriteAtlas, NodePool, Node, Vec3, instantiate, UITransform, find, AudioSource, resources, AudioClip, tween, v3 } from 'cc';
 const { ccclass, property } = _decorator;
 
 import Coins from './Coins';
@@ -35,6 +35,14 @@ export default class CoinController extends Component {
     gotSound2: AudioClip;
     @property(AudioClip)
     gotSound3: AudioClip;
+
+    @property(SpriteAtlas)
+    numAtlas: SpriteAtlas | null = null;
+    @property(Sprite)
+    tensPlace: Sprite | null = null;
+    @property(Sprite)
+    onesPlace: Sprite | null = null;
+
     coinUpPool: NodePool;
     coinsPool: NodePool;
     //    // +金币数字
@@ -43,6 +51,7 @@ export default class CoinController extends Component {
     oneCoin: Node;
     master: Player;
     audio: AudioSource;
+    coinCounting: Node;
     //    // LIFE-CYCLE CALLBACKS:
     onLoad() {
 
@@ -53,6 +62,7 @@ export default class CoinController extends Component {
         this.coinsPool = new NodePool();
         this.setValue(this.currentValue);
         this.audio = this.node.getComponent(AudioSource);
+        this.coinCounting = master.node.getChildByName('CoinCounting');
     }
     //    // 数字固定长度lenght，不够的补0
     prefixInteger(num: number, length: number) {
@@ -101,17 +111,44 @@ export default class CoinController extends Component {
 
         this.coin_up.getComponent(NumUp).init(coinPos, coinnum, this);
 
-        // 金币对象池
-        if (this.coinsPool.size() > 0) {
-            this.oneCoin = this.coinsPool.get();
-        } else {
-            this.oneCoin = instantiate(this.coinsPrefab);
-        }
-        this.oneCoin.getComponent(Coins).init(this);
+        // // 金币对象池
+        // if (this.coinsPool.size() > 0) {
+        //     this.oneCoin = this.coinsPool.get();
+        // } else {
+        //     this.oneCoin = instantiate(this.coinsPrefab);
+        // }
+        // this.oneCoin.getComponent(Coins).init(this);
         // 转为世界坐标
         let toPos = this.number3.node.parent.getComponent(UITransform).convertToWorldSpaceAR(this.number3.node.getPosition());
-        this.oneCoin.getComponent(Coins).goDown(coinPos, toPos);
+
+        let count = Math.round(coinnum / 5);
+        for (let i = 0; i < count; i++) {
+            let coin: Node;
+            // 金币对象池
+            if (this.coinsPool.size() > 0) {
+                coin = this.coinsPool.get();
+            } else {
+                coin = instantiate(this.coinsPrefab);
+            }
+            coin.getComponent(Coins).init(this);
+            coin.getComponent(Coins).goDown(coinPos, toPos, i);
+        }
         this.addCoins(coinnum);
+        this.coinCounting.active = true;
+        let str = coinnum.toString();
+        let nums = str.split('');
+        if (nums.length == 1) {
+            this.onesPlace.node.active = false;
+            this.tensPlace.spriteFrame = this.numAtlas.getSpriteFrame('goldnum_' + nums[0]);
+        } else {
+            this.onesPlace.node.active = true;
+            this.tensPlace.spriteFrame = this.numAtlas.getSpriteFrame('goldnum_' + nums[0]);
+            this.onesPlace.spriteFrame = this.numAtlas.getSpriteFrame('goldnum_' + nums[1]);
+        }
+        tween(this.coinCounting).by(1, {position: v3(0, 50)}).call(() => {
+            this.coinCounting.active = false;
+            this.coinCounting.position = v3(-60, 0);
+        }).start();
 
         if (coinnum <= 10) {
             this.playSound(this.gotSound1);

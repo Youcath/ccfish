@@ -15,7 +15,6 @@ export class Player extends Component {
     coinController: Node;
     plusNode: Node;
     minusNode: Node;
-    anim: Node;
     oneBullet: Node;
     oneNet: Node;
     //子弹对象池
@@ -39,8 +38,6 @@ export class Player extends Component {
         this.coinController = this.node.getChildByName("number_controller");
         this.plusNode = this.node.getChildByName("plus");
         this.minusNode = this.node.getChildByName("minus");
-        this.anim = this.node.getChildByName("anim");
-        this.anim.active = false;
         this.coinController.getComponent(CoinController).init(this);
         this.weaponNode.getComponent(Weapon).init();
         this.coinController.getComponent(CoinController).currentValue = 200;
@@ -195,15 +192,6 @@ export class Player extends Component {
 
     gainCoins(coinPos: Vec3, value: number) {
         this.coinController.getComponent(CoinController).gainCoins(coinPos, value);
-        // this.anim.active = true;
-        // let animation = this.anim.getComponent(Animation);
-        // animation.crossFade('gold_down', 1);
-
-        // const self = this;
-        // let finishCallback = function() {
-        //     self.anim.active = false;
-        // };
-        // animation.on(Animation.EventType.FINISHED, finishCallback, this);
     }
 }
 
