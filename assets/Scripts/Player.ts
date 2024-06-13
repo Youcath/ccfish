@@ -41,6 +41,7 @@ export class Player extends Component {
         this.coinController.getComponent(CoinController).init(this);
         this.weaponNode.getComponent(Weapon).init();
         this.coinController.getComponent(CoinController).currentValue = 200;
+        game.statistics.scoreUpdate(200, config.index);
         this.audio = this.node.getComponent(AudioSource);
 
         this.node.parent = find('Canvas');

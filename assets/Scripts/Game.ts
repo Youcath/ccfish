@@ -10,6 +10,7 @@ import { Player } from './Player';
 import Weapon from './Weapon';
 import { BombMask } from './BombMask';
 import { GoldBonus } from './GoldBonus';
+import { Statistics } from './Statistics';
 
 @ccclass('Game')
 export default class Game extends Component {
@@ -21,7 +22,8 @@ export default class Game extends Component {
     @property(Prefab) bonusPrefab: Prefab | null = null;
     @property(SpriteAtlas) spAtlas: SpriteAtlas | null = null;
     @property(AudioClip) bgm: AudioClip | null = null;
-
+    @property(Node) statisticsNode: Node;
+    statistics: Statistics;
 
     // 鱼对象池
     fishPool: NodePool;
@@ -47,6 +49,7 @@ export default class Game extends Component {
     totalWeight = 0; 
 
     onLoad() {
+        this.initNodes();
         // 初始化pool
         this.initPools();
 
@@ -64,6 +67,11 @@ export default class Game extends Component {
 
         this.camera = this.node.getChildByName('Camera');
         this.debugLayout = this.node.getChildByName('DebugLayout');
+    }
+
+    private initNodes() {
+        this.statistics = this.statisticsNode.getComponent(Statistics);
+
     }
 
     private initPools() {
@@ -122,6 +130,7 @@ export default class Game extends Component {
                     }
                 }
             }
+            self.statisticsNode.active = false;
         });
     }
 
@@ -198,6 +207,16 @@ export default class Game extends Component {
                 this.debugLayout.active = false;
             } else {
                 this.debugLayout.active = true;
+            }
+        }
+    }
+
+    statisticsButton(event: Event) {
+        if (this.statisticsNode) {
+            if (this.statisticsNode.active) {
+                this.statisticsNode.active = false;
+            } else {
+                this.statisticsNode.active = true;
             }
         }
     }

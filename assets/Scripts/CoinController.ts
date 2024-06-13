@@ -90,6 +90,8 @@ export default class CoinController extends Component {
             cost = level * 2;
         }
         if (this.currentValue >= cost) {
+            this.master.game.statistics.weaponCostUpdate(cost, this.master.playerIndex);
+            this.master.game.statistics.scoreUpdate(-cost, this.master.playerIndex);
             this.setValue(this.currentValue -= cost);
             return true;
         }
@@ -100,8 +102,11 @@ export default class CoinController extends Component {
     cheatCoin() {
         this.currentValue += 100;
         this.setValue(this.currentValue);
+        this.master.game.statistics.scoreUpdate(100, this.master.playerIndex);
     }
     gainCoins(coinPos: Vec3, coinnum: number) {
+        this.master.game.statistics.scoreUpdate(coinnum, this.master.playerIndex);
+        this.master.game.statistics.fishScoreUpdate(coinnum, this.master.playerIndex);
         // 上升的数字对象池
         if (this.coinUpPool.size() > 0) {
             this.coin_up = this.coinUpPool.get();
