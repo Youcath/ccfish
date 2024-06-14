@@ -87,7 +87,7 @@ export default class CoinController extends Component {
     reduceCoin(level: number): boolean {
         let cost = level;
         if (this.master.weaponMode == 3) {
-            cost = level * 2;
+            cost = Math.round(level * 1.5);
         }
         if (this.currentValue >= cost) {
             this.master.game.statistics.weaponCostUpdate(cost, this.master.playerIndex);
@@ -126,7 +126,7 @@ export default class CoinController extends Component {
         // 转为世界坐标
         let toPos = this.number3.node.parent.getComponent(UITransform).convertToWorldSpaceAR(this.number3.node.getPosition());
 
-        let count = Math.round(coinnum / 5);
+        let count = Math.round(coinnum / 10);
         for (let i = 0; i < count; i++) {
             let coin: Node;
             // 金币对象池

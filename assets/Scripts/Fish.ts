@@ -73,7 +73,7 @@ export default class Fish extends Component {
         this.node.angle = -k * 180 / Math.PI;
         this.node.getComponent(Sprite).spriteFrame = this.game.spAtlas.getSpriteFrame(this.fishType.name + '_run_0');
         // 取出鱼的血量
-        this.hp = this.fishType.hp;
+        this.hp = Math.round(this.fishType.hp * (0.75 + this.game.playerCount * 0.04));
         // 掉落金币
         this.gold = this.fishType.gold;
         this.fishState = FishState.alive;
