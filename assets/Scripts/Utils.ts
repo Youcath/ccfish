@@ -75,13 +75,13 @@ export class Utils {
         return (1 - x) * Math.sin(x * 8 * Math.PI);
     }
 
-    // 根据上限和下限，概率性选定值
+    // 根据上限和下限，概率性选定值，返回整数
     static getValueRandom(up: number, down: number): number {
         if (up == down) {
             return up;
         }
 
-        return down + Math.random() * (up - down);
+        return Math.round(down + Math.random() * (up - down));
     }
 
     // 根据基础赔率和翻倍数，计算捕获率 (1-抽水率)/实际赔率

@@ -1,11 +1,11 @@
 import { _decorator, Component, NodePool, Prefab, Node, SpriteAtlas, AudioClip, Vec3, instantiate, UITransform, error, resources, EventTouch, v3, Input, EventKeyboard, KeyCode, input, tween, Camera, Event } from 'cc';
 const { ccclass, property } = _decorator;
 
-import { FishType } from './FishType';
+import { FishType } from './config/FishType';
 import Fish from './Fish';
 import { Utils } from './Utils';
 import { AudioMgr } from './AudioMgr';
-import { PlayerInfo, PlayerNodeConfig } from './PlayerInfo';
+import { PlayerInfo, PlayerNodeConfig } from './config/PlayerInfo';
 import { Player } from './Player';
 import Weapon from './Weapon';
 import { BombMask } from './BombMask';
@@ -51,7 +51,7 @@ export default class Game extends Component {
     // 游戏人数
     playerCount = 10;
     // 抽水率
-    profitRate = 0.2;
+    profitRate = 0.25;
 
     onLoad() {
         this.initNodes();

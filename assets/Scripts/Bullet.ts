@@ -103,12 +103,13 @@ export default class Bullet extends Component {
             }
         }
 
-        // 跑出屏幕的子弹自动回收
+
         if (this.node.getPosition().x >= 900
             || this.node.getPosition().x <= -900
             || this.node.getPosition().y >= 600
             || this.node.getPosition().y <= -600
         ) {
+            // 跑出屏幕的子弹自动回收，保护代码，通常不会走进来
             this.master.oneBullet = null;
             this.master.despawnBullet(this.node);
         }
