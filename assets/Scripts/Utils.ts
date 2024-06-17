@@ -74,5 +74,22 @@ export class Utils {
         // 震动插值函数，震动4个周期，振幅逐渐趋于0
         return (1 - x) * Math.sin(x * 8 * Math.PI);
     }
+
+    // 根据上限和下限，概率性选定值
+    static getValueRandom(up: number, down: number): number {
+        if (up == down) {
+            return up;
+        }
+
+        return down + Math.random() * (up - down);
+    }
+
+    // 根据基础赔率和翻倍数，计算捕获率 (1-抽水率)/实际赔率
+    static getGetRate(odds: number, multiple: number, profit: number): number {
+        if (odds == 0 || multiple == 0) {
+            return 1;
+        }
+        return (1 - profit) / (odds * multiple);
+    }
 }
 

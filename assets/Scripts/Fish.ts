@@ -1,7 +1,7 @@
 import { _decorator, Component, Animation, Vec3, v3, Sprite, find, UITransform, BoxCollider2D, tween, math, Tween, Node, log, Contact2DType, Collider2D, IPhysics2DContact, size, v2, RichText, Prefab, instantiate } from 'cc';
 const { ccclass, property } = _decorator;
 
-import { FishState, FishType } from './FishType';
+import { FishState, FishType } from './config/FishType';
 import Game from './Game';
 import Bullet from './Bullet';
 import Net from './Net';
@@ -17,10 +17,10 @@ export default class Fish extends Component {
 
     // 爆炸
     bomb: Node;
-    // Health point 血量 默认10
-    hp: number = 10;
-    // gold 打死掉落金币数量
-    gold: number = 2;
+    // 基础赔率
+    odds: number = 10;
+    // 翻倍数
+    multiple: number = 1;
     // fish state 鱼的生命状态，默认都是活的
     fishState: FishState = FishState.alive;
     // 保存上一次坐标,用于更新角度
@@ -36,6 +36,9 @@ export default class Fish extends Component {
 
     tween: Tween<Node> | undefined;
     killerIndex: number;
+
+    gotRate: number = 0; // 捕获概率
+    baseBet: number = 1;
 
     init(game: Game) {
         this.game = game;
@@ -72,10 +75,9 @@ export default class Fish extends Component {
         let k = Math.atan((this.firstPosition.y) / (this.firstPosition.x));
         this.node.angle = -k * 180 / Math.PI;
         this.node.getComponent(Sprite).spriteFrame = this.game.spAtlas.getSpriteFrame(this.fishType.name + '_run_0');
-        // 取出鱼的血量
-        this.hp = Math.round(this.fishType.hp * (0.75 + this.game.playerCount * 0.04));
-        // 掉落金币
-        this.gold = this.fishType.gold;
+        this.odds = Utils.getValueRandom(this.fishType.oddsUp, this.fishType.oddsDown);
+        this.multiple = Utils.getValueRandom(this.fishType.multipleUp, this.fishType.multipleDown);
+        this.gotRate = Utils.getGetRate(this.odds, this.multiple, this.game.profitRate);
         this.fishState = FishState.alive;
 
         this.lastPosition = this.node.getPosition();
@@ -93,7 +95,7 @@ export default class Fish extends Component {
 
     // 小鱼游泳，贝塞尔曲线实现
     private swimming() {
-        let duration = Math.random() * 8 + 8;
+        let duration = Math.random() * 10 + 12;
         const tempVec3 = v3();
         const finalPos = Utils.getOutPosition();  // 终点
         const secondPos = Utils.getInnerPosition(); // 第二个控制点
@@ -137,9 +139,9 @@ export default class Fish extends Component {
             collider.size = size(0, 0);
             // 播放金币动画，转为世界坐标
             let fp = this.node.parent.getComponent(UITransform).convertToWorldSpaceAR(this.node.position);
-            if (this.gold > 0) {
-                this.game.gainCoins(fp, this.gold, this.killerIndex);
-                this.gold = 0;
+            if (this.odds > 0) {
+                this.game.gainCoins(fp, this.baseBet * this.odds * this.multiple, this.killerIndex);
+                this.odds = 0;
             }
             // 死亡动画
             this.anim.play(this.fishType.name + '_die');
@@ -184,25 +186,22 @@ export default class Fish extends Component {
     }
 
     private onCollisionEnter(self: Collider2D, other: Collider2D, contact: IPhysics2DContact | null) {
-        let bullet: Bullet = other.node.getComponent(Bullet);
-        if (bullet) {
-            if (bullet.master.weaponMode == 1) {
-                this.hp -= bullet.getAttackValue();
-                if (this.hp <= 0) {
-                    this.fishState = FishState.dead;
-                    this.killerIndex = bullet.masterIndex;
-                }
-                return;
-            }
-        }
+        // let bullet: Bullet = other.node.getComponent(Bullet);
+        // if (bullet) {
+        //     if (bullet.master.weaponMode == 1) {
+        //         this.hp -= bullet.getAttackValue();
+        //         if (this.hp <= 0) {
+        //             this.fishState = FishState.dead;
+        //             this.killerIndex = bullet.masterIndex;
+        //         }
+        //         return;
+        //     }
+        // }
         let net: Net = other.node.getComponent(Net);
         if (net) {
-            let dmg = net.getAttackValue();
-            if (net.game.weaponMode == 2) {
-                dmg *= 2;
-            }
-            this.hp -= dmg;
-            if (this.hp <= 0) {
+            let random = Math.random();
+            if (this.gotRate >= random) {
+                this.baseBet = net.getAttackValue();
                 this.fishState = FishState.dead;
                 this.killerIndex = net.masterIndex;
             }

@@ -26,7 +26,7 @@ export class Player extends Component {
     chooseFishIndex = -1;
     targetPos: Vec3; // for weapon 3
 
-    private bulletInterval = 0.4;
+    private bulletInterval = 0.2;
     private touchShotTime = 0;
 
     init(config: PlayerNodeConfig, game: Game) {

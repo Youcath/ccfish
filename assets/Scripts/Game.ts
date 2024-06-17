@@ -45,8 +45,13 @@ export default class Game extends Component {
     maskShowing = 0;
     bonusShowing = false;
     cameraEasing = false;
-    playerCount = 10;
+
     totalWeight = 0; 
+
+    // 游戏人数
+    playerCount = 10;
+    // 抽水率
+    profitRate = 0.2;
 
     onLoad() {
         this.initNodes();

@@ -64,10 +64,34 @@ export default class Bullet extends Component {
             // 穿透弹速度减半
             speedRate = 0.5;
         }
+
         let bx = this.node.position.x;
         let by = this.node.position.y;
-        bx += dt * this.speed * Math.sin(this.angle / 180 * 3.14) * speedRate;
-        by += dt * this.speed * Math.cos(this.angle / 180 * 3.14) * speedRate;
+
+        bx += dt * this.speed * Math.sin(this.angle / 180 * Math.PI) * speedRate;
+        by += dt * this.speed * Math.cos(this.angle / 180 * Math.PI) * speedRate;
+       
+        if (bx > 640) {
+            // 到达右边界
+            this.angle = -this.angle;
+            bx = 640;
+            this.node.angle = -this.angle;
+        } else if (bx < -640) {
+            // 到达左边界
+            this.angle = -this.angle;
+            bx = -640;
+            this.node.angle = -this.angle;
+        } else if (by > 360) {
+            // 到达上边界
+            this.angle = 180 - this.angle;
+            by = 360;
+            this.node.angle = -this.angle;
+        } else if (by < -360) {
+            // 到达下边界
+            this.angle = 180 - this.angle;
+            by = -360;
+            this.node.angle = -this.angle;
+        }
         this.node.setPosition(bx, by);
 
         if (this.master.weaponMode == 3 && this.target instanceof Vec3) {

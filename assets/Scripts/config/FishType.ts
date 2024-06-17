@@ -1,8 +1,10 @@
 // 定义一个接口，用来对应json配置文件转成对象
 interface FishType{
     name: string;
-    hp: number;
-    gold: number;
+    oddsUp: number,  // 基础赔率上限
+    oddsDown: number, // 基础赔率下限
+    multipleUp: number, // 翻倍数上限
+    multipleDown: number, // 翻倍数下限
     weight: number;
     w: number;  // 碰撞宽
     h: number;  // 碰撞长
