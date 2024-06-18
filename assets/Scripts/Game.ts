@@ -1,4 +1,4 @@
-import { _decorator, Component, NodePool, Prefab, Node, SpriteAtlas, AudioClip, Vec3, instantiate, UITransform, error, resources, EventTouch, v3, Input, EventKeyboard, KeyCode, input, tween, Camera, Event } from 'cc';
+import { _decorator, Component, NodePool, Prefab, Node, SpriteAtlas, AudioClip, Vec3, instantiate, UITransform, error, resources, EventTouch, v3, Input, EventKeyboard, KeyCode, input, tween, Camera, Event, director } from 'cc';
 const { ccclass, property } = _decorator;
 
 import { FishType } from './config/FishType';
@@ -11,6 +11,7 @@ import Weapon from './Weapon';
 import { BombMask } from './BombMask';
 import { GoldBonus } from './GoldBonus';
 import { Statistics } from './Statistics';
+import { Debug } from './debug/Debug';
 
 @ccclass('Game')
 export default class Game extends Component {
@@ -20,6 +21,8 @@ export default class Game extends Component {
     @property(Prefab) playerPrefab: Prefab | null = null;
     @property(Prefab) maskPrefab: Prefab | null = null;
     @property(Prefab) bonusPrefab: Prefab | null = null;
+    @property(Prefab) debugPrefab: Prefab | null = null;
+    @property(Prefab) subDebugPrefab: Prefab | null = null;
     @property(SpriteAtlas) spAtlas: SpriteAtlas | null = null;
     @property(AudioClip) bgm: AudioClip | null = null;
     @property(Node) statisticsNode: Node;
@@ -72,12 +75,18 @@ export default class Game extends Component {
         AudioMgr.inst.play(this.bgm);
 
         this.camera = this.node.getChildByName('Camera');
-        this.debugLayout = this.node.getChildByName('DebugLayout');
+        this.initDebug();
     }
 
     private initNodes() {
         this.statistics = this.statisticsNode.getComponent(Statistics);
+    }
 
+    private initDebug() {
+        if (!this.debugLayout) {
+            this.debugLayout = instantiate(this.debugPrefab);
+            this.debugLayout.getComponent(Debug).init(this);
+        }
     }
 
     private initPools() {
@@ -611,7 +620,8 @@ export default class Game extends Component {
     //     this.unscheduleAllCallbacks();
     // }
 
-    // gameRestart() {
-    //     director.loadScene('Scene/main.scene');
-    // }
+    gameRestart() {
+        console.log('game reset!');
+        director.loadScene('Scene/main.scene');
+    }
 }
