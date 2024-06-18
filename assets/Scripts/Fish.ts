@@ -3,7 +3,6 @@ const { ccclass, property } = _decorator;
 
 import { FishState, FishType } from './config/FishType';
 import Game from './Game';
-import Bullet from './Bullet';
 import Net from './Net';
 import { Utils } from './Utils';
 import { Bomb } from './Bomb'
@@ -140,7 +139,7 @@ export default class Fish extends Component {
             // 播放金币动画，转为世界坐标
             let fp = this.node.parent.getComponent(UITransform).convertToWorldSpaceAR(this.node.position);
             if (this.odds > 0) {
-                this.game.gainCoins(fp, this.baseBet * this.odds * this.multiple, this.killerIndex);
+                this.game.gainCoins(fp, this.odds * this.multiple, this.baseBet, this.killerIndex);
                 this.odds = 0;
             }
             // 死亡动画
@@ -186,19 +185,14 @@ export default class Fish extends Component {
     }
 
     private onCollisionEnter(self: Collider2D, other: Collider2D, contact: IPhysics2DContact | null) {
-        // let bullet: Bullet = other.node.getComponent(Bullet);
-        // if (bullet) {
-        //     if (bullet.master.weaponMode == 1) {
-        //         this.hp -= bullet.getAttackValue();
-        //         if (this.hp <= 0) {
-        //             this.fishState = FishState.dead;
-        //             this.killerIndex = bullet.masterIndex;
-        //         }
-        //         return;
-        //     }
-        // }
         let net: Net = other.node.getComponent(Net);
         if (net) {
+            if (net.master.weaponMode == 4) {
+                if (net.master.targetNode != this.node) {
+                    // 追踪模式的网只对目标鱼产生伤害
+                    return;
+                }
+            }
             let random = Math.random();
             if (this.gotRate >= random) {
                 this.baseBet = net.getAttackValue();

@@ -38,7 +38,8 @@ export default class Game extends Component {
     playerConfig: Map<number, Array<PlayerNodeConfig>>;
     players: Map<number, Node>;
     camera: Node;
-    fishes: Map<string, Node>; // 活跃的鱼集合
+    fishes: Array<Node>; // 活跃的鱼集合
+    chosenFish: Map<number, Node>; // 每个玩家选中的鱼
 
     debugLayout: Node;
 
@@ -81,7 +82,8 @@ export default class Game extends Component {
 
     private initPools() {
         // 鱼
-        this.fishes = new Map();
+        this.fishes = new Array();
+        this.chosenFish = new Map();
         this.fishPool = new NodePool("Fish");
         let initCount = 10;
         for (let i = 0; i < initCount; ++i) {
@@ -166,21 +168,21 @@ export default class Game extends Component {
             }
             cfish.getComponent(Fish).init(this);
             cfish.setSiblingIndex(2);
-            // this.fishes.put(cfish);
-            // this.onFishTouch(cfish);
+            this.fishes.push(cfish);
+            this.onFishTouch(cfish);
         }
     }
 
-    // private onFishTouch(fish: Node) {
-    //     const callback = (event: EventTouch) => {
-    //         // let index = this.fishes.indexOf(fish);
-    //         this.players.forEach((v, k) => {
-
-    //         });
-            
-    //     };
-    //     fish.on(Input.EventType.TOUCH_START, callback, fish);
-    // }
+    private onFishTouch(fish: Node) {
+        const callback = (event: EventTouch) => {
+            this.players.forEach((v, k) => {
+                this.chosenFish.set(k, fish);
+                v.getComponent(Player).setTarget(fish);
+            });
+            this.onTouchStart(event);
+        };
+        fish.on(Input.EventType.TOUCH_START, callback, fish);
+    }
 
     private onTouchStart(event: EventTouch) {
         if (this.maskShowing > 0) return;
@@ -252,7 +254,13 @@ export default class Game extends Component {
         }
     }
     switchModeButton(event: Event, customEventData: string) {
-        this.players.get(Number.parseInt(customEventData)).getComponent(Player).switchMode();
+        let index = Number.parseInt(customEventData);
+        let player = this.players.get(index).getComponent(Player);
+        player.switchMode();
+        if (player.weaponMode == 4) {
+            this.chosenFish.set(index, this.fishes[0]);
+            player.setTarget(this.fishes[0]);
+        }
     }
 
     private onKeyDown(event: EventKeyboard) {
@@ -519,11 +527,22 @@ export default class Game extends Component {
         }
     }
 
-    public gainCoins(coinPos: Vec3, value: number, player: number) {
-        this.players.get(player).getComponent(Player).gainCoins(coinPos, value);
+    public gainCoins(coinPos: Vec3, odds: number, bet: number, player: number) {
+        this.players.get(player).getComponent(Player).gainCoins(coinPos, odds, bet);
     }
 
     public despawnFish(fish: Node) {
+        fish.off(Input.EventType.TOUCH_START);
+        let index = this.fishes.indexOf(fish);
+        if (index >= 0) {
+            this.fishes.splice(index, 1);
+        }
+        this.chosenFish.forEach((v, k) => {
+            if (v == fish) {
+                v = this.fishes[0];
+                this.players.get(k).getComponent(Player).setTarget(v);
+            }
+        });
         this.fishPool.put(fish);
     }
 
