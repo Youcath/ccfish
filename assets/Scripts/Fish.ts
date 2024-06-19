@@ -1,10 +1,10 @@
-import { _decorator, Component, Animation, Vec3, v3, Sprite, find, UITransform, BoxCollider2D, tween, math, Tween, Node, log, Contact2DType, Collider2D, IPhysics2DContact, size, v2, RichText, Prefab, instantiate } from 'cc';
+import { _decorator, Component, Animation, Vec3, v3, Sprite, UITransform, BoxCollider2D, tween, math, Tween, Node, Contact2DType, Collider2D, IPhysics2DContact, size, v2, Prefab, instantiate, System, sys } from 'cc';
 const { ccclass, property } = _decorator;
 
 import { FishState, FishType } from './config/FishType';
 import Game from './Game';
 import Net from './Net';
-import { Utils } from './Utils';
+import { Utils } from './utils/Utils';
 import { Bomb } from './Bomb'
 
 
@@ -37,9 +37,11 @@ export default class Fish extends Component {
     killerIndex: number;
 
     gotRate: number = 0; // 捕获概率
-    baseBet: number = 1;
+
+    _uuid: string = '';
 
     init(game: Game) {
+        this._uuid = new Date().getTime() + "-" + this.uuid;
         this.game = game;
         this.enabled = true;
         this.node.active = true;
@@ -52,6 +54,10 @@ export default class Fish extends Component {
         if (collider) {
             collider.on(Contact2DType.BEGIN_CONTACT, this.onCollisionEnter, this);
         }
+    }
+
+    unuse() {
+        this._uuid = '';
     }
 
     private spawnFish() {
@@ -104,10 +110,10 @@ export default class Fish extends Component {
                 this.node.setPosition(tempVec3.clone());
             }
         })
-        .call(() => {
-            this.despawnFish();
-        })
-        .start();
+            .call(() => {
+                this.despawnFish();
+            })
+            .start();
     }
 
     protected update(dt: number): void {
@@ -139,7 +145,7 @@ export default class Fish extends Component {
             // 播放金币动画，转为世界坐标
             let fp = this.node.parent.getComponent(UITransform).convertToWorldSpaceAR(this.node.position);
             if (this.odds > 0) {
-                this.game.gainCoins(fp, this.odds * this.multiple, this.baseBet, this.killerIndex);
+                this.game.gainCoins(fp, this.odds * this.multiple, this.killerIndex);
                 this.odds = 0;
             }
             // 死亡动画
@@ -153,7 +159,7 @@ export default class Fish extends Component {
                         self.game.hiddenMask();
                     });
                     self.despawnFish();
-                }, this, true);    
+                }, this, true);
             } else {
                 if (this.fishType.name.includes('shayu')) {
                     this.game.showMask();
@@ -164,9 +170,9 @@ export default class Fish extends Component {
                     this.anim!.on(Animation.EventType.FINISHED, () => {
                         this.game.hiddenMask();
                         this.despawnFish();
-                    }, this, true);    
+                    }, this, true);
                 } else {
-                    this.anim!.on(Animation.EventType.FINISHED, this.despawnFish, this, true);    
+                    this.anim!.on(Animation.EventType.FINISHED, this.despawnFish, this, true);
                 }
             }
         }
@@ -188,14 +194,13 @@ export default class Fish extends Component {
         let net: Net = other.node.getComponent(Net);
         if (net) {
             if (net.master.weaponMode == 4) {
-                if (net.master.targetNode != this.node) {
+                if (net.master.targetUuid != this._uuid) {
                     // 追踪模式的网只对目标鱼产生伤害
                     return;
                 }
             }
             let random = Math.random();
-            if (this.gotRate >= random) {
-                this.baseBet = net.getAttackValue();
+            if (this.fishState != FishState.dead && this.gotRate >= random) {
                 this.fishState = FishState.dead;
                 this.killerIndex = net.masterIndex;
             }

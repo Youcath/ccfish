@@ -3,7 +3,7 @@ const { ccclass, property } = _decorator;
 
 import { FishType } from './config/FishType';
 import Fish from './Fish';
-import { Utils } from './Utils';
+import { Utils } from './utils/Utils';
 import { AudioMgr } from './AudioMgr';
 import { PlayerInfo, PlayerNodeConfig } from './config/PlayerInfo';
 import { Player } from './Player';
@@ -12,6 +12,7 @@ import { BombMask } from './BombMask';
 import { GoldBonus } from './GoldBonus';
 import { Statistics } from './debug/Statistics';
 import { Debug } from './debug/Debug';
+import { TreeMapForFish } from './utils/TreeMapForFish';
 
 @ccclass('Game')
 export default class Game extends Component {
@@ -43,8 +44,8 @@ export default class Game extends Component {
     playerConfig: Map<number, Array<PlayerNodeConfig>>;
     players: Map<number, Node>;
     camera: Node;
-    fishes: Array<Node>; // 活跃的鱼集合
-    chosenFish: Map<number, Node>; // 每个玩家选中的鱼
+    fishes: TreeMapForFish; // 活跃的鱼集合
+    // chosenFish: Map<number, Node>; // 每个玩家选中的鱼
 
     debugLayout: Node;
 
@@ -97,8 +98,8 @@ export default class Game extends Component {
 
     private initPools() {
         // 鱼
-        this.fishes = new Array();
-        this.chosenFish = new Map();
+        this.fishes = new TreeMapForFish();
+        // this.chosenFish = new Map();
         this.fishPool = new NodePool("Fish");
         let initCount = 10;
         for (let i = 0; i < initCount; ++i) {
@@ -184,7 +185,7 @@ export default class Game extends Component {
             }
             cfish.getComponent(Fish).init(this);
             cfish.setSiblingIndex(2);
-            this.fishes.push(cfish);
+            this.fishes.set(cfish);
             this.onFishTouch(cfish);
         }
     }
@@ -192,8 +193,8 @@ export default class Game extends Component {
     private onFishTouch(fish: Node) {
         const callback = (event: EventTouch) => {
             this.players.forEach((v, k) => {
-                this.chosenFish.set(k, fish);
-                v.getComponent(Player).setTarget(fish);
+                const f = fish.getComponent(Fish)._uuid;
+                v.getComponent(Player).setTarget(f);
             });
             this.onTouchStart(event);
         };
@@ -273,8 +274,12 @@ export default class Game extends Component {
         let index = Number.parseInt(customEventData);
         let player = this.players.get(index).getComponent(Player);
         player.switchMode();
-        if (player.weaponMode == 4) {
-            this.chosenFish.set(index, this.fishes[0]);
+        if (player.weaponMode == 4 && this.fishes.length() > 0) {
+            // let i = Math.round(this.fishes.length / 2);
+            // if (i >= this.fishes.length) {
+            //     i = this.fishes.length - 1;
+            // }
+            // this.chosenFish.set(index, this.fishes[0]);
             player.setTarget(this.fishes[0]);
         }
     }
@@ -543,22 +548,27 @@ export default class Game extends Component {
         }
     }
 
-    public gainCoins(coinPos: Vec3, odds: number, bet: number, player: number) {
-        this.players.get(player).getComponent(Player).gainCoins(coinPos, odds, bet);
+    public gainCoins(coinPos: Vec3, odds: number, player: number) {
+        this.players.get(player).getComponent(Player).gainCoins(coinPos, odds);
     }
 
     public despawnFish(fish: Node) {
         fish.off(Input.EventType.TOUCH_START);
-        let index = this.fishes.indexOf(fish);
-        if (index >= 0) {
-            this.fishes.splice(index, 1);
+        const f = fish.getComponent(Fish);
+        
+        if (f._uuid != "") {
+            this.fishes.delete(f._uuid);
+            this.players.forEach((v, k) => {
+                let player = v.getComponent(Player);
+                if (player.weaponMode == 4 && f._uuid == player.targetUuid) {
+                    // 需要切换目标
+                    let newTarget = this.fishes.values()[0].getComponent(Fish)._uuid;
+                    player.setTarget(newTarget);
+                }
+            });
+            
         }
-        this.chosenFish.forEach((v, k) => {
-            if (v == fish) {
-                v = this.fishes[0];
-                this.players.get(k).getComponent(Player).setTarget(v);
-            }
-        });
+        f.unuse();
         this.fishPool.put(fish);
     }
 

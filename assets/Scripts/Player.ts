@@ -5,7 +5,7 @@ import { PlayerNodeConfig } from './config/PlayerInfo';
 import Game from './Game';
 import Bullet from './Bullet';
 import Net from './Net';
-import { Utils } from './Utils';
+import { Utils } from './utils/Utils';
 const { ccclass, property } = _decorator;
 
 @ccclass('Player')
@@ -26,7 +26,7 @@ export class Player extends Component {
     weaponMode = 1; // 1为普通炮弹，遇到鱼就张网；2为可控炮弹，第二次shot张网；3为穿透炮弹，在目标点张网；4为追踪弹
     chooseFishIndex = -1;
     targetPos: Vec3; // for weapon 3
-    targetNode: Node; // for weapon 4
+    targetUuid: string; // for weapon 4
 
     bullets: Array<Node>;
 
@@ -67,8 +67,9 @@ export class Player extends Component {
             }
             let left = this.coinController.getComponent(CoinController).reduceCoin(level);
             if (left) {
-                if (this.weaponMode == 4 && this.targetNode) {
-                    let world = find('Canvas').getComponent(UITransform).convertToWorldSpaceAR(this.targetNode.getPosition());
+                if (this.weaponMode == 4) {
+                    const targetNode = this.game.fishes.get(this.targetUuid);
+                    let world = find('Canvas').getComponent(UITransform).convertToWorldSpaceAR(targetNode.getPosition());
                     let targetPos = this.node.getComponent(UITransform).convertToNodeSpaceAR(world);
                     // 炮台坐标
                     let weaponPos = this.weaponNode.getPosition();
@@ -155,14 +156,12 @@ export class Player extends Component {
         this.targetPos = nodePos;
     }
 
-    setTarget(t: Node) {
-        if (t != this.targetNode) {
-            this.targetNode = t;
+    setTarget(t: string) {
+        if (t != this.targetUuid) {
+            this.targetUuid = t;
             while (this.bullets.length > 0) {
                 let n = this.bullets.pop();
                 // 切换目标时，瞄准上个目标的子弹原地销毁
-                let p = find('Canvas').getComponent(UITransform).convertToWorldSpaceAR(n.getPosition());
-                this.castNet(v2(p.x, p.y));
                 this.despawnBullet(n);
             }
         }
@@ -180,10 +179,14 @@ export class Player extends Component {
             this.plusNode.active = false;
             this.minusNode.active = true;
             this.minusNode.angle = 0;
-        } else {
+        } else if (this.weaponMode == 3) {
             this.plusNode.active = false;
             this.minusNode.active = true;
             this.minusNode.angle = 90;
+        } else {
+            this.plusNode.active = false;
+            this.minusNode.active = true;
+            this.minusNode.angle = 45;
         }
     }
 
@@ -235,8 +238,8 @@ export class Player extends Component {
         this.netsPool.put(net);
     }
 
-    gainCoins(coinPos: Vec3, odds: number, bet: number) {
-        this.coinController.getComponent(CoinController).gainCoins(coinPos, odds, bet);
+    gainCoins(coinPos: Vec3, odds: number) {
+        this.coinController.getComponent(CoinController).gainCoins(coinPos, odds, this.weaponNode.getComponent(Weapon).curLevel);
     }
 }
 

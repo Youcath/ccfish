@@ -13,7 +13,7 @@ const { ccclass, property } = _decorator;
 import Game from './Game';
 import Net from './Net';
 import { Player } from './Player';
-import { Utils } from './Utils';
+import { Utils } from './utils/Utils';
 
 @ccclass('Bullet')
 export default class Bullet extends Component {
@@ -67,7 +67,8 @@ export default class Bullet extends Component {
             // 穿透弹速度减半
             speedRate = 0.5;
         } else if (this.master.weaponMode == 4) {
-            let targetPos = this.master.targetNode.getPosition();
+            let targetNode = this.game.fishes.get(this.master.targetUuid);
+            let targetPos = targetNode.getPosition();
             let dir = targetPos.clone().subtract(this.node.position);
             if (dir.length() < 8) {
                 let workPos = find('Canvas').getComponent(UITransform).convertToWorldSpaceAR(targetPos);

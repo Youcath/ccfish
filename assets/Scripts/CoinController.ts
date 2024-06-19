@@ -120,13 +120,6 @@ export default class CoinController extends Component {
 
         this.coin_up.getComponent(NumUp).init(coinPos, odds, this);
 
-        // // 金币对象池
-        // if (this.coinsPool.size() > 0) {
-        //     this.oneCoin = this.coinsPool.get();
-        // } else {
-        //     this.oneCoin = instantiate(this.coinsPrefab);
-        // }
-        // this.oneCoin.getComponent(Coins).init(this);
         // 转为世界坐标
         let toPos = this.number3.node.parent.getComponent(UITransform).convertToWorldSpaceAR(this.number3.node.getPosition());
 
