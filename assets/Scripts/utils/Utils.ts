@@ -84,12 +84,12 @@ export class Utils {
         return Math.round(down + Math.random() * (up - down));
     }
 
-    // 根据基础赔率和翻倍数，计算捕获率 (1-抽水率)/实际赔率
-    static getGetRate(odds: number, multiple: number, profit: number): number {
+    // 根据基础赔率和翻倍数，计算捕获率 (1-抽水率)/实际赔率 * 成群概率
+    static getGetRate(odds: number, multiple: number, profit: number, together: number): number {
         if (odds == 0 || multiple == 0) {
             return 1;
         }
-        return (1 - profit) / (odds * multiple);
+        return (1 - profit) * together / (odds * multiple);
     }
 }
 

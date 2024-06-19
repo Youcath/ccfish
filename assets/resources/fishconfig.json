@@ -49,8 +49,8 @@
     },
     {
         "name": "fish_fuyi",
-        "oddsUp": 20,
-        "oddsDown": 20,
+        "oddsUp": 30,
+        "oddsDown": 30,
         "multipleUp": 1,
         "multipleDown": 1,
         "weight": 1,

@@ -18,7 +18,7 @@
     "__editorExtras__": {},
     "_parent": null,
     "_children": [],
-    "_active": false,
+    "_active": true,
     "_components": [
       {
         "__id__": 2
@@ -283,6 +283,10 @@
     },
     "bombPreb": {
       "__uuid__": "e823291b-4f33-407d-b116-8e46b7b3896b",
+      "__expectedType__": "cc.Prefab"
+    },
+    "subFishPreb": {
+      "__uuid__": "956cfd88-aa73-4404-b019-371ef1e5b05d",
       "__expectedType__": "cc.Prefab"
     },
     "_id": ""

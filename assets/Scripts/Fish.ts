@@ -1,4 +1,4 @@
-import { _decorator, Component, Animation, Vec3, v3, Sprite, UITransform, BoxCollider2D, tween, math, Tween, Node, Contact2DType, Collider2D, IPhysics2DContact, size, v2, Prefab, instantiate, System, sys } from 'cc';
+import { _decorator, Component, Animation, Vec3, v3, Sprite, UITransform, BoxCollider2D, tween, math, Tween, Node, Contact2DType, Collider2D, IPhysics2DContact, size, v2, Prefab, instantiate, System, sys, Size, Widget } from 'cc';
 const { ccclass, property } = _decorator;
 
 import { FishState, FishType } from './config/FishType';
@@ -7,12 +7,14 @@ import Net from './Net';
 import { Utils } from './utils/Utils';
 import { Bomb } from './Bomb'
 
+const RING_RATE = 0.2;
 
 @ccclass('Fish')
 export default class Fish extends Component {
     // animation 这个属性声明类型，为了在编辑器面板显示类型
     @property(Animation) anim: Animation | null = null;
     @property(Prefab) bombPreb: Prefab | null = null;
+    @property(Prefab) subFishPreb: Prefab | null = null;
 
     // 爆炸
     bomb: Node;
@@ -39,6 +41,7 @@ export default class Fish extends Component {
     gotRate: number = 0; // 捕获概率
 
     _uuid: string = '';
+    hasRing = false;
 
     init(game: Game) {
         this._uuid = new Date().getTime() + "-" + this.uuid;
@@ -82,12 +85,14 @@ export default class Fish extends Component {
         this.node.getComponent(Sprite).spriteFrame = this.game.spAtlas.getSpriteFrame(this.fishType.name + '_run_0');
         this.odds = Utils.getValueRandom(this.fishType.oddsUp, this.fishType.oddsDown);
         this.multiple = Utils.getValueRandom(this.fishType.multipleUp, this.fishType.multipleDown);
-        this.gotRate = Utils.getGetRate(this.odds, this.multiple, this.game.profitRate);
+        this.performRing();
+        this.gotRate = Utils.getGetRate(this.odds, this.multiple, this.game.profitRate, this.hasRing ? RING_RATE : 1);
         this.fishState = FishState.alive;
 
         this.lastPosition = this.node.getPosition();
         this.changeCollider();
         this.anim.play(this.fishType.name + '_run');
+        
         this.swimming();
     }
 
@@ -96,6 +101,26 @@ export default class Fish extends Component {
         let collider = this.node.getComponent(BoxCollider2D);
         collider.offset = v2(this.fishType.x, this.fishType.y);
         collider.size = new math.Size(this.fishType.w, this.fishType.h);
+    }
+
+    private performRing() {
+        this.node.removeAllChildren();
+        if (this.odds * this.multiple < 30 && Math.random() <= RING_RATE) {
+            // 倍率小于30的鱼， 20%概率生成环
+            this.hasRing = true;
+            let ringNode = instantiate(this.subFishPreb);
+            let s = this.node.getComponent(UITransform).contentSize;
+            let diameter = Math.max(s.x, s.y); // 环的直径取鱼矩形框的长边
+            ringNode.getComponent(UITransform).setContentSize(size(diameter, diameter));
+            let w = ringNode.getComponent(Widget);
+            w.horizontalCenter = this.fishType.x; // 根据碰撞体积的中心偏移调整圆心位置
+            w.verticalCenter = this.fishType.y;
+            this.node.addChild(ringNode);
+
+            tween(ringNode).to(6, {angle: 360}).to(6, {angle: 0}).union().repeatForever().start(); // 永久旋转
+        } else {
+            this.hasRing = false;
+        }
     }
 
     // 小鱼游泳，贝塞尔曲线实现

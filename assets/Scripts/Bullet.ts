@@ -14,6 +14,7 @@ import Game from './Game';
 import Net from './Net';
 import { Player } from './Player';
 import { Utils } from './utils/Utils';
+import Fish from './Fish';
 
 @ccclass('Bullet')
 export default class Bullet extends Component {
@@ -68,11 +69,15 @@ export default class Bullet extends Component {
             speedRate = 0.5;
         } else if (this.master.weaponMode == 4) {
             let targetNode = this.game.fishes.get(this.master.targetUuid);
+            if (targetNode == null) {
+                this.master.despawnBullet(this.node);
+                return;
+            }
             let targetPos = targetNode.getPosition();
             let dir = targetPos.clone().subtract(this.node.position);
             if (dir.length() < 8) {
-                let workPos = find('Canvas').getComponent(UITransform).convertToWorldSpaceAR(targetPos);
-                this.master.castNet(v2(workPos.x, workPos.y));
+                let worldPos = find('Canvas').getComponent(UITransform).convertToWorldSpaceAR(targetPos);
+                this.master.castNet(v2(worldPos.x, worldPos.y));
                 this.master.despawnBullet(this.node);
                 return;
             }
