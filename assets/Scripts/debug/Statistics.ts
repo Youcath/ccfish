@@ -1,4 +1,5 @@
-import { _decorator, Component, Label, Node } from 'cc';
+import { _decorator, Component, instantiate, Label, Node } from 'cc';
+import Game from '../Game';
 const { ccclass, property } = _decorator;
 
 @ccclass('Statistics')
@@ -30,43 +31,39 @@ export class Statistics extends Component {
     playerProfitRateNums: Map<number, number> = new Map();
 
     needUpdate: boolean = false;
+    game: Game;
 
-    protected onLoad(): void {
-        let layout = this.node.getChildByName('Layout');
-        this.totalScore = layout.getChildByName('score');
-        this.totalCost = layout.getChildByName('score-001');
-        this.totalFishScore = layout.getChildByName('score-002');
-        this.totalBonus = layout.getChildByName('score-003');
-        this.totalProfit = layout.getChildByName('score-004');
-        this.totalProfitRate = layout.getChildByName('score-005');
+    init(game: Game) {
+        this.game = game;
+        this.node.parent = game.node;
+        let totalNode = instantiate(this.game.substatisticsPrefab);
+        this.totalScore = totalNode.getChildByName('score');
+        this.totalCost = totalNode.getChildByName('score-001');
+        this.totalFishScore = totalNode.getChildByName('score-002');
+        this.totalBonus = totalNode.getChildByName('score-003');
+        this.totalProfit = totalNode.getChildByName('score-004');
+        this.totalProfitRate = totalNode.getChildByName('score-005');
+        this.node.addChild(totalNode);
 
-        for (let i = 1; i <= 10; i++) {
-            let playerLayout = this.node.getChildByName('Layout-00' + i);
-            this.playerScores[i]= playerLayout.getChildByName('score');
+        for (let i = 1; i <= this.game.playerCount; i++) {
+            let playerLayout = instantiate(this.game.substatisticsPrefab);
+            playerLayout.getChildByName('title').getComponent(Label).string = "玩家" + i;
+            this.playerScores[i] = playerLayout.getChildByName('score');
             this.playerCosts[i] = playerLayout.getChildByName('score-001');
             this.playerFishScores[i] = playerLayout.getChildByName('score-002');
             this.playerBonuses[i] = playerLayout.getChildByName('score-003');
             this.playerProfits[i] = playerLayout.getChildByName('score-004');
             this.playerProfitRates[i] = playerLayout.getChildByName('score-005');
+            this.node.addChild(playerLayout);
+            this.playerScoreNums[i] = 0;
+            this.playerCostNums[i] = 0;
+            this.playerFishScoreNums[i] = 0;
+            this.playerBonusNums[i] = 0;
         }
-    }
 
-    protected update(dt: number): void {
-        if (this.totalScore && this.needUpdate) {
-            this.needUpdate = false;
-            for (let i = 1; i <= 10; i++) {
-                this.scoreUpdate(0, i);
-                this.fishScoreUpdate(0, i);
-                this.weaponCostUpdate(0, i);
-                this.bonusScoreUpdate(0, i);
-            }
-        }
     }
 
     scoreUpdate(delta: number, playerIndex: number) {
-        if (!this.playerScoreNums[playerIndex]) {
-            this.playerScoreNums[playerIndex] = 0;
-        }
         this.playerScoreNums[playerIndex] += delta;
 
         this.totalScoreNum += delta;
@@ -87,9 +84,6 @@ export class Statistics extends Component {
     }
 
     weaponCostUpdate(cost: number, playerIndex: number) {
-        if (!this.playerCostNums[playerIndex]) {
-            this.playerCostNums[playerIndex] = 0;
-        }
         this.playerCostNums[playerIndex] += cost;
 
         this.totalCostNum += cost;
@@ -108,9 +102,7 @@ export class Statistics extends Component {
     }
 
     fishScoreUpdate(score: number, playerIndex: number) {
-        if (!this.playerFishScoreNums[playerIndex]) {
-            this.playerFishScoreNums[playerIndex] = 0;
-        }
+
         this.playerFishScoreNums[playerIndex] += score;
 
         this.totalFishScoreNum += score;
@@ -129,9 +121,7 @@ export class Statistics extends Component {
     }
 
     bonusScoreUpdate(score: number, playerIndex: number) {
-        if (!this.playerBonusNums[playerIndex]) {
-            this.playerBonusNums[playerIndex] = 0;
-        }
+
         this.playerBonusNums[playerIndex] += score;
 
         this.totalBonusNum += score;
@@ -154,12 +144,12 @@ export class Statistics extends Component {
 
         this.totalProfitNum = this.totalCostNum - (this.totalFishScoreNum + this.totalBonusNum);
 
-        
+
         this.profitRateUpdate(playerIndex);
     }
 
     private profitRateUpdate(playerIndex: number) {
-        this.playerProfitRateNums[playerIndex] = this.playerProfitNums[playerIndex] / ( this.playerScoreNums[playerIndex] + this.playerCostNums[playerIndex] - (this.playerFishScoreNums[playerIndex] + this.playerBonusNums[playerIndex])) * 100;
+        this.playerProfitRateNums[playerIndex] = this.playerProfitNums[playerIndex] / (this.playerScoreNums[playerIndex] + this.playerCostNums[playerIndex] - (this.playerFishScoreNums[playerIndex] + this.playerBonusNums[playerIndex])) * 100;
 
         this.totalProfitRateNum = this.totalProfitNum / (this.totalScoreNum + this.totalCostNum - (this.totalFishScoreNum + this.totalBonusNum)) * 100;
         this.updateProfitNodes(playerIndex);

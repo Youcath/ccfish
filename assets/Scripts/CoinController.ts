@@ -54,6 +54,7 @@ export default class CoinController extends Component {
     master: Player;
     audio: AudioSource;
     coinCounting: Node;
+    lastGot: number;
     //    // LIFE-CYCLE CALLBACKS:
     onLoad() {
 
@@ -142,8 +143,48 @@ export default class CoinController extends Component {
             coin.getComponent(Coins).goDown(coinPos, toPos, i);
         }
         this.addCoins(coinnum);
-        this.coinCounting.active = true;
-        let str = coinnum.toString();
+        this.doCoinNumberShowingAmin(coinnum);
+
+        if (coinnum <= 10) {
+            this.playSound(this.gotSound1);
+        } else if (coinnum < 50) {
+            this.playSound(this.gotSound2);
+        } else {
+            this.playSound(this.gotSound3);
+        }
+    }
+    // 展示分值实际上涨数量的动画
+    private doCoinNumberShowingAmin(coinnum: number) {
+        const finishCallback = () => {
+            this.coinCounting.active = false;
+            this.coinCounting.position = v3(-60, 0);
+        }
+
+        if (this.coinCounting.active) {
+            // 还在显示上次的分数
+            this.lastGot += coinnum;
+            this.showNumbers(this.lastGot);
+            tween(this.coinCounting).stop();
+            this.coinCounting.position = v3(-60, 50);
+            this.unschedule(finishCallback);
+            this.scheduleOnce(finishCallback, 3);
+        } else {
+            this.coinCounting.active = true;
+            this.lastGot = coinnum;
+            this.showNumbers(coinnum);
+    
+            tween(this.coinCounting).stop();
+            this.coinCounting.position = v3(-60, 0);
+            this.unschedule(finishCallback);
+            tween(this.coinCounting).by(1, {position: v3(0, 50)}).call(() => {
+                this.scheduleOnce(finishCallback, 3);
+            }).start();
+        }
+        
+    }
+
+    private showNumbers(num: number) {
+        let str = num.toString();
         let nums = str.split('');
         if (nums.length == 1) {
             this.onesPlace.node.active = false;
@@ -161,20 +202,6 @@ export default class CoinController extends Component {
             this.humsPlace.spriteFrame = this.numAtlas.getSpriteFrame('goldnum_' + nums[0]);
             this.tensPlace.spriteFrame = this.numAtlas.getSpriteFrame('goldnum_' + nums[1]);
             this.onesPlace.spriteFrame = this.numAtlas.getSpriteFrame('goldnum_' + nums[2]);
-        }
-        tween(this.coinCounting).by(1, {position: v3(0, 50)}).call(() => {
-            this.scheduleOnce(()=>{
-                this.coinCounting.active = false;
-                this.coinCounting.position = v3(-60, 0);
-            }, 3);
-        }).start();
-
-        if (coinnum <= 10) {
-            this.playSound(this.gotSound1);
-        } else if (coinnum < 50) {
-            this.playSound(this.gotSound2);
-        } else {
-            this.playSound(this.gotSound3);
         }
     }
     despawnCoins(coin: Node) {

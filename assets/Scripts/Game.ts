@@ -10,7 +10,7 @@ import { Player } from './Player';
 import Weapon from './Weapon';
 import { BombMask } from './BombMask';
 import { GoldBonus } from './GoldBonus';
-import { Statistics } from './Statistics';
+import { Statistics } from './debug/Statistics';
 import { Debug } from './debug/Debug';
 
 @ccclass('Game')
@@ -23,9 +23,11 @@ export default class Game extends Component {
     @property(Prefab) bonusPrefab: Prefab | null = null;
     @property(Prefab) debugPrefab: Prefab | null = null;
     @property(Prefab) subDebugPrefab: Prefab | null = null;
+    @property(Prefab) statisticsPrefab: Prefab | null = null;
+    @property(Prefab) substatisticsPrefab: Prefab | null = null;
     @property(SpriteAtlas) spAtlas: SpriteAtlas | null = null;
     @property(AudioClip) bgm: AudioClip | null = null;
-    @property(Node) statisticsNode: Node;
+    statisticsNode: Node;
     statistics: Statistics;
 
     // 鱼对象池
@@ -79,7 +81,11 @@ export default class Game extends Component {
     }
 
     private initNodes() {
-        this.statistics = this.statisticsNode.getComponent(Statistics);
+        if (!this.statisticsNode) {
+            this.statisticsNode = instantiate(this.statisticsPrefab);
+            this.statistics = this.statisticsNode.getComponent(Statistics);
+            this.statistics.init(this);
+        }
     }
 
     private initDebug() {
@@ -117,6 +123,7 @@ export default class Game extends Component {
             for (let i = 0; i < self.fishTypes.length; i++) {
                 self.totalWeight += self.fishTypes[i].weight;
             }
+            self.creatFish();
             self.schedule(self.creatFish, 3);
         });
     }

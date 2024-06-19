@@ -59,12 +59,13 @@ export class Player extends Component {
     shot() {
         let level = this.weaponNode.getComponent(Weapon).curLevel;
         // 剩余金币
-        let left = this.coinController.getComponent(CoinController).reduceCoin(level);
+        
         if (this.weaponMode == 1 || this.weaponMode == 4) {
             let now = new Date().getTime();
             if (now - this.touchShotTime < this.bulletInterval * 1000) {
                 return;
             }
+            let left = this.coinController.getComponent(CoinController).reduceCoin(level);
             if (left) {
                 if (this.weaponMode == 4 && this.targetNode) {
                     let world = find('Canvas').getComponent(UITransform).convertToWorldSpaceAR(this.targetNode.getPosition());
@@ -95,6 +96,7 @@ export class Player extends Component {
             this.weaponNode.getComponent(Animation).play('weapon_level_' + this.weaponNode.getComponent(Weapon).curLevel);
             this.touchShotTime = now;
         } else if (this.weaponMode == 2) {
+            let left = this.coinController.getComponent(CoinController).reduceCoin(level);
             if (left) {
                 if (this.oneBullet == null) {
                     // 没有子弹在飞
@@ -125,7 +127,7 @@ export class Player extends Component {
             if (now - this.touchShotTime < this.bulletInterval * 1000) {
                 return;
             }
-
+            let left = this.coinController.getComponent(CoinController).reduceCoin(level);
             if (left) {
                 let bulletNode = null;
                 if (this.bulletPool.size() > 0) {
