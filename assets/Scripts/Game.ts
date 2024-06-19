@@ -86,6 +86,7 @@ export default class Game extends Component {
             this.statisticsNode = instantiate(this.statisticsPrefab);
             this.statistics = this.statisticsNode.getComponent(Statistics);
             this.statistics.init(this);
+            this.statisticsNode.active = false;
         }
     }
 
@@ -99,7 +100,6 @@ export default class Game extends Component {
     private initPools() {
         // 鱼
         this.fishes = new TreeMapForFish();
-        // this.chosenFish = new Map();
         this.fishPool = new NodePool("Fish");
         let initCount = 10;
         for (let i = 0; i < initCount; ++i) {
@@ -154,7 +154,6 @@ export default class Game extends Component {
                     }
                 }
             }
-            self.statisticsNode.active = false;
         });
     }
 
@@ -275,12 +274,7 @@ export default class Game extends Component {
         let player = this.players.get(index).getComponent(Player);
         player.switchMode();
         if (player.weaponMode == 4 && this.fishes.length() > 0) {
-            // let i = Math.round(this.fishes.length / 2);
-            // if (i >= this.fishes.length) {
-            //     i = this.fishes.length - 1;
-            // }
-            // this.chosenFish.set(index, this.fishes[0]);
-            player.setTarget(this.fishes[0]);
+            player.setTarget(this.fishes[0].getComponent(Fish)._uuid);
         }
     }
 
