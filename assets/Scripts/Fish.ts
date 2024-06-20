@@ -239,8 +239,8 @@ export default class Fish extends Component {
         // 可以不移除节点，停止所有动作也可以完成
         this.node.active = false;
         this.tween.stop();
-        this.game.despawnFish(this.node);
         this.game.trySwitchTargetNow(this.node);
+        this.game.despawnFish(this.node);
     }
 
     // 碰撞检测，鱼被打死的逻辑
@@ -261,8 +261,8 @@ export default class Fish extends Component {
                     return;
                 }
             }
-            let random = Math.random();
-            if (this.fishState != FishState.dead && this.gotRate >= random) {
+            let random = math.pseudoRandomRange(Math.random() * new Date().getTime(), 0, 1);
+            if (this.fishState == FishState.alive && this.gotRate >= random) {
                 this.fishState = FishState.dead;
                 this.killerIndex = net.masterIndex;
             }

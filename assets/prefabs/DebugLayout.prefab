@@ -1703,7 +1703,7 @@
       "b": 0,
       "a": 255
     },
-    "_string": "切换武器",
+    "_string": "子弹分数",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 12,

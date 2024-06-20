@@ -8,7 +8,6 @@ export default class Net extends Component {
     @property(Animation) anim: Animation | null = null;
     
     master: Player;
-    private attack = 1;
     bulletLeve: number = 1;
     masterIndex: number; // 属于第几位玩家的子弹
     init(position: Vec2, master: Player, level: number) {
@@ -26,10 +25,6 @@ export default class Net extends Component {
     changeCollider() {
         let collider = this.node.getComponent(CircleCollider2D);
         collider.radius = 32 + this.bulletLeve * 8;
-    }
-
-    getAttackValue(): number {
-        return this.attack * this.bulletLeve;
     }
 
     despawnNet() {

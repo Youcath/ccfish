@@ -15,6 +15,7 @@ import Net from './Net';
 import { Player } from './Player';
 import { Utils } from './utils/Utils';
 import Fish from './Fish';
+import { Constant } from './config/Constant';
 
 @ccclass('Bullet')
 export default class Bullet extends Component {
@@ -92,27 +93,29 @@ export default class Bullet extends Component {
         bx += dt * this.speed * Math.sin(this.angle / 180 * Math.PI) * speedRate;
         by += dt * this.speed * Math.cos(this.angle / 180 * Math.PI) * speedRate;
 
-        if (this.master.weaponMode != 4) {
-            if (bx > 640) {
-                // 到达右边界
-                this.angle = -this.angle;
-                bx = 640;
-                this.node.angle = -this.angle;
-            } else if (bx < -640) {
-                // 到达左边界
-                this.angle = -this.angle;
-                bx = -640;
-                this.node.angle = -this.angle;
-            } else if (by > 360) {
-                // 到达上边界
-                this.angle = 180 - this.angle;
-                by = 360;
-                this.node.angle = -this.angle;
-            } else if (by < -360) {
-                // 到达下边界
-                this.angle = 180 - this.angle;
-                by = -360;
-                this.node.angle = -this.angle;
+        if (!Constant.bullet_pass) {
+            if (this.master.weaponMode != 4) {
+                if (bx > 640) {
+                    // 到达右边界
+                    this.angle = -this.angle;
+                    bx = 640;
+                    this.node.angle = -this.angle;
+                } else if (bx < -640) {
+                    // 到达左边界
+                    this.angle = -this.angle;
+                    bx = -640;
+                    this.node.angle = -this.angle;
+                } else if (by > 360) {
+                    // 到达上边界
+                    this.angle = 180 - this.angle;
+                    by = 360;
+                    this.node.angle = -this.angle;
+                } else if (by < -360) {
+                    // 到达下边界
+                    this.angle = 180 - this.angle;
+                    by = -360;
+                    this.node.angle = -this.angle;
+                }
             }
         }
         this.node.setPosition(bx, by);
@@ -132,7 +135,7 @@ export default class Bullet extends Component {
             || this.node.getPosition().y >= 600
             || this.node.getPosition().y <= -600
         ) {
-            // 跑出屏幕的子弹自动回收，保护代码，通常不会走进来
+            // 跑出屏幕的子弹自动回收
             this.master.oneBullet = null;
             this.master.despawnBullet(this.node);
         }
