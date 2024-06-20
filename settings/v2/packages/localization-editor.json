@@ -1,16 +1,4 @@
 {
   "__version__": "1.0.1",
-  "L10nEnable": true,
-  "ProjectConfig": {
-    "localLanguage": "zh-Hans-CN",
-    "scanOptions": [
-      {
-        "dirs": [
-          "Scene"
-        ],
-        "extNames": [],
-        "excludes": []
-      }
-    ]
-  }
+  "L10nEnable": true
 }

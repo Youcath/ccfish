@@ -15,9 +15,11 @@ import { Debug } from './debug/Debug';
 import { TreeMapForFish } from './utils/TreeMapForFish';
 import { Constant } from './config/Constant';
 import { Rope } from './Rope';
+import { MovingBg } from './MovingBg';
 
 @ccclass('Game')
 export default class Game extends Component {
+    @property(Prefab) gameBgPrefab: Prefab | null = null;
     @property(Prefab) fishPrefab: Prefab | null = null;
     @property(Prefab) bulletPrefab: Prefab | null = null;
     @property(Prefab) netPrefab: Prefab | null = null;
@@ -31,6 +33,10 @@ export default class Game extends Component {
     @property(Prefab) lineGraphicsPrefab: Prefab | null = null;
     @property(SpriteAtlas) spAtlas: SpriteAtlas | null = null;
     @property(AudioClip) bgm: AudioClip | null = null;
+    
+    gameBgNode: Node;
+    gameBg: MovingBg;
+
     statisticsNode: Node;
     statistics: Statistics;
 
@@ -80,6 +86,11 @@ export default class Game extends Component {
     }
 
     private initNodes() {
+        if (!this.gameBgNode) {
+            this.gameBgNode = instantiate(this.gameBgPrefab);
+            this.gameBg = this.gameBgNode.getComponent(MovingBg);3
+            this.gameBg.init();
+        }
         if (!this.statisticsNode) {
             this.statisticsNode = instantiate(this.statisticsPrefab);
             this.statistics = this.statisticsNode.getComponent(Statistics);
@@ -675,14 +686,13 @@ export default class Game extends Component {
         }
     }
 
-    // gameOver() {
-    //     this.gameOverNode.setSiblingIndex(99);
-    //     this.gameOverNode.active = true;
-    //     this.unscheduleAllCallbacks();
-    // }
-
-    gameRestart() {
+    public gameRestart() {
         console.log('game reset!');
         director.loadScene('Scene/main.scene');
+    }
+
+    public gameMoveBg() {
+        console.log('game move background!');
+        this.gameBg.startMove();
     }
 }

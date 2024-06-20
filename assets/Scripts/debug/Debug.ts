@@ -1,11 +1,14 @@
 import { _decorator, Button, Component, EventHandler, instantiate, Label, Node } from 'cc';
 import Game from '../Game';
+import { MovingBg } from '../MovingBg';
 import { Constant } from '../config/Constant';
 const { ccclass, property } = _decorator;
 
 @ccclass('Debug')
 export class Debug extends Component {
+
     game: Game;
+
     init(game: Game) {
         this.game = game;
         this.node.parent = game.node;
@@ -39,11 +42,19 @@ export class Debug extends Component {
         if (otherNode) {
             let resetNode = otherNode.getChildByName('Reset');
             let resetButton = resetNode.getComponent(Button);
-            const clickEventHandler = new EventHandler();
-            clickEventHandler.target = game.node;
-            clickEventHandler.component = 'Game';
-            clickEventHandler.handler = 'gameRestart';
-            resetButton.clickEvents.push(clickEventHandler);
+            const clickEventHandler1 = new EventHandler();
+            clickEventHandler1.target = game.node;
+            clickEventHandler1.component = 'Game';
+            clickEventHandler1.handler = 'gameRestart';
+            resetButton.clickEvents.push(clickEventHandler1);
+
+            let moveBgNode = otherNode.getChildByName('MoveBg');
+            let moveBgButton = moveBgNode.getComponent(Button);
+            const clickEventHandler2 = new EventHandler();
+            clickEventHandler2.target = game.node;
+            clickEventHandler2.component = 'Game';
+            clickEventHandler2.handler = 'gameMoveBg';
+            moveBgButton.clickEvents.push(clickEventHandler2);
         }
 
         this.addPlayersDebug();
