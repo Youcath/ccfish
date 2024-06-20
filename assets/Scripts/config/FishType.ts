@@ -15,7 +15,8 @@ interface FishType{
 // 鱼的生命状态
 enum FishState {
     alive,
-    dead
+    dying,  // 已经死亡但尸体还会参与动画，故要保留节点
+    dead    // 已经死亡，需要销毁节点
 }
 
 export { FishState };

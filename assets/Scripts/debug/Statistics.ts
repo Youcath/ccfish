@@ -1,5 +1,6 @@
 import { _decorator, Component, instantiate, Label, Node } from 'cc';
 import Game from '../Game';
+import { Constant } from '../config/Constant';
 const { ccclass, property } = _decorator;
 
 @ccclass('Statistics')
@@ -45,7 +46,7 @@ export class Statistics extends Component {
         this.totalProfitRate = totalNode.getChildByName('score-005');
         this.node.addChild(totalNode);
 
-        for (let i = 1; i <= this.game.playerCount; i++) {
+        for (let i = 1; i <= Constant.player_count; i++) {
             let playerLayout = instantiate(this.game.substatisticsPrefab);
             playerLayout.getChildByName('title').getComponent(Label).string = "玩家" + i;
             this.playerScores[i] = playerLayout.getChildByName('score');

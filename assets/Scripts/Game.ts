@@ -1,7 +1,7 @@
 import { _decorator, Component, NodePool, Prefab, Node, SpriteAtlas, AudioClip, Vec3, instantiate, UITransform, error, resources, EventTouch, v3, Input, EventKeyboard, KeyCode, input, tween, Camera, Event, director } from 'cc';
 const { ccclass, property } = _decorator;
 
-import { FishType } from './config/FishType';
+import { FishState, FishType } from './config/FishType';
 import Fish from './Fish';
 import { Utils } from './utils/Utils';
 import { AudioMgr } from './AudioMgr';
@@ -13,6 +13,8 @@ import { GoldBonus } from './GoldBonus';
 import { Statistics } from './debug/Statistics';
 import { Debug } from './debug/Debug';
 import { TreeMapForFish } from './utils/TreeMapForFish';
+import { Constant } from './config/Constant';
+import { Rope } from './Rope';
 
 @ccclass('Game')
 export default class Game extends Component {
@@ -26,6 +28,7 @@ export default class Game extends Component {
     @property(Prefab) subDebugPrefab: Prefab | null = null;
     @property(Prefab) statisticsPrefab: Prefab | null = null;
     @property(Prefab) substatisticsPrefab: Prefab | null = null;
+    @property(Prefab) lineGraphicsPrefab: Prefab | null = null;
     @property(SpriteAtlas) spAtlas: SpriteAtlas | null = null;
     @property(AudioClip) bgm: AudioClip | null = null;
     statisticsNode: Node;
@@ -54,11 +57,6 @@ export default class Game extends Component {
     cameraEasing = false;
 
     totalWeight = 0; 
-
-    // 游戏人数
-    playerCount = 10;
-    // 抽水率
-    profitRate = 0.25;
 
     onLoad() {
         this.initNodes();
@@ -145,7 +143,7 @@ export default class Game extends Component {
                     self.playerConfig.set(info.playerNumber, info.nodes);
                 }
 
-                let nodes = self.playerConfig.get(self.playerCount);
+                let nodes = self.playerConfig.get(Constant.player_count);
                 if (nodes) {
                     self.players = new Map<number, Node>();
                     for (let i = 0; i < nodes.length; i++) {
@@ -175,6 +173,7 @@ export default class Game extends Component {
     private creatFish() {
         // 一次创建8条鱼
         let fishCount = 8;
+        let news = new Array(fishCount);
         for (let i = 0; i < fishCount; ++i) {
             let cfish: Node = null;
             if (this.fishPool.size() > 0) {
@@ -184,9 +183,10 @@ export default class Game extends Component {
             }
             cfish.getComponent(Fish).init(this);
             cfish.setSiblingIndex(2);
-            this.fishes.set(cfish);
+            news.push(cfish);
             this.onFishTouch(cfish);
         }
+        this.fishes.sets(news);
     }
 
     private onFishTouch(fish: Node) {
@@ -274,7 +274,7 @@ export default class Game extends Component {
         let player = this.players.get(index).getComponent(Player);
         player.switchMode();
         if (player.weaponMode == 4 && this.fishes.length() > 0) {
-            player.setTarget(this.fishes[0].getComponent(Fish)._uuid);
+            player.setTarget(this.fishes.values()[0].getComponent(Fish)._uuid);
         }
     }
 
@@ -546,21 +546,71 @@ export default class Game extends Component {
         this.players.get(player).getComponent(Player).gainCoins(coinPos, odds);
     }
 
+    public ringFishedGet(fish: Fish, owner: number) {
+        let fishNodes = this.fishes.values();
+        let i = fishNodes.length - 1;
+        let targetFishes: Array<Node> = [];
+        targetFishes.push(fish.node);
+        for (; i >= 0 && targetFishes.length < Constant.RING_MAX_GET; i--) {
+            let node = fishNodes[i];
+            let f = node.getComponent(Fish);
+            if (!f || f._uuid == '' || !f.hasRing || fish._uuid == f._uuid) {
+                continue;
+            }
+            if (f.fishType.name == fish.fishType.name) {
+                f.dyingNow();
+                targetFishes.push(node);
+            }
+        }
+
+        const pos = this.players.get(owner).getPosition();
+        let odds = 0;
+
+        targetFishes.forEach(node => {
+            const fish = node.getComponent(Fish);
+            if (fish._uuid != '') {
+                this.fishes.delete(fish._uuid);
+            }
+            this.trySwitchTargetNow(node);
+            const ropeNode = instantiate(this.lineGraphicsPrefab);
+            const rope = ropeNode.getComponent(Rope);
+            rope.init();
+            const finalCallback = () => {
+                rope.graphics.clear();
+                rope.destroy();
+                this.despawnFish(node);
+            };
+
+            const callback = () => {
+                fish.performReceiveAnim(pos);
+                rope.performReceiveAnim(pos, node.getPosition(), finalCallback);
+            };
+            rope.performSendAnim(pos, node.getPosition(), callback);
+            odds += fish.odds * fish.multiple;
+        });
+        this.scheduleOnce(() => {
+            this.gainCoins(pos, odds, owner);
+        }, 4);
+    }
+
+    public trySwitchTargetNow(fish: Node) {
+        const f = fish.getComponent(Fish);
+        this.players.forEach((v, k) => {
+            let player = v.getComponent(Player);
+            if (player.weaponMode == 4 && f._uuid == player.targetUuid) {
+                // 需要切换目标
+                let newTarget = this.fishes.values()[0].getComponent(Fish)._uuid;
+                player.setTarget(newTarget);
+            }
+        });
+    }
+
     public despawnFish(fish: Node) {
         fish.off(Input.EventType.TOUCH_START);
         const f = fish.getComponent(Fish);
         
         if (f._uuid != "") {
             this.fishes.delete(f._uuid);
-            this.players.forEach((v, k) => {
-                let player = v.getComponent(Player);
-                if (player.weaponMode == 4 && f._uuid == player.targetUuid) {
-                    // 需要切换目标
-                    let newTarget = this.fishes.values()[0].getComponent(Fish)._uuid;
-                    player.setTarget(newTarget);
-                }
-            });
-            
         }
         f.unuse();
         this.fishPool.put(fish);

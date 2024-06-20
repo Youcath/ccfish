@@ -6,8 +6,9 @@ import Game from './Game';
 import Net from './Net';
 import { Utils } from './utils/Utils';
 import { Bomb } from './Bomb'
+import { Constant } from './config/Constant';
 
-const RING_RATE = 0.2;
+
 
 @ccclass('Fish')
 export default class Fish extends Component {
@@ -86,13 +87,13 @@ export default class Fish extends Component {
         this.odds = Utils.getValueRandom(this.fishType.oddsUp, this.fishType.oddsDown);
         this.multiple = Utils.getValueRandom(this.fishType.multipleUp, this.fishType.multipleDown);
         this.performRing();
-        this.gotRate = Utils.getGetRate(this.odds, this.multiple, this.game.profitRate, this.hasRing ? RING_RATE : 1);
+        this.gotRate = Utils.getGetRate(this.odds, this.multiple, Constant.profit_rate, this.hasRing ? Constant.RING_MAX_GET : 1);
         this.fishState = FishState.alive;
 
         this.lastPosition = this.node.getPosition();
         this.changeCollider();
         this.anim.play(this.fishType.name + '_run');
-        
+
         this.swimming();
     }
 
@@ -104,11 +105,14 @@ export default class Fish extends Component {
     }
 
     private performRing() {
-        this.node.removeAllChildren();
-        if (this.odds * this.multiple < 30 && Math.random() <= RING_RATE) {
-            // 倍率小于30的鱼， 20%概率生成环
+        let ringNode = this.node.getChildByName('subFish');
+        if (ringNode == null) {
+            ringNode = instantiate(this.subFishPreb);
+        }
+        if (this.odds * this.multiple < Constant.RING_ODDS_LIMIT && Math.random() <= Constant.RING_RATE) {
+            // 倍率小于30的鱼，20%概率生成环
             this.hasRing = true;
-            let ringNode = instantiate(this.subFishPreb);
+            ringNode.active = true;
             let s = this.node.getComponent(UITransform).contentSize;
             let diameter = Math.max(s.x, s.y); // 环的直径取鱼矩形框的长边
             ringNode.getComponent(UITransform).setContentSize(size(diameter, diameter));
@@ -117,8 +121,9 @@ export default class Fish extends Component {
             w.verticalCenter = this.fishType.y;
             this.node.addChild(ringNode);
 
-            tween(ringNode).to(6, {angle: 360}).to(6, {angle: 0}).union().repeatForever().start(); // 永久旋转
+            tween(ringNode).to(6, { angle: 360 }).to(6, { angle: 0 }).union().repeatForever().start(); // 圆环永久旋转
         } else {
+            ringNode.active = false;
             this.hasRing = false;
         }
     }
@@ -127,7 +132,7 @@ export default class Fish extends Component {
     private swimming() {
         let duration = Math.random() * 10 + 12;
         const tempVec3 = v3();
-        const finalPos = Utils.getOutPosition();  // 终点
+        const finalPos = Utils.getFinalPosition(this.startPosition);  // 终点
         const secondPos = Utils.getInnerPosition(); // 第二个控制点
         this.tween = tween(this.node).to(duration, { position: finalPos }, {
             onUpdate: (target, ratio) => {
@@ -143,6 +148,10 @@ export default class Fish extends Component {
 
     protected update(dt: number): void {
         if (this.lastPosition) {
+            if (this.isDying()) {
+                // dying不需要移动位置
+                return;
+            }
             let currentPos = this.node.getPosition();
             // 如果位移不超过1 直接销毁
             let ds = this.lastPosition.clone().subtract(currentPos).length();
@@ -167,40 +176,63 @@ export default class Fish extends Component {
             this.tween.stop();
             let collider = this.node.getComponent(BoxCollider2D);
             collider.size = size(0, 0);
-            // 播放金币动画，转为世界坐标
-            let fp = this.node.parent.getComponent(UITransform).convertToWorldSpaceAR(this.node.position);
-            if (this.odds > 0) {
-                this.game.gainCoins(fp, this.odds * this.multiple, this.killerIndex);
-                this.odds = 0;
-            }
-            // 死亡动画
-            this.anim.play(this.fishType.name + '_die');
-            if (this.fishType.name.includes('jinshayu')) {
-                this.game.showMask();
-                this.node.setSiblingIndex(999);
-                const self = this;
-                this.anim!.on(Animation.EventType.FINISHED, () => {
-                    this.game.showBonus(() => {
-                        self.game.hiddenMask();
-                    });
-                    self.despawnFish();
-                }, this, true);
+
+            if (this.hasRing) {
+                this.fishState = FishState.dying;
+                this.game.ringFishedGet(this, this.killerIndex);
             } else {
-                if (this.fishType.name.includes('shayu')) {
-                    this.game.showMask();
-                    this.node.setSiblingIndex(999);
-                    this.bomb = instantiate(this.bombPreb);
-                    this.bomb.getComponent(Bomb).show(this.node.position);
-                    this.game.showCameraEasing();
-                    this.anim!.on(Animation.EventType.FINISHED, () => {
-                        this.game.hiddenMask();
-                        this.despawnFish();
-                    }, this, true);
-                } else {
-                    this.anim!.on(Animation.EventType.FINISHED, this.despawnFish, this, true);
-                }
+                this.performNormalDie();
             }
         }
+    }
+
+    dyingNow() {
+        this.fishState = FishState.dying;
+        this.tween.stop();
+        let collider = this.node.getComponent(BoxCollider2D);
+        collider.size = size(0, 0);
+    }
+
+    private performNormalDie() {
+        // 播放金币动画，转为世界坐标
+        let fp = this.node.parent.getComponent(UITransform).convertToWorldSpaceAR(this.node.position);
+        if (this.odds > 0) {
+            this.game.gainCoins(fp, this.odds * this.multiple, this.killerIndex);
+            this.odds = 0;
+        }
+        // 死亡动画
+        this.anim.play(this.fishType.name + '_die');
+        if (this.fishType.name.includes('jinshayu')) {
+            this.game.showMask();
+            this.node.setSiblingIndex(999);
+            const self = this;
+            this.anim!.on(Animation.EventType.FINISHED, () => {
+                this.game.showBonus(() => {
+                    self.game.hiddenMask();
+                });
+                self.despawnFish();
+            }, this, true);
+        } else {
+            if (this.fishType.name.includes('shayu')) {
+                this.game.showMask();
+                this.node.setSiblingIndex(999);
+                this.bomb = instantiate(this.bombPreb);
+                this.bomb.getComponent(Bomb).show(this.node.position);
+                this.game.showCameraEasing();
+                this.anim!.on(Animation.EventType.FINISHED, () => {
+                    this.game.hiddenMask();
+                    this.despawnFish();
+                }, this, true);
+            } else {
+                this.anim!.on(Animation.EventType.FINISHED, this.despawnFish, this, true);
+            }
+        }
+    }
+
+    performReceiveAnim(finalPos: Vec3) {
+        tween(this.node).to(2, {
+            position: finalPos
+        }).start();
     }
 
     private despawnFish() {
@@ -208,11 +240,16 @@ export default class Fish extends Component {
         this.node.active = false;
         this.tween.stop();
         this.game.despawnFish(this.node);
+        this.game.trySwitchTargetNow(this.node);
     }
 
     // 碰撞检测，鱼被打死的逻辑
     private isDie(): boolean {
         return this.fishState == FishState.dead;
+    }
+
+    private isDying() {
+        return this.fishState == FishState.dying;
     }
 
     private onCollisionEnter(self: Collider2D, other: Collider2D, contact: IPhysics2DContact | null) {

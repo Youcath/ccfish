@@ -3,12 +3,20 @@ import Fish from '../Fish';
 const { ccclass, property } = _decorator;
 
 /**
- * 小根堆，堆顶为捕获概率最低的鱼
+ * TreeMap，values的排序为捕获概率由低到高
  */
 @ccclass('TreeMapForFish')
 export class TreeMapForFish {
     private map: Map<string, Node>;
     private sortedKeys: string[];
+    private readonly comparation = (a, b) => {
+        const valueA = this.map.get(a);
+        const valueB = this.map.get(b);
+
+        const fish1 = valueA.getComponent(Fish);
+        const fish2 = valueB.getComponent(Fish);
+        return fish1.gotRate > fish2.gotRate ? 1 : fish1.gotRate < fish2.gotRate ? -1 : 0;
+    };
 
     constructor() {
         this.map = new Map<string, Node>();
@@ -22,14 +30,15 @@ export class TreeMapForFish {
     public set(value: Node): void {
         const fish = value.getComponent(Fish);
         this.map.set(fish._uuid, value);
-        this.sortedKeys = Array.from(this.map.keys()).sort((a, b) => {
-            const valueA = this.map.get(a);
-            const valueB = this.map.get(b);
+        this.sortedKeys = Array.from(this.map.keys()).sort(this.comparation);
+    }
 
-            const fish1 = valueA.getComponent(Fish);
-            const fish2 = valueB.getComponent(Fish);
-            return fish1.gotRate > fish2.gotRate ? 1 : fish1.gotRate < fish2.gotRate ? -1 : 0;
+    public sets(values: Array<Node>) {
+        values.forEach((v) => {
+            const fish = v.getComponent(Fish);
+            this.map.set(fish._uuid, v);
         });
+        this.sortedKeys = Array.from(this.map.keys()).sort(this.comparation);
     }
 
     public get(key: string): Node | undefined {

@@ -1,5 +1,6 @@
 import { _decorator, Button, Component, EventHandler, instantiate, Label, Node } from 'cc';
 import Game from '../Game';
+import { Constant } from '../config/Constant';
 const { ccclass, property } = _decorator;
 
 @ccclass('Debug')
@@ -49,7 +50,7 @@ export class Debug extends Component {
     }
 
     private addPlayersDebug() {
-        for (let i = 1; i <= this.game.playerCount; i++) {
+        for (let i = 1; i <= Constant.player_count; i++) {
             let playerDebugNode = instantiate(this.game.subDebugPrefab);
 
             playerDebugNode.getChildByName('Label').getComponent(Label).string = "玩家" + i;

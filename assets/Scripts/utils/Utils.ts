@@ -30,7 +30,7 @@ export class Utils {
 
     /**
      * 可视范围是x ∈（-640， 640），y ∈ （-360， 360）
-     * 在x ∈（-900， 900），y ∈ （-600， 600）的外矩形框上，随机选择一个起点或终点
+     * 在x ∈（-880， 880），y ∈ （-600， 600）的外矩形框上，随机选择一个起点
      * 
      * @returns 
      */
@@ -40,31 +40,51 @@ export class Utils {
         let y = 0
         if (n < 1) {
             y = 600;
-            x = 1800 * Math.random() - 900;
+            x = 1760 * Math.random() - 880;
         } else if (n < 2) {
-            x = 900;
+            x = 880;
             y = 1200 * Math.random() - 600;
         } else if (n < 3) {
             y = -600;
-            x = 1800 * Math.random() - 900;
+            x = 1760 * Math.random() - 880;
         } else {
-            x = -900;
+            x = -880;
             y = 1200 * Math.random() - 600;
         }
         return v3(x, y);
     }
 
     /**
-     * 在范围x ∈（-600， 600），y ∈ （-320， 320），随机选择一个点
+     * 可视范围是x ∈（-640， 640），y ∈ （-360， 360）
+     * 在x ∈（-880， 880），y ∈ （-600， 600）的外矩形框上，根据起点随机选择对面象限的终点
+     * 
+     * @returns 
+     */
+    static getFinalPosition(startPos: Vec3): Vec3 {
+        let x = 880 * Math.random();
+        let y = 600 * Math.random();
+
+        if (startPos.x > 0 && startPos.y > 0) {
+            return v3(-x, -y);
+        } else if (startPos.x > 0 && startPos.y < 0) {
+            return v3(-x, y);
+        } else if (startPos.x < 0 && startPos.y > 0) {
+            return v3(x, -y);
+        } else {
+            return v3(x, y);
+        }
+    }
+
+    /**
+     * 在范围(x/320)^2 + (y/180)^2 = 1的椭圆圆弧上，随机选择一个点
      * 
      * @returns 
      */
     static getInnerPosition(): Vec3 {
-        let x = 0;
-        let y = 0
+        let r = Math.PI * 2 * Math.random();  // r ∈（0， 2pi)
 
-        y = 640 * Math.random() - 320;
-        x = 1200 * Math.random() - 600;
+        let x = 320 * Math.sin(r);
+        let y = 180 * Math.cos(r);
 
         return v3(x, y);
     }
@@ -84,12 +104,12 @@ export class Utils {
         return Math.round(down + Math.random() * (up - down));
     }
 
-    // 根据基础赔率和翻倍数，计算捕获率 (1-抽水率)/实际赔率 * 成群概率
+    // 根据基础赔率和翻倍数，计算捕获率 (1-抽水率)/(实际赔率 * 成群获取上限)
     static getGetRate(odds: number, multiple: number, profit: number, together: number): number {
         if (odds == 0 || multiple == 0) {
             return 1;
         }
-        return (1 - profit) * together / (odds * multiple);
+        return (1 - profit) / (odds * multiple * together);
     }
 }
 
