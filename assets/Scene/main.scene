@@ -361,7 +361,7 @@
     "_string": "调试",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 30.0703125,
+    "_actualFontSize": 27.416666666666668,
     "_fontSize": 20,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
@@ -687,7 +687,7 @@
     "_string": "统计",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 30.0703125,
+    "_actualFontSize": 27.416666666666668,
     "_fontSize": 20,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
@@ -987,7 +987,10 @@
       "__uuid__": "e05807b5-6796-4c65-89bd-8697a29c5dfd",
       "__expectedType__": "cc.Prefab"
     },
-    "lineGraphicsPrefab": null,
+    "lineGraphicsPrefab": {
+      "__uuid__": "2eb9bd72-ccf6-4b00-8243-ebe3de4a0ec1",
+      "__expectedType__": "cc.Prefab"
+    },
     "spAtlas": {
       "__uuid__": "86fe4526-9483-4c85-b7c9-b3a4ec696d58",
       "__expectedType__": "cc.SpriteAtlas"
