@@ -1,4 +1,4 @@
-import { _decorator, Component, Prefab, Sprite, SpriteAtlas, NodePool, Node, Vec3, instantiate, UITransform, find, AudioSource, resources, AudioClip, tween, v3 } from 'cc';
+import { _decorator, Component, Prefab, Sprite, SpriteAtlas, NodePool, Node, Vec3, instantiate, UITransform, find, AudioSource, resources, AudioClip, tween, v3, RichText } from 'cc';
 const { ccclass, property } = _decorator;
 
 import Coins from './Coins';
@@ -38,12 +38,8 @@ export default class CoinController extends Component {
 
     @property(SpriteAtlas)
     numAtlas: SpriteAtlas | null = null;
-    @property(Sprite)
-    humsPlace: Sprite | null = null; //百位
-    @property(Sprite)
-    tensPlace: Sprite | null = null;
-    @property(Sprite)
-    onesPlace: Sprite | null = null;
+    @property(Node)
+    getCoinShow: Node;
 
     coinUpPool: NodePool;
     coinsPool: NodePool;
@@ -53,7 +49,7 @@ export default class CoinController extends Component {
     oneCoin: Node;
     master: Player;
     audio: AudioSource;
-    coinCounting: Node;
+
     lastGot: number;
     //    // LIFE-CYCLE CALLBACKS:
     onLoad() {
@@ -65,7 +61,6 @@ export default class CoinController extends Component {
         this.coinsPool = new NodePool();
         this.setValue(this.currentValue);
         this.audio = this.node.getComponent(AudioSource);
-        this.coinCounting = master.node.getChildByName('CoinCounting');
     }
     //    // 数字固定长度lenght，不够的补0
     prefixInteger(num: number, length: number) {
@@ -149,27 +144,27 @@ export default class CoinController extends Component {
     // 展示分值实际上涨数量的动画
     private doCoinNumberShowingAmin(coinnum: number) {
         const finishCallback = () => {
-            this.coinCounting.active = false;
-            this.coinCounting.position = v3(-60, 0);
+            this.getCoinShow.active = false;
+            this.getCoinShow.position = v3(-86, 0);
         }
 
-        if (this.coinCounting.active) {
+        if (this.getCoinShow.active) {
             // 还在显示上次的分数
             this.lastGot += coinnum;
             this.showNumbers(this.lastGot);
-            tween(this.coinCounting).stop();
-            this.coinCounting.position = v3(-60, 50);
+            tween(this.getCoinShow).stop();
+            this.getCoinShow.position = v3(-86, 50);
             this.unschedule(finishCallback);
             this.scheduleOnce(finishCallback, 3);
         } else {
-            this.coinCounting.active = true;
+            this.getCoinShow.active = true;
             this.lastGot = coinnum;
             this.showNumbers(coinnum);
     
-            tween(this.coinCounting).stop();
-            this.coinCounting.position = v3(-60, 0);
+            tween(this.getCoinShow).stop();
+            this.getCoinShow.position = v3(-86, 0);
             this.unschedule(finishCallback);
-            tween(this.coinCounting).by(1, {position: v3(0, 50)}).call(() => {
+            tween(this.getCoinShow).by(1, {position: v3(0, 50)}).call(() => {
                 this.scheduleOnce(finishCallback, 3);
             }).start();
         }
@@ -179,23 +174,13 @@ export default class CoinController extends Component {
     private showNumbers(num: number) {
         let str = num.toString();
         let nums = str.split('');
-        if (nums.length == 1) {
-            this.onesPlace.node.active = false;
-            this.humsPlace.node.active = false;
-            this.tensPlace.spriteFrame = this.numAtlas.getSpriteFrame('goldnum_' + nums[0]);
-        } else if (nums.length == 2) {
-            this.onesPlace.node.active = true;
-            this.humsPlace.node.active = false;
-            this.tensPlace.spriteFrame = this.numAtlas.getSpriteFrame('goldnum_' + nums[0]);
-            this.onesPlace.spriteFrame = this.numAtlas.getSpriteFrame('goldnum_' + nums[1]);
-        } else {
-            // 三位数以上
-            this.onesPlace.node.active = true;
-            this.humsPlace.node.active = true;
-            this.humsPlace.spriteFrame = this.numAtlas.getSpriteFrame('goldnum_' + nums[0]);
-            this.tensPlace.spriteFrame = this.numAtlas.getSpriteFrame('goldnum_' + nums[1]);
-            this.onesPlace.spriteFrame = this.numAtlas.getSpriteFrame('goldnum_' + nums[2]);
-        }
+
+        let richText = this.getCoinShow.getComponent(RichText);
+        let text = '';
+        nums.forEach(n => {
+            text += `<img src=\'goldnum_${n}\'/>`;
+        });
+        richText.string = text;
     }
     despawnCoins(coin: Node) {
         this.coinsPool.put(coin);

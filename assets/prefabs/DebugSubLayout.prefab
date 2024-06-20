@@ -95,7 +95,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -24.4384765625,
+      "x": -24.444704374643806,
       "y": 0,
       "z": 0
     },
@@ -136,7 +136,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 51.123046875,
+      "width": 51.11059125071239,
       "height": 50.4
     },
     "_anchorPoint": {
@@ -175,7 +175,7 @@
     "_string": "玩家1",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 20,
+    "_actualFontSize": 27.416666666666668,
     "_fontSize": 20,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
@@ -261,7 +261,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 71.123046875,
+      "x": 71.11059125071239,
       "y": 0,
       "z": 0
     },
@@ -388,10 +388,10 @@
       "b": 0,
       "a": 255
     },
-    "_string": "切换武器",
+    "_string": "子弹分数",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 12,
+    "_actualFontSize": 16.45,
     "_fontSize": 12,
     "_fontFamily": "Arial",
     "_lineHeight": 30,
@@ -633,7 +633,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 181.123046875,
+      "x": 181.1105912507124,
       "y": 0,
       "z": 0
     },
@@ -763,7 +763,7 @@
     "_string": "金币100",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 12,
+    "_actualFontSize": 16.45,
     "_fontSize": 12,
     "_fontFamily": "Arial",
     "_lineHeight": 30,
@@ -1005,7 +1005,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 291.123046875,
+      "x": 291.1105912507124,
       "y": 0,
       "z": 0
     },
@@ -1135,7 +1135,7 @@
     "_string": "武器模式切换",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 12,
+    "_actualFontSize": 16.45,
     "_fontSize": 12,
     "_fontFamily": "Arial",
     "_lineHeight": 30,

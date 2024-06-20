@@ -14,21 +14,8 @@ export default class Weapon extends Component {
         this.audio = this.node.getComponent(AudioSource);
         this.total = this.anim.clips.length;
     }
-    plus() {
-        if (this.curLevel + 1 > this.total) {
-            this.curLevel = 1;
-        } else {
-            this.curLevel++;
-        }
-        this.audio.play();
-        this.anim.play('weapon_level_' + this.curLevel);
-    }
-    reduce() {
-        if (this.curLevel < 2) {
-            this.curLevel = 1;
-        } else {
-            this.curLevel--;
-        }
+    setLevel(l: number) {
+        this.curLevel = l;
         this.audio.play();
         this.anim.play('weapon_level_' + this.curLevel);
     }

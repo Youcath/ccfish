@@ -251,7 +251,7 @@ export default class Game extends Component {
     }
 
     switchButton(event: Event, customEventData: string) {
-        this.players.get(Number.parseInt(customEventData)).getComponent(Player).weaponNode.getComponent(Weapon).plus();
+        this.players.get(Number.parseInt(customEventData)).getComponent(Player).updateBet();
     }
 
     cheatButtonAll(event: Event, customEventData: number) {
@@ -274,7 +274,7 @@ export default class Game extends Component {
         let player = this.players.get(index).getComponent(Player);
         player.switchMode();
         if (player.weaponMode == 4 && this.fishes.length() > 0) {
-            player.setTarget(this.fishes.values()[0].getComponent(Fish)._uuid);
+            this.switchTarget(index);
         }
     }
 
@@ -588,8 +588,9 @@ export default class Game extends Component {
             rope.performSendAnim(pos, node.getPosition(), callback);
             odds += fish.odds * fish.multiple;
         });
+        const wPos = this.node.getComponent(UITransform).convertToWorldSpaceAR(pos);
         this.scheduleOnce(() => {
-            this.gainCoins(pos, odds, owner);
+            this.gainCoins(wPos, odds, owner);
         }, 4);
     }
 
@@ -599,10 +600,27 @@ export default class Game extends Component {
             let player = v.getComponent(Player);
             if (player.weaponMode == 4 && f._uuid == player.targetUuid) {
                 // 需要切换目标
-                let newTarget = this.fishes.values()[0].getComponent(Fish)._uuid;
-                player.setTarget(newTarget);
+                this.switchTarget(k, f._uuid);
             }
         });
+    }
+
+    public switchTarget(num: number, ignoreUuid?: string) {
+        let player = this.players.get(num).getComponent(Player);
+        let currentIndex = this.fishes.keys().indexOf(player.targetUuid);
+        currentIndex++;
+        if (currentIndex > 5) {
+            currentIndex = 0;
+        }
+        if (ignoreUuid && this.fishes.values()[currentIndex].getComponent(Fish)._uuid == ignoreUuid) {
+            currentIndex++;
+        }
+        if (currentIndex > 5) {
+            currentIndex = 0;
+        }
+        
+        let newTarget = this.fishes.values()[currentIndex].getComponent(Fish)._uuid;
+        player.setTarget(newTarget);
     }
 
     public despawnFish(fish: Node) {

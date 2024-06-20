@@ -1,4 +1,4 @@
-import { _decorator, Animation, Component, find, instantiate, Node, NodePool, AudioSource, v3, Vec2, Vec3, UITransform, v2 } from 'cc';
+import { _decorator, Animation, Component, find, instantiate, Node, NodePool, AudioSource, v3, Vec2, Vec3, UITransform, v2, RichText } from 'cc';
 import Weapon from './Weapon';
 import CoinController from './CoinController';
 import { PlayerNodeConfig } from './config/PlayerInfo';
@@ -6,10 +6,17 @@ import Game from './Game';
 import Bullet from './Bullet';
 import Net from './Net';
 import { Utils } from './utils/Utils';
+import { Constant } from './config/Constant';
 const { ccclass, property } = _decorator;
 
 @ccclass('Player')
 export class Player extends Component {
+    @property(Node)
+    playerNumNode: Node;
+    @property(Node)
+    betNode: Node;
+
+    currentBet = Constant.START_BET;
     playerIndex: number;
     game: Game;
     weaponNode: Node;
@@ -30,7 +37,6 @@ export class Player extends Component {
 
     bullets: Array<Node>;
 
-    private bulletInterval = 0.2;
     private touchShotTime = 0;
 
     init(config: PlayerNodeConfig, game: Game) {
@@ -54,18 +60,19 @@ export class Player extends Component {
         this.node.position = v3(config.x, config.y, 0);
         this.node.angle = config.rotation;
         this.showSwitchButton();
+        this.showPlayerNumber();
+        this.showBet();
     }
 
     shot() {
         let level = this.weaponNode.getComponent(Weapon).curLevel;
-        // 剩余金币
         
         if (this.weaponMode == 1 || this.weaponMode == 4) {
             let now = new Date().getTime();
-            if (now - this.touchShotTime < this.bulletInterval * 1000) {
+            if (now - this.touchShotTime < Constant.BULLET_INTERVAL * 1000) {
                 return;
             }
-            let left = this.coinController.getComponent(CoinController).reduceCoin(level);
+            let left = this.coinController.getComponent(CoinController).reduceCoin(this.currentBet);
             if (left) {
                 if (this.weaponMode == 4) {
                     const targetNode = this.game.fishes.get(this.targetUuid);
@@ -94,10 +101,10 @@ export class Player extends Component {
                 bullet.shot(this.game, level, this);
             }
             this.audio.play();
-            this.weaponNode.getComponent(Animation).play('weapon_level_' + this.weaponNode.getComponent(Weapon).curLevel);
+            this.weaponNode.getComponent(Animation).play('weapon_level_' + level);
             this.touchShotTime = now;
         } else if (this.weaponMode == 2) {
-            let left = this.coinController.getComponent(CoinController).reduceCoin(level);
+            let left = this.coinController.getComponent(CoinController).reduceCoin(this.currentBet);
             if (left) {
                 if (this.oneBullet == null) {
                     // 没有子弹在飞
@@ -114,7 +121,7 @@ export class Player extends Component {
                     bullet.shot(this.game, level, this);
 
                     this.audio.play();
-                    this.weaponNode.getComponent(Animation).play('weapon_level_' + this.weaponNode.getComponent(Weapon).curLevel);
+                    this.weaponNode.getComponent(Animation).play('weapon_level_' + level);
                 } else {
                     // 获取子弹的世界坐标
                     let pos = find('Canvas').getComponent(UITransform).convertToWorldSpaceAR(this.oneBullet.getPosition());
@@ -125,10 +132,10 @@ export class Player extends Component {
             }
         } else if (this.weaponMode == 3) {
             let now = new Date().getTime();
-            if (now - this.touchShotTime < this.bulletInterval * 1000) {
+            if (now - this.touchShotTime < Constant.BULLET_INTERVAL * 1000) {
                 return;
             }
-            let left = this.coinController.getComponent(CoinController).reduceCoin(level);
+            let left = this.coinController.getComponent(CoinController).reduceCoin(this.currentBet);
             if (left) {
                 let bulletNode = null;
                 if (this.bulletPool.size() > 0) {
@@ -143,7 +150,7 @@ export class Player extends Component {
                 bullet.shot(this.game, level, this);
             }
             this.audio.play();
-            this.weaponNode.getComponent(Animation).play('weapon_level_' + this.weaponNode.getComponent(Weapon).curLevel);
+            this.weaponNode.getComponent(Animation).play('weapon_level_' + level);
             this.touchShotTime = now;
         }
 
@@ -188,6 +195,49 @@ export class Player extends Component {
             this.minusNode.active = true;
             this.minusNode.angle = 45;
         }
+    }
+
+    private showPlayerNumber() {
+        let rt = this.playerNumNode.getComponent(RichText);
+        let str = this.playerIndex.toString();
+        let nums = str.split('');
+
+        let text = '';
+        nums.forEach(n => {
+            text += `<img src=\'${n}\'/>`;
+        });
+        rt.string = text;
+    }
+
+    private showBet() {
+        let rt = this.betNode.getComponent(RichText);
+        let str = this.currentBet.toString();
+        let nums = str.split('');
+
+        let text = '';
+        nums.forEach(n => {
+            text += `<img src=\'goldnum_${n}\'/>`;
+        });
+        rt.string = text;
+    }
+
+    // 下注
+    updateBet() {
+        this.currentBet += Constant.BET_INTERVAL;
+        if (this.currentBet > Constant.MAX_BET) {
+            this.currentBet = Constant.START_BET;
+        }
+        this.showBet();
+        let weapon = this.weaponNode.getComponent(Weapon);
+        let levelInterval = Math.round((Constant.MAX_BET - Constant.START_BET) / 7);
+        let level = Math.round((this.currentBet - Constant.START_BET) / levelInterval);
+        if (level < 1) {
+            level = 1;
+        }
+        if (level > 7) {
+            level = 7;
+        }
+        weapon.setLevel(level);
     }
 
     switchMode() {
@@ -239,7 +289,7 @@ export class Player extends Component {
     }
 
     gainCoins(coinPos: Vec3, odds: number) {
-        this.coinController.getComponent(CoinController).gainCoins(coinPos, odds, this.weaponNode.getComponent(Weapon).curLevel);
+        this.coinController.getComponent(CoinController).gainCoins(coinPos, odds, this.currentBet);
     }
 }
 
