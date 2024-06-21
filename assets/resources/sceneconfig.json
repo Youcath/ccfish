@@ -1,0 +1,128 @@
+[
+    {
+        "name": "scene_normal",
+        "time": 300,
+        "create_method": "random",
+        "create_count": 8,
+        "create_interval": 3,
+        "communities": [
+
+            {
+                "name": "fish_red",
+                "type": "alone",
+                "weight": 1
+            },
+            {
+                "name": "fish_denglong",
+                "type": "alone",
+                "weight": 0.6
+            },
+            {
+                "name": "fish_yellow",
+                "type": "alone",
+                "weight": 1
+            },
+            {
+                "name": "fish_bigred",
+                "type": "alone",
+                "weight": 0.7
+            },
+            {
+                "name": "fish_fuyi",
+                "type": "alone",
+                "weight": 1
+            },
+            {
+                "name": "fish_gui",
+                "type": "alone",
+                "weight": 0.7
+            },
+            {
+                "name": "fish_hailuoshuimu",
+                "type": "alone",
+                "weight": 0.9
+            },
+            {
+                "name": "fish_hetun",
+                "type": "alone",
+                "weight": 1
+            },
+            {
+                "name": "fish_jinshayu",
+                "type": "alone",
+                "weight": 0.1
+            },
+            {
+                "name": "fish_shayu",
+                "type": "alone",
+                "weight": 0.2
+            },
+            {
+                "name": "fish_shuimu",
+                "type": "alone",
+                "weight": 0.4
+            }
+        ]
+    },
+    {
+        "name": "scene_queue_1",
+        "time": 30,
+        "create_method": "list",
+        "create_count": 4,
+        "create_interval": 15,
+        "communities": [
+            {
+                "name": "fish_jinshayu",
+                "type": "circle",
+                "count": 1
+            },
+            {
+                "name": "fish_shuimu",
+                "type": "circle",
+                "count": 8,
+                "extra": 100
+            },
+            {
+                "name": "fish_denglong",
+                "type": "circle",
+                "count": 15,
+                "extra": 200
+            },
+            {
+                "name": "fish_red",
+                "type": "circle",
+                "count": 30,
+                "extra": 300
+            }
+        ]
+    },
+    {
+        "name": "scene_queue_2",
+        "time": 30,
+        "create_method": "order",
+        "create_count": 4,
+        "create_interval": 15,
+        "communities": [
+            {
+                "name": "fish_gui",
+                "type": "line",
+                "count": 6,
+                "extra": 4
+            },
+            {
+                "name": "fish_shayu",
+                "type": "line",
+                "count": 3,
+                "extra": 8
+            },
+            {
+                "name": "fish_hetun",
+                "type": "line",
+                "count": 5,
+                "extra": 1
+            }
+        ]
+    }
+]
+
+

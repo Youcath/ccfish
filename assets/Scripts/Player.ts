@@ -51,7 +51,7 @@ export class Player extends Component {
         this.minusNode = this.node.getChildByName("minus");
         this.coinController.getComponent(CoinController).init(this);
         this.weaponNode.getComponent(Weapon).init();
-        this.coinController.getComponent(CoinController).currentValue = 200;
+        this.coinController.getComponent(CoinController).currentValue = 2000;
         game.statistics.scoreUpdate(200, config.index);
         this.audio = this.node.getComponent(AudioSource);
 
@@ -75,7 +75,7 @@ export class Player extends Component {
             let left = this.coinController.getComponent(CoinController).reduceCoin(this.currentBet);
             if (left) {
                 if (this.weaponMode == 4) {
-                    const targetNode = this.game.fishes.get(this.targetUuid);
+                    const targetNode = this.game.fishManager.fishes.get(this.targetUuid);
                     let world = find('Canvas').getComponent(UITransform).convertToWorldSpaceAR(targetNode.getPosition());
                     let targetPos = this.node.getComponent(UITransform).convertToNodeSpaceAR(world);
                     // 炮台坐标

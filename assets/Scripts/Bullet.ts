@@ -69,7 +69,7 @@ export default class Bullet extends Component {
             // 穿透弹速度减半
             speedRate = 0.5;
         } else if (this.master.weaponMode == 4) {
-            let targetNode = this.game.fishes.get(this.master.targetUuid);
+            let targetNode = this.game.fishManager.fishes.get(this.master.targetUuid);
             if (targetNode == null) {
                 this.master.despawnBullet(this.node);
                 return;

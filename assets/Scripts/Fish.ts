@@ -8,8 +8,6 @@ import { Utils } from './utils/Utils';
 import { Bomb } from './Bomb'
 import { Constant } from './config/Constant';
 
-
-
 @ccclass('Fish')
 export default class Fish extends Component {
     // animation 这个属性声明类型，为了在编辑器面板显示类型
@@ -44,9 +42,10 @@ export default class Fish extends Component {
     _uuid: string = '';
     hasRing = false;
 
-    init(game: Game) {
+    init(game: Game, type: FishType) {
         this._uuid = new Date().getTime() + "-" + this.uuid;
         this.game = game;
+        this.fishType = type;
         this.enabled = true;
         this.node.active = true;
         this.node.parent = game.node;
@@ -65,36 +64,17 @@ export default class Fish extends Component {
     }
 
     private spawnFish() {
-        // 种类
-        let randomFish = Math.random() * this.game.totalWeight;
-        let typeIndex = 0;
-        let tmp = 0;
-        for (; typeIndex < this.game.fishTypes.length; typeIndex++) {
-            tmp += this.game.fishTypes[typeIndex].weight;
-            if (tmp > randomFish) {
-                break;
-            }
-        }
-        this.fishType = this.game.fishTypes[typeIndex];
-        // 位置
-        this.startPosition = Utils.getOutPosition();
-        this.node.position = this.startPosition;
-        // 贝塞尔曲线第一个控制点，用来计算初始角度
-        this.firstPosition = Utils.getInnerPosition();
-        let k = Math.atan((this.firstPosition.y) / (this.firstPosition.x));
-        this.node.angle = -k * 180 / Math.PI;
+
+
         this.node.getComponent(Sprite).spriteFrame = this.game.spAtlas.getSpriteFrame(this.fishType.name + '_run_0');
         this.odds = Utils.getValueRandom(this.fishType.oddsUp, this.fishType.oddsDown);
         this.multiple = Utils.getValueRandom(this.fishType.multipleUp, this.fishType.multipleDown);
-        this.performRing();
         this.gotRate = Utils.getGetRate(this.odds, this.multiple, Constant.profit_rate, this.hasRing ? Constant.RING_MAX_GET : 1);
         this.fishState = FishState.alive;
 
         this.lastPosition = this.node.getPosition();
         this.changeCollider();
         this.anim.play(this.fishType.name + '_run');
-
-        this.swimming();
     }
 
     // 重新设置碰撞区域
@@ -104,12 +84,12 @@ export default class Fish extends Component {
         collider.size = new math.Size(this.fishType.w, this.fishType.h);
     }
 
-    private performRing() {
+    performRing(enabledRing: boolean) {
         let ringNode = this.node.getChildByName('subFish');
         if (ringNode == null) {
             ringNode = instantiate(this.subFishPreb);
         }
-        if (this.odds * this.multiple < Constant.RING_ODDS_LIMIT && Math.random() <= Constant.RING_RATE) {
+        if (this.odds * this.multiple < Constant.RING_ODDS_LIMIT && Math.random() <= Constant.RING_RATE && enabledRing) {
             // 倍率小于30的鱼，20%概率生成环
             this.hasRing = true;
             ringNode.active = true;
@@ -129,17 +109,31 @@ export default class Fish extends Component {
     }
 
     // 小鱼游泳，贝塞尔曲线实现
-    private swimming() {
-        let duration = Math.random() * 10 + 12;
+    swimmingBezier(startPos: Vec3, finalPos: Vec3, firstPos: Vec3, secondPos: Vec3, duration: number) {
+        // 位置
+        this.startPosition = startPos;
+        this.node.position = this.startPosition;
+        // 贝塞尔曲线第一个控制点，用来计算初始角度
+        this.firstPosition = firstPos;
+        let k = Math.atan((this.firstPosition.y) / (this.firstPosition.x));
+        this.node.angle = -k * 180 / Math.PI;
         const tempVec3 = v3();
-        const finalPos = Utils.getFinalPosition(this.startPosition);  // 终点
-        const secondPos = Utils.getInnerPosition(); // 第二个控制点
         this.tween = tween(this.node).to(duration, { position: finalPos }, {
             onUpdate: (target, ratio) => {
                 Utils.bezierCurve(ratio, this.startPosition, this.firstPosition, secondPos, finalPos, tempVec3);
                 this.node.setPosition(tempVec3.clone());
             }
         })
+            .call(() => {
+                this.despawnFish();
+            })
+            .start();
+    }
+
+    swimmingLinear(startPos: Vec3, finalPos: Vec3, duration: number) {
+        console.log(`start: (${startPos.x}, ${startPos.y})`);
+        this.node.position = startPos;
+        this.tween = tween(this.node).to(duration, { position: finalPos })
             .call(() => {
                 this.despawnFish();
             })
@@ -179,7 +173,7 @@ export default class Fish extends Component {
 
             if (this.hasRing) {
                 this.fishState = FishState.dying;
-                this.game.ringFishedGet(this, this.killerIndex);
+                this.game.fishManager.ringFishedGet(this, this.killerIndex);
             } else {
                 this.performNormalDie();
             }
@@ -243,7 +237,6 @@ export default class Fish extends Component {
         this.game.despawnFish(this.node);
     }
 
-    // 碰撞检测，鱼被打死的逻辑
     private isDie(): boolean {
         return this.fishState == FishState.dead;
     }
