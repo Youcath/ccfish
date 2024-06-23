@@ -996,7 +996,7 @@
       "__expectedType__": "cc.SpriteAtlas"
     },
     "bgm": {
-      "__uuid__": "f9169a66-6ed8-4787-9dc4-10cd0255e51c",
+      "__uuid__": "6c11f624-e3b3-458c-9274-dc06014be284",
       "__expectedType__": "cc.AudioClip"
     },
     "_id": "7eogRBehJA+qyxNNERQAyp"

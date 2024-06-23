@@ -1,12 +1,14 @@
-import { _decorator, Component, find, Node, UITransform } from 'cc';
+import { _decorator, Animation, Component, find, Node, Sprite, UITransform } from 'cc';
 import Fish from './Fish';
+import { AudioMgr } from './AudioMgr';
 const { ccclass, property } = _decorator;
 
 @ccclass('MovingBg')
 export class MovingBg extends Component {
 
-    @property(Node) bg01: Node | null;
-    @property(Node) bg02: Node | null;
+    @property(Sprite) bg01: Sprite | null;
+    @property(Sprite) bg02: Sprite | null;
+    @property(Sprite) wave: Sprite | null;
 
     private bgSpeed = 75;
     private isMoving = false;
@@ -16,21 +18,29 @@ export class MovingBg extends Component {
     private callback: () => void;
 
     public init() {
+        // 播放背景音乐
+        AudioMgr.inst.play("bg01");
+
         this.node.parent = find('Canvas');
         this.node.setSiblingIndex(0);
-        this.bg01.setPosition(0, 0);
-        this.bg02.setPosition(this.bg02.getComponent(UITransform).width, 0);
-        this.bg01.active = true;
-        this.bg02.active = false;
+        this.bg01.node.setPosition(0, 0);
+        this.resetPos(this.bg02.node);
+        this.bg01.node.active = true;
+        this.bg02.node.active = false;
+        this.wave.node.active = false;
     }
 
     public startMove(fishes: Node[], callback: () => void) {
+        // 切换背景音乐
+        AudioMgr.inst.play(this.bg01.node.active ? "bg02" : "bg01");
         this.isMoving = true;
-        this.rightNode = this.bg01.active ? this.bg02 : this.bg01;
-        this.leftNode = this.rightNode === this.bg01 ? this.bg02 : this.bg01;
+        this.rightNode = this.bg01.node.active ? this.bg02.node : this.bg01.node;
+        this.leftNode = this.rightNode === this.bg01.node ? this.bg02.node : this.bg01.node;
         this.rightNode.active = true;
+        this.wave.node.active = true;
         this.fishes = fishes;
         this.callback = callback;
+        this.wave.node.getComponent(Animation).play();
     }
 
     update(deltaTime: number) {
@@ -39,14 +49,24 @@ export class MovingBg extends Component {
         }
     }
 
+    private resetPos(bgNode: Node) {
+        const bgWidth = bgNode.getComponent(UITransform).width;
+        const waveWidth = this.wave.node.getComponent(UITransform).width;
+        bgNode.setPosition(bgWidth, 0);
+        this.wave.node.setPosition((bgWidth + waveWidth) / 2 - 50, 0);
+    }
+
     private moveBackground(deltaTime: number) {
         const deltaX = this.bgSpeed * deltaTime;
         this.leftNode.setPosition(this.leftNode.position.x - deltaX, 0);
         this.rightNode.setPosition(Math.max(this.rightNode.position.x - deltaX, 0), 0);
+        this.wave.node.setPosition(this.wave.node.position.x - deltaX, 0);
         this.despawnFishIfNeed(this.rightNode.position.x);
         if (this.rightNode.position.x == 0) {
-            this.leftNode.setPosition(this.leftNode.getComponent(UITransform).width, 0);
+            this.wave.node.getComponent(Animation).stop();
+            this.resetPos(this.leftNode);
             this.leftNode.active = false;
+            this.wave.node.active = false;
             this.isMoving = false;
             this.callback();
         }

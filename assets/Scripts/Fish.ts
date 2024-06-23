@@ -64,8 +64,6 @@ export default class Fish extends Component {
     }
 
     private spawnFish() {
-
-
         this.node.getComponent(Sprite).spriteFrame = this.game.spAtlas.getSpriteFrame(this.fishType.name + '_run_0');
         this.odds = Utils.getValueRandom(this.fishType.oddsUp, this.fishType.oddsDown);
         this.multiple = Utils.getValueRandom(this.fishType.multipleUp, this.fishType.multipleDown);

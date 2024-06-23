@@ -3,7 +3,6 @@ const { ccclass, property } = _decorator;
 
 import Fish from './Fish';
 import { Utils } from './utils/Utils';
-import { AudioMgr } from './AudioMgr';
 import { PlayerInfo, PlayerNodeConfig } from './config/PlayerInfo';
 import { Player } from './Player';
 import { BombMask } from './BombMask';
@@ -12,7 +11,7 @@ import { Statistics } from './debug/Statistics';
 import { Debug } from './debug/Debug';
 import { Constant } from './config/Constant';
 import { MovingBg } from './MovingBg';
-import { FishManager, SCENE_FISH_TYPE } from './FishManager';
+import { FishManager } from './FishManager';
 
 @ccclass('Game')
 export default class Game extends Component {
@@ -29,7 +28,6 @@ export default class Game extends Component {
     @property(Prefab) substatisticsPrefab: Prefab | null = null;
     @property(Prefab) lineGraphicsPrefab: Prefab | null = null;
     @property(SpriteAtlas) spAtlas: SpriteAtlas | null = null;
-    @property(AudioClip) bgm: AudioClip | null = null;
 
     gameBgNode: Node;
     gameBg: MovingBg;
@@ -69,9 +67,6 @@ export default class Game extends Component {
     }
 
     start() {
-        // 播放背景音乐
-        AudioMgr.inst.play(this.bgm);
-
         this.camera = this.node.getChildByName('Camera');
         this.initDebug();
     }

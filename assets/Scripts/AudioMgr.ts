@@ -1,4 +1,4 @@
-import { _decorator, AudioClip, AudioSource, Component, director, Node, resources } from 'cc';
+import { _decorator, AudioClip, AudioSource, director, Node, resources } from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('AudioMgr')
