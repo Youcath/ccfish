@@ -1,4 +1,4 @@
-import { _decorator, Component, error, instantiate, Node, NodePool, resources, UITransform, v3 } from 'cc';
+import { _decorator, Component, error, instantiate, Node, NodePool, resources, UITransform, v3, Vec3 } from 'cc';
 import { TreeMapForFish } from './utils/TreeMapForFish';
 import { CommunityInfo, SceneInfo } from './config/SceneInfo';
 import { FishType } from './config/FishType';
@@ -10,6 +10,11 @@ import { Constant } from './config/Constant';
 import { Rope } from './Rope';
 const { ccclass, property } = _decorator;
 
+enum SCENE_FISH_TYPE {
+    RANDOM = 0,
+    SPECIAL = 1
+}
+
 @ccclass('FishManager')
 export class FishManager extends Component {
     // 鱼对象池
@@ -19,12 +24,14 @@ export class FishManager extends Component {
     sceneInfo: SceneInfo;
     sceneInfos: SceneInfo[];
     fishes: TreeMapForFish; // 活跃的鱼集合
+    sceneType: SCENE_FISH_TYPE;
 
     game: Game;
 
     init(game: Game) {
         this.game = game;
         this.fishes = new TreeMapForFish();
+        this.sceneType = SCENE_FISH_TYPE.RANDOM;
         this.initPools();
         this.loadFish();
     }
@@ -39,7 +46,6 @@ export class FishManager extends Component {
         }
     }
 
-    
     private loadScenes() {
         // 动态加载json配置文件
         let self = this;
@@ -73,9 +79,10 @@ export class FishManager extends Component {
         });
     }
 
-    private createSceneFishes() {
+    public createSceneFishes() {
         // 选定场景配置信息
-        this.sceneInfo = this.sceneInfos[2];
+        this.sceneInfo = this.sceneInfos[this.sceneType % (Object.keys(SCENE_FISH_TYPE).length / 2)];
+        this.sceneType++;
         this.scheduleCreateCommunities();
         this.schedule(this.scheduleCreateCommunities, this.sceneInfo.create_interval);
     }
@@ -132,7 +139,6 @@ export class FishManager extends Component {
     }
 
     private createFishCommunity(community: CommunityInfo) {
-
         if (community.type == 'alone') {
             // 独立的鱼
             let fishType = this.fishTypes.get(community.name);
@@ -157,12 +163,14 @@ export class FishManager extends Component {
         } else if (community.type == 'circle') {
             // 圆圈从右往左出现
             let startCenter = v3(1000);  // 起点圆心
-            let finalCenter = v3(-1000);  // 起点圆心
+            let byCenter = v3(0);  // 起点圆心
+            let finalCenter = v3(-1000);  // 终点圆心
             let c = community.count;
             let dr = 2 * Math.PI / c; // 相近两条鱼的角度间隔
             let news = [];
             for (let i = 0; i < c; i++) {
                 let startPos = v3(Math.cos(i * dr) * community.extra + startCenter.x, Math.sin(i * dr) * community.extra + startCenter.y); // 根据角度计算起点
+                let byPos = v3(Math.cos(i * dr) * community.extra + byCenter.x, Math.sin(i * dr) * community.extra + byCenter.y); // 根据角度计算起点
                 let endPos = v3(Math.cos(i * dr) * community.extra + finalCenter.x, Math.sin(i * dr) * community.extra + finalCenter.y); // 根据角度计算终点
                 let fishType = this.fishTypes.get(community.name);
 
@@ -175,7 +183,7 @@ export class FishManager extends Component {
                 let f = cfish.getComponent(Fish);
                 f.init(this.game, fishType);
                 f.performRing(false);  // 可以带光环
-                f.swimmingLinear(startPos, endPos, this.sceneInfo.create_interval);   // 固定直线运动
+                f.swimmingLinear(startPos, byPos, endPos, this.sceneInfo.create_interval);   // 固定直线运动
                 cfish.setSiblingIndex(2);
                 this.game.onFishTouch(cfish);
                 news.push(cfish);
@@ -206,10 +214,8 @@ export class FishManager extends Component {
                 this.fishes.set(cfish);
             }
             this.schedule(createSingle, community.extra, community.count);
-
         }
     }
-
 
     public switchTarget(player: Player, num: number, ignoreUuid?: string) {
         let currentIndex = this.fishes.keys().indexOf(player.targetUuid);
@@ -274,6 +280,16 @@ export class FishManager extends Component {
         this.game.scheduleOnce(() => {
             this.game.gainCoins(wPos, odds, owner);
         }, 4);
+    }
+
+    public stopCreateFish() {
+        this.unschedule(this.scheduleCreateCommunities);
+    }
+
+    public keepAllFishStill() {
+        this.fishes.values().forEach((fish) => {
+            fish.getComponent(Fish).dyingNow();
+        });
     }
 
     public despawnFish(fish: Node) {

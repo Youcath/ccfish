@@ -67,20 +67,14 @@
     {
         "name": "scene_queue_1",
         "time": 30,
-        "create_method": "list",
+        "create_method": "order",
         "create_count": 4,
-        "create_interval": 15,
+        "create_interval": 40,
         "communities": [
             {
                 "name": "fish_jinshayu",
                 "type": "circle",
-                "count": 1
-            },
-            {
-                "name": "fish_shuimu",
-                "type": "circle",
-                "count": 8,
-                "extra": 100
+                "count": 0
             },
             {
                 "name": "fish_denglong",

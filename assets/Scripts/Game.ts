@@ -12,7 +12,7 @@ import { Statistics } from './debug/Statistics';
 import { Debug } from './debug/Debug';
 import { Constant } from './config/Constant';
 import { MovingBg } from './MovingBg';
-import { FishManager } from './FishManager';
+import { FishManager, SCENE_FISH_TYPE } from './FishManager';
 
 @ccclass('Game')
 export default class Game extends Component {
@@ -79,7 +79,7 @@ export default class Game extends Component {
     private initNodes() {
         if (!this.gameBgNode) {
             this.gameBgNode = instantiate(this.gameBgPrefab);
-            this.gameBg = this.gameBgNode.getComponent(MovingBg); 3
+            this.gameBg = this.gameBgNode.getComponent(MovingBg);
             this.gameBg.init();
         }
         if (!this.statisticsNode) {
@@ -590,6 +590,10 @@ export default class Game extends Component {
 
     public gameMoveBg() {
         console.log('game move background!');
-        this.gameBg.startMove();
+        this.fishManager.stopCreateFish();
+        this.fishManager.keepAllFishStill();
+        this.gameBg.startMove(this.fishManager.fishes.values(), () => {
+            this.fishManager.createSceneFishes();
+        });
     }
 }

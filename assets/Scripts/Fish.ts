@@ -130,14 +130,17 @@ export default class Fish extends Component {
             .start();
     }
 
-    swimmingLinear(startPos: Vec3, finalPos: Vec3, duration: number) {
+    swimmingLinear(startPos: Vec3, byPos: Vec3, finalPos: Vec3, duration: number) {
         console.log(`start: (${startPos.x}, ${startPos.y})`);
         this.node.position = startPos;
-        this.tween = tween(this.node).to(duration, { position: finalPos })
-            .call(() => {
-                this.despawnFish();
-            })
-            .start();
+        this.tween = tween(this.node)
+                    .to(duration, { position: byPos })
+                    .delay(10.0)
+                    .to(duration, { position: finalPos })
+                    .call(() => {
+                        this.despawnFish();
+                    })
+                    .start();
     }
 
     protected update(dt: number): void {
@@ -229,7 +232,7 @@ export default class Fish extends Component {
         }).start();
     }
 
-    private despawnFish() {
+    public despawnFish() {
         // 可以不移除节点，停止所有动作也可以完成
         this.node.active = false;
         this.tween.stop();

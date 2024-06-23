@@ -1,4 +1,5 @@
 import { _decorator, Component, find, Node, UITransform } from 'cc';
+import Fish from './Fish';
 const { ccclass, property } = _decorator;
 
 @ccclass('MovingBg')
@@ -11,6 +12,8 @@ export class MovingBg extends Component {
     private isMoving = false;
     private leftNode;
     private rightNode;
+    private fishes: Node[];
+    private callback: () => void;
 
     public init() {
         this.node.parent = find('Canvas');
@@ -21,11 +24,13 @@ export class MovingBg extends Component {
         this.bg02.active = false;
     }
 
-    public startMove() {
+    public startMove(fishes: Node[], callback: () => void) {
         this.isMoving = true;
         this.rightNode = this.bg01.active ? this.bg02 : this.bg01;
         this.leftNode = this.rightNode === this.bg01 ? this.bg02 : this.bg01;
         this.rightNode.active = true;
+        this.fishes = fishes;
+        this.callback = callback;
     }
 
     update(deltaTime: number) {
@@ -38,11 +43,22 @@ export class MovingBg extends Component {
         const deltaX = this.bgSpeed * deltaTime;
         this.leftNode.setPosition(this.leftNode.position.x - deltaX, 0);
         this.rightNode.setPosition(Math.max(this.rightNode.position.x - deltaX, 0), 0);
+        this.despawnFishIfNeed(this.rightNode.position.x);
         if (this.rightNode.position.x == 0) {
             this.leftNode.setPosition(this.leftNode.getComponent(UITransform).width, 0);
             this.leftNode.active = false;
             this.isMoving = false;
+            this.callback();
         }
+    }
+
+    private despawnFishIfNeed(boundX: number) {
+        this.fishes.forEach((fish) => {
+            const fishX = find('Canvas').getComponent(UITransform).convertToWorldSpaceAR(fish.position).x;
+            if (fishX >= boundX || fishX <= 0) {
+                fish.getComponent(Fish).despawnFish();
+            }
+        })
     }
 }
 
