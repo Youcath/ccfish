@@ -11,6 +11,7 @@ import { Statistics } from './debug/Statistics';
 import { Debug } from './debug/Debug';
 import { Constant } from './config/Constant';
 import { MovingBg } from './MovingBg';
+import { AudioMgr } from './AudioMgr';
 import { FishManager } from './FishManager';
 
 @ccclass('Game')
@@ -56,14 +57,12 @@ export default class Game extends Component {
 
     onLoad() {
         this.initNodes();
-        // 初始化pool
         this.initPools();
-
         this.fishManager = new FishManager();
         this.fishManager.init(this);
         this.loadPlayer();
-
         this.initInput();
+        this.playBgm();
     }
 
     start() {
@@ -133,6 +132,10 @@ export default class Game extends Component {
         input.on(Input.EventType.KEY_DOWN, this.onKeyDown, this);
 
         input.on(Input.EventType.KEY_PRESSING, this.onKeyPressing, this);
+    }
+
+    private playBgm() {
+        AudioMgr.inst.play(this.gameBg.isFishGroupScene() ? "bg02" : "bg01");
     }
 
     private createPlayerNode(config: PlayerNodeConfig): Node {
@@ -572,9 +575,9 @@ export default class Game extends Component {
             tween(camera).by(1.5, { orthoHeight: 3 * Math.random() + 2 }, {
                 easing: Utils.easing
             })
-                .call(() => {
-                    this.cameraEasing = false;
-                }).start();
+            .call(() => {
+                this.cameraEasing = false;
+            }).start();
         }
     }
 
@@ -590,5 +593,7 @@ export default class Game extends Component {
         this.gameBg.startMove(this.fishManager.fishes.values(), () => {
             this.fishManager.createSceneFishes();
         });
+        this.playBgm();
+        Constant.bullet_pass = this.gameBg.isFishGroupScene();
     }
 }

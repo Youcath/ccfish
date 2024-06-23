@@ -1,6 +1,6 @@
 import { _decorator, Animation, Component, find, Node, Sprite, UITransform } from 'cc';
 import Fish from './Fish';
-import { AudioMgr } from './AudioMgr';
+import { Constant } from './config/Constant'
 const { ccclass, property } = _decorator;
 
 @ccclass('MovingBg')
@@ -18,9 +18,6 @@ export class MovingBg extends Component {
     private callback: () => void;
 
     public init() {
-        // 播放背景音乐
-        AudioMgr.inst.play("bg01");
-
         this.node.parent = find('Canvas');
         this.node.setSiblingIndex(0);
         this.bg01.node.setPosition(0, 0);
@@ -30,9 +27,11 @@ export class MovingBg extends Component {
         this.wave.node.active = false;
     }
 
+    public isFishGroupScene(): boolean {
+        return this.bg02.node.active;
+    }
+
     public startMove(fishes: Node[], callback: () => void) {
-        // 切换背景音乐
-        AudioMgr.inst.play(this.bg01.node.active ? "bg02" : "bg01");
         this.isMoving = true;
         this.rightNode = this.bg01.node.active ? this.bg02.node : this.bg01.node;
         this.leftNode = this.rightNode === this.bg01.node ? this.bg02.node : this.bg01.node;
