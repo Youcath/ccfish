@@ -210,7 +210,6 @@ export class FishManager extends Component {
                 f.swimmingCircle(startAngle, community.extra, this.sceneInfo.create_interval - 3);   // 中心转圈
                 cfish.setSiblingIndex(2);
                 this.game.onFishTouch(cfish);
-                this.fishes.set(cfish);
                 news.push(cfish);
 
             }
@@ -223,7 +222,8 @@ export class FishManager extends Component {
             const secondPosition = Utils.getInnerPosition();
             const finalPos = Utils.getFinalPosition(startPosition);
 
-            const createSingle = () => {
+            let news = [];
+            for (let i = 0; i < community.count; i++) {
                 let cfish: Node = null;
                 if (this.fishPool.size() > 0) {
                     cfish = this.fishPool.get(this);
@@ -234,12 +234,13 @@ export class FishManager extends Component {
                 f.init(this.game, fishType);
                 f.performRing(false);  // 不带光环
 
-                f.swimmingBezier(startPosition, finalPos, firstPosition, secondPosition, duration);   // 贝塞尔曲线随机运动
+                f.swimmingBezier(startPosition, finalPos, firstPosition, secondPosition, duration, community.extra * i);   // 贝塞尔曲线随机运动
                 cfish.setSiblingIndex(2);
                 this.game.onFishTouch(cfish);
                 this.fishes.set(cfish);
+                news.push(cfish);
             }
-            this.schedule(createSingle, community.extra, community.count);
+            this.fishes.sets(news);
         }
     }
 

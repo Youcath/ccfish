@@ -1,34 +1,6 @@
 [
       
-    {
-        "name": "scene_queue_2",
-        "time": 30,
-        "create_method": "order",
-        "create_count": 4,
-        "create_interval": 30,
-        "move_duration_min": 5,
-        "move_duration_max": 10,
-        "communities": [
-            {
-                "name": "fish_jinshayu",
-                "type": "circle2",
-                "count": 1,
-                "extra": 3
-            },
-            {
-                "name": "fish_denglong",
-                "type": "circle2",
-                "count": 15,
-                "extra": 200
-            },
-            {
-                "name": "fish_yellow",
-                "type": "circle2",
-                "count": 30,
-                "extra": 300
-            }
-        ]
-    },
+
     {
         "name": "scene_normal",
         "time": 300,
@@ -117,7 +89,35 @@
             }
         ]
     },
-  
+    {
+        "name": "scene_queue_2",
+        "time": 30,
+        "create_method": "order",
+        "create_count": 4,
+        "create_interval": 30,
+        "move_duration_min": 5,
+        "move_duration_max": 10,
+        "communities": [
+            {
+                "name": "fish_jinshayu",
+                "type": "circle2",
+                "count": 1,
+                "extra": 3
+            },
+            {
+                "name": "fish_denglong",
+                "type": "circle2",
+                "count": 15,
+                "extra": 200
+            },
+            {
+                "name": "fish_yellow",
+                "type": "circle2",
+                "count": 30,
+                "extra": 300
+            }
+        ]
+    },
     {
         "name": "scene_queue_1",
         "time": 30,

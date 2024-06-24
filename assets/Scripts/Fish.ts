@@ -107,7 +107,7 @@ export default class Fish extends Component {
     }
 
     // 小鱼游泳，贝塞尔曲线实现
-    swimmingBezier(startPos: Vec3, finalPos: Vec3, firstPos: Vec3, secondPos: Vec3, duration: number) {
+    swimmingBezier(startPos: Vec3, finalPos: Vec3, firstPos: Vec3, secondPos: Vec3, duration: number, delay?: number) {
         // 位置
         this.startPosition = startPos;
         this.node.position = this.startPosition;
@@ -116,7 +116,7 @@ export default class Fish extends Component {
         let k = Math.atan((this.firstPosition.y) / (this.firstPosition.x));
         this.node.angle = -k * 180 / Math.PI;
         const tempVec3 = v3();
-        this.tween = tween(this.node).to(duration, { position: finalPos }, {
+        this.tween = tween(this.node).delay(delay).to(duration, { position: finalPos }, {
             onUpdate: (target, ratio) => {
                 Utils.bezierCurve(ratio, this.startPosition, this.firstPosition, secondPos, finalPos, tempVec3);
                 this.node.setPosition(tempVec3.clone());
