@@ -1,0 +1,134 @@
+{
+  "ver": "1.0.26",
+  "importer": "image",
+  "imported": true,
+  "uuid": "d767896a-0807-4afe-8959-b87750a53a8a",
+  "files": [
+    ".json",
+    ".png"
+  ],
+  "subMetas": {
+    "6c48a": {
+      "importer": "texture",
+      "uuid": "d767896a-0807-4afe-8959-b87750a53a8a@6c48a",
+      "displayName": "神仙鱼死亡_0",
+      "id": "6c48a",
+      "name": "texture",
+      "userData": {
+        "wrapModeS": "clamp-to-edge",
+        "wrapModeT": "clamp-to-edge",
+        "imageUuidOrDatabaseUri": "d767896a-0807-4afe-8959-b87750a53a8a",
+        "isUuid": true,
+        "visible": false,
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "none",
+        "anisotropy": 0
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "f9941": {
+      "importer": "sprite-frame",
+      "uuid": "d767896a-0807-4afe-8959-b87750a53a8a@f9941",
+      "displayName": "神仙鱼死亡_0",
+      "id": "f9941",
+      "name": "spriteFrame",
+      "userData": {
+        "trimType": "auto",
+        "trimThreshold": 1,
+        "rotated": false,
+        "offsetX": 9,
+        "offsetY": -10.5,
+        "trimX": 18,
+        "trimY": 21,
+        "width": 172,
+        "height": 179,
+        "rawWidth": 190,
+        "rawHeight": 200,
+        "borderTop": 0,
+        "borderBottom": 0,
+        "borderLeft": 0,
+        "borderRight": 0,
+        "packable": true,
+        "pixelsToUnit": 100,
+        "pivotX": 0.5,
+        "pivotY": 0.5,
+        "meshType": 0,
+        "vertices": {
+          "rawPosition": [
+            -86,
+            -89.5,
+            0,
+            86,
+            -89.5,
+            0,
+            -86,
+            89.5,
+            0,
+            86,
+            89.5,
+            0
+          ],
+          "indexes": [
+            0,
+            1,
+            2,
+            2,
+            1,
+            3
+          ],
+          "uv": [
+            18,
+            179,
+            190,
+            179,
+            18,
+            0,
+            190,
+            0
+          ],
+          "nuv": [
+            0.09473684210526316,
+            0,
+            1,
+            0,
+            0.09473684210526316,
+            0.895,
+            1,
+            0.895
+          ],
+          "minPos": [
+            -86,
+            -89.5,
+            0
+          ],
+          "maxPos": [
+            86,
+            89.5,
+            0
+          ]
+        },
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "d767896a-0807-4afe-8959-b87750a53a8a@6c48a",
+        "atlasUuid": ""
+      },
+      "ver": "1.0.12",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "type": "sprite-frame",
+    "hasAlpha": true,
+    "fixAlphaTransparencyArtifacts": false,
+    "redirect": "d767896a-0807-4afe-8959-b87750a53a8a@f9941"
+  }
+}

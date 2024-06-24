@@ -34,7 +34,7 @@ export default class Fish extends Component {
     // 暂存game实例
     game: Game;
 
-    tween: Tween<Node> | undefined;
+    tween: Tween<Node | number> | undefined;
     killerIndex: number;
 
     gotRate: number = 0; // 捕获概率
@@ -64,7 +64,7 @@ export default class Fish extends Component {
     }
 
     private spawnFish() {
-        this.node.getComponent(Sprite).spriteFrame = this.game.spAtlas.getSpriteFrame(this.fishType.name + '_run_0');
+        // this.node.getComponent(Sprite).spriteFrame = this.game.spAtlas.getSpriteFrame(this.fishType.name + '_run_0');
         this.odds = Utils.getValueRandom(this.fishType.oddsUp, this.fishType.oddsDown);
         this.multiple = Utils.getValueRandom(this.fishType.multipleUp, this.fishType.multipleDown);
         this.gotRate = Utils.getGetRate(this.odds, this.multiple, Constant.profit_rate, this.hasRing ? Constant.RING_MAX_GET : 1);
@@ -129,16 +129,35 @@ export default class Fish extends Component {
     }
 
     swimmingLinear(startPos: Vec3, byPos: Vec3, finalPos: Vec3, duration: number) {
-        console.log(`start: (${startPos.x}, ${startPos.y})`);
         this.node.position = startPos;
         this.tween = tween(this.node)
-                    .to(duration, { position: byPos })
-                    .delay(10.0)
-                    .to(duration, { position: finalPos })
-                    .call(() => {
-                        this.despawnFish();
-                    })
-                    .start();
+            .to(duration, { position: byPos })
+            .delay(10.0)
+            .to(duration, { position: finalPos })
+            .call(() => {
+                this.despawnFish();
+            })
+            .start();
+    }
+
+    swimmingCircle(startAngle: number, radium: number, duration: number) {
+        this.node.active = false;
+        this.node.angle = 0;
+        const n = this.node;
+        this.tween = tween(n)
+            .to(duration, { position: v3(Math.cos(startAngle) * radium, Math.sin(startAngle) * radium) }, {
+                onUpdate(target: Node, ratio: number) {
+                    n.setPosition(v3(Math.cos(-4 * Math.PI * ratio + startAngle) * radium, Math.sin(-4 * Math.PI * ratio + startAngle) * radium));
+                    if (-4 * Math.PI * ratio + startAngle < 0) {
+                        n.active = true;
+                    }
+                },
+            })
+            .to(3, { position: v3(Math.cos(startAngle) * 1000, Math.sin(startAngle) * 1000) })
+            .call(() => {
+                this.despawnFish();
+            })
+            .start();
     }
 
     protected update(dt: number): void {
@@ -149,10 +168,10 @@ export default class Fish extends Component {
             }
             let currentPos = this.node.getPosition();
             // 如果位移不超过1 直接销毁
-            let ds = this.lastPosition.clone().subtract(currentPos).length();
-            if (ds < 1) {
-                return;
-            }
+            // let ds = this.lastPosition.clone().subtract(currentPos).length();
+            // if (ds < 1) {
+            //     return;
+            // }
             // 移动的方向向量
             // 求角度
             let dir = currentPos.clone().subtract(this.lastPosition);

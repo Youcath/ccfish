@@ -995,10 +995,7 @@
       "__uuid__": "86fe4526-9483-4c85-b7c9-b3a4ec696d58",
       "__expectedType__": "cc.SpriteAtlas"
     },
-    "bgm": {
-      "__uuid__": "6c11f624-e3b3-458c-9274-dc06014be284",
-      "__expectedType__": "cc.AudioClip"
-    },
+    "spAtlas2": null,
     "_id": "7eogRBehJA+qyxNNERQAyp"
   },
   {

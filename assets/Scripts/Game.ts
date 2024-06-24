@@ -29,6 +29,7 @@ export default class Game extends Component {
     @property(Prefab) substatisticsPrefab: Prefab | null = null;
     @property(Prefab) lineGraphicsPrefab: Prefab | null = null;
     @property(SpriteAtlas) spAtlas: SpriteAtlas | null = null;
+    @property(SpriteAtlas) spAtlas2: SpriteAtlas | null = null;
 
     gameBgNode: Node;
     gameBg: MovingBg;

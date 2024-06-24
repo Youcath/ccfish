@@ -5,7 +5,6 @@ interface FishType{
     oddsDown: number, // 基础赔率下限
     multipleUp: number, // 翻倍数上限
     multipleDown: number, // 翻倍数下限
-    weight: number;
     w: number;  // 碰撞宽
     h: number;  // 碰撞长
     x: number;  // 碰撞体针对图片的中心偏移

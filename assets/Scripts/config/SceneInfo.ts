@@ -5,6 +5,8 @@ interface SceneInfo {
     create_method: string;  // 生成鱼的方式  random--随机生成；order--按列表顺序循环生成；list--按列表顺序生成，生成完为止
     create_count: number;  // 每次生成数量
     create_interval: number;  // 生成间隔，单位s
+    move_duration_min: number, // 鱼群运动持续时间的下限
+    move_duration_max: number, // 鱼群运动持续时间的上限
     communities: Array<CommunityInfo>;  // 包含的鱼群信息
 }
 

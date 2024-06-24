@@ -113,7 +113,7 @@ export class FishManager extends Component {
         } else if (this.sceneInfo.create_method == 'list') {
             let communities: Array<CommunityInfo> = [];
 
-            while(this.fishConmmunityIndex < this.sceneInfo.communities.length && communities.length < this.sceneInfo.create_count) {
+            while (this.fishConmmunityIndex < this.sceneInfo.communities.length && communities.length < this.sceneInfo.create_count) {
                 communities.push(this.sceneInfo.communities[this.fishConmmunityIndex++]);
             }
             if (communities.length > 0) {
@@ -124,7 +124,7 @@ export class FishManager extends Component {
         } else if (this.sceneInfo.create_method == 'order') {
             let communities: Array<CommunityInfo> = [];
 
-            while(this.fishConmmunityIndex < this.sceneInfo.communities.length && communities.length < this.sceneInfo.create_count) {
+            while (this.fishConmmunityIndex < this.sceneInfo.communities.length && communities.length < this.sceneInfo.create_count) {
                 communities.push(this.sceneInfo.communities[this.fishConmmunityIndex++]);
                 if (this.fishConmmunityIndex == this.sceneInfo.communities.length) {
                     this.fishConmmunityIndex = 0;
@@ -135,7 +135,7 @@ export class FishManager extends Component {
                     this.createFishCommunity(c);
                 });
             }
-        } 
+        }
     }
 
     private createFishCommunity(community: CommunityInfo) {
@@ -151,7 +151,7 @@ export class FishManager extends Component {
             let f = cfish.getComponent(Fish);
             f.init(this.game, fishType);
             f.performRing(true);  // 可以带光环
-            const duration = Math.random() * 10 + 12;
+            const duration = Math.random() * (this.sceneInfo.move_duration_max - this.sceneInfo.move_duration_min) + this.sceneInfo.move_duration_min;
             const startPosition = Utils.getOutPosition();
             const firstPosition = Utils.getInnerPosition();
             const secondPosition = Utils.getInnerPosition();
@@ -182,16 +182,42 @@ export class FishManager extends Component {
                 }
                 let f = cfish.getComponent(Fish);
                 f.init(this.game, fishType);
-                f.performRing(false);  // 可以带光环
+                f.performRing(false);  // 不带光环
                 f.swimmingLinear(startPos, byPos, endPos, this.sceneInfo.create_interval);   // 固定直线运动
                 cfish.setSiblingIndex(2);
                 this.game.onFishTouch(cfish);
                 news.push(cfish);
             }
             this.fishes.sets(news);
+        } else if (community.type == 'circle2') {
+            // 圆圈从屏幕中间出现
+            let c = community.count;
+            let dr = 2 * Math.PI / c; // 相近两条鱼的角度间隔
+            let news = [];
+            for (let i = 0; i < c; i++) {
+                let startAngle = dr * i; // 计算角度起点
+                let fishType = this.fishTypes.get(community.name);
+
+                let cfish: Node = null;
+                if (this.fishPool.size() > 0) {
+                    cfish = this.fishPool.get(this);
+                } else {
+                    cfish = instantiate(this.game.fishPrefab);
+                }
+                let f = cfish.getComponent(Fish);
+                f.init(this.game, fishType);
+                f.performRing(false);  // 不带光环
+                f.swimmingCircle(startAngle, community.extra, this.sceneInfo.create_interval - 3);   // 中心转圈
+                cfish.setSiblingIndex(2);
+                this.game.onFishTouch(cfish);
+                this.fishes.set(cfish);
+                news.push(cfish);
+
+            }
+            this.fishes.sets(news);
         } else if (community.type == 'line') {
             let fishType = this.fishTypes.get(community.name);
-            const duration = Math.random() * 10 + 12;
+            const duration = Math.random() * (this.sceneInfo.move_duration_max - this.sceneInfo.move_duration_min) + this.sceneInfo.move_duration_min;
             const startPosition = Utils.getOutPosition();
             const firstPosition = Utils.getInnerPosition();
             const secondPosition = Utils.getInnerPosition();
@@ -206,8 +232,8 @@ export class FishManager extends Component {
                 }
                 let f = cfish.getComponent(Fish);
                 f.init(this.game, fishType);
-                f.performRing(false);  // 可以带光环
-    
+                f.performRing(false);  // 不带光环
+
                 f.swimmingBezier(startPosition, finalPos, firstPosition, secondPosition, duration);   // 贝塞尔曲线随机运动
                 cfish.setSiblingIndex(2);
                 this.game.onFishTouch(cfish);
