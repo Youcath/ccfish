@@ -64,7 +64,7 @@ export default class Fish extends Component {
     }
 
     private spawnFish() {
-        // this.node.getComponent(Sprite).spriteFrame = this.game.spAtlas.getSpriteFrame(this.fishType.name + '_run_0');
+        this.node.getComponent(Sprite).spriteFrame = this.game.spAtlas.getSpriteFrame(this.fishType.name + '_run_0');
         this.odds = Utils.getValueRandom(this.fishType.oddsUp, this.fishType.oddsDown);
         this.multiple = Utils.getValueRandom(this.fishType.multipleUp, this.fishType.multipleDown);
         this.gotRate = Utils.getGetRate(this.odds, this.multiple, Constant.profit_rate, this.hasRing ? Constant.RING_MAX_GET : 1);
@@ -86,6 +86,7 @@ export default class Fish extends Component {
         let ringNode = this.node.getChildByName('subFish');
         if (ringNode == null) {
             ringNode = instantiate(this.subFishPreb);
+            this.node.addChild(ringNode);
         }
         if (this.odds * this.multiple < Constant.RING_ODDS_LIMIT && Math.random() <= Constant.RING_RATE && enabledRing) {
             // 倍率小于30的鱼，20%概率生成环
@@ -97,7 +98,6 @@ export default class Fish extends Component {
             let w = ringNode.getComponent(Widget);
             w.horizontalCenter = this.fishType.x; // 根据碰撞体积的中心偏移调整圆心位置
             w.verticalCenter = this.fishType.y;
-            this.node.addChild(ringNode);
 
             tween(ringNode).to(6, { angle: 360 }).to(6, { angle: 0 }).union().repeatForever().start(); // 圆环永久旋转
         } else {
@@ -116,12 +116,12 @@ export default class Fish extends Component {
         let k = Math.atan((this.firstPosition.y) / (this.firstPosition.x));
         this.node.angle = -k * 180 / Math.PI;
         const tempVec3 = v3();
-        this.tween = tween(this.node).delay(delay).to(duration, { position: finalPos }, {
+        this.tween = tween(this.node).delay(0).to(duration, { position: finalPos }, {
             onUpdate: (target, ratio) => {
                 Utils.bezierCurve(ratio, this.startPosition, this.firstPosition, secondPos, finalPos, tempVec3);
                 this.node.setPosition(tempVec3.clone());
             }
-        })
+        }).union()
             .call(() => {
                 this.despawnFish();
             })
@@ -134,6 +134,7 @@ export default class Fish extends Component {
             .to(duration, { position: byPos })
             .delay(10.0)
             .to(duration, { position: finalPos })
+            .union()
             .call(() => {
                 this.despawnFish();
             })
@@ -142,18 +143,17 @@ export default class Fish extends Component {
 
     swimmingCircle(startAngle: number, radium: number, duration: number) {
         this.node.active = false;
-        this.node.angle = 0;
-        const n = this.node;
-        this.tween = tween(n)
+        this.tween = tween(this.node)
             .to(duration, { position: v3(Math.cos(startAngle) * radium, Math.sin(startAngle) * radium) }, {
                 onUpdate(target: Node, ratio: number) {
-                    n.setPosition(v3(Math.cos(-4 * Math.PI * ratio + startAngle) * radium, Math.sin(-4 * Math.PI * ratio + startAngle) * radium));
+                    this.node.setPosition(v3(Math.cos(-4 * Math.PI * ratio + startAngle) * radium, Math.sin(-4 * Math.PI * ratio + startAngle) * radium));
                     if (-4 * Math.PI * ratio + startAngle < 0) {
-                        n.active = true;
+                        this.node.active = true;
                     }
                 },
             })
             .to(3, { position: v3(Math.cos(startAngle) * 1000, Math.sin(startAngle) * 1000) })
+            .union()
             .call(() => {
                 this.despawnFish();
             })
@@ -168,10 +168,10 @@ export default class Fish extends Component {
             }
             let currentPos = this.node.getPosition();
             // 如果位移不超过1 直接销毁
-            // let ds = this.lastPosition.clone().subtract(currentPos).length();
-            // if (ds < 1) {
-            //     return;
-            // }
+            let ds = this.lastPosition.clone().subtract(currentPos).length();
+            if (ds < 0.00001) {
+                return;
+            }
             // 移动的方向向量
             // 求角度
             let dir = currentPos.clone().subtract(this.lastPosition);
