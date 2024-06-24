@@ -15,6 +15,7 @@ export class MovingBg extends Component {
     private leftNode;
     private rightNode;
     private fishes: Node[];
+    private isFishGroupScene = false;
     private callback: () => void;
 
     public init() {
@@ -27,8 +28,8 @@ export class MovingBg extends Component {
         this.wave.node.active = false;
     }
 
-    public isFishGroupScene(): boolean {
-        return this.bg02.node.active;
+    public isFishGroup(): boolean {
+        return this.isFishGroupScene;
     }
 
     public startMove(fishes: Node[], callback: () => void) {
@@ -38,6 +39,7 @@ export class MovingBg extends Component {
         this.rightNode.active = true;
         this.wave.node.active = true;
         this.fishes = fishes;
+        this.isFishGroupScene = !this.isFishGroupScene;
         this.callback = callback;
         this.wave.node.getComponent(Animation).play();
     }

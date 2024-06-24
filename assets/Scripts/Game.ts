@@ -136,7 +136,7 @@ export default class Game extends Component {
     }
 
     private playBgm() {
-        AudioMgr.inst.play(this.gameBg.isFishGroupScene() ? "bg02" : "bg01");
+        AudioMgr.inst.play(this.gameBg.isFishGroup() ? "bg02" : "bg01");
     }
 
     private createPlayerNode(config: PlayerNodeConfig): Node {
@@ -595,6 +595,6 @@ export default class Game extends Component {
             this.fishManager.createSceneFishes();
         });
         this.playBgm();
-        Constant.bullet_pass = this.gameBg.isFishGroupScene();
+        Constant.bullet_pass = this.gameBg.isFishGroup();
     }
 }
