@@ -1,41 +1,34 @@
-import { _decorator, Component, Animation, SpriteAtlas, Sprite, Vec3, Director, find, UITransform } from 'cc';
+import { _decorator, Component, Vec3, find, UITransform, RichText, tween, v3 } from 'cc';
 const { ccclass, property } = _decorator;
 
 import CoinController from './CoinController'
 
+// 鱼死亡时，在死亡处展示倍率的数字
 @ccclass('NumUp')
 export default class NumUp extends Component {
-    @property(Animation)
-    anim: Animation | null = null;
-    @property(SpriteAtlas)
-    numAtlas: SpriteAtlas | null = null;
-    @property(Sprite)
-    tensPlace: Sprite | null = null;
-    @property(Sprite)
-    onesPlace: Sprite | null = null;
+
     cointroller: CoinController;
     init(pos: Vec3, num: number, ctr: CoinController) {
+        let richText = this.node.getComponent(RichText);
         this.cointroller = ctr;
         let str = num.toString();
         let nums = str.split('');
-        if (nums.length == 1) {
-            this.onesPlace.node.active = false;
-            this.tensPlace.spriteFrame = this.numAtlas.getSpriteFrame('goldnum_' + nums[0]);
-        } else {
-            this.onesPlace.node.active = true;
-            this.tensPlace.spriteFrame = this.numAtlas.getSpriteFrame('goldnum_' + nums[0]);
-            this.onesPlace.spriteFrame = this.numAtlas.getSpriteFrame('goldnum_' + nums[1]);
-        }
+        let text = `<img src=\'goldnum_x\'/>`
+        nums.forEach(n => {
+            text += `<img src=\'goldnum_${n}\'/>`;
+        });
+        richText.string = text;
+
         this.node.parent = find('Canvas');
         this.node.position = this.node.parent.getComponent(UITransform).convertToNodeSpaceAR(pos);
-        const self = this;
+        this.node.angle = ctr.node.parent.angle;
+        this.node.scale = v3();
 
-        let despawn = function () {
-            self.cointroller.despawnCoinup(self.node);
-        }
+        let despawn = () => {
+            this.cointroller.despawnCoinup(this.node);
+        };
 
-        this.anim.play('coin_up');
-        this.anim.on(Animation.EventType.STOP, despawn, this);
+        tween(this.node).to(1, {scale: v3(1, 1, 1)}).delay(0.5).to(0.5, {scale: v3()}).union().call(despawn).start();
 
     }
 
