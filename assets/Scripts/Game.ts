@@ -53,6 +53,7 @@ export default class Game extends Component {
     debugLayout: Node;
 
     maskShowing = 0;
+    cancelInput = false;
     bonusShowing = false;
     cameraEasing = false;
 
@@ -127,6 +128,7 @@ export default class Game extends Component {
     }
 
     private initInput() {
+
         // 添加触摸事件
         input.on(Input.EventType.TOUCH_START, this.onTouchStart, this);
 
@@ -157,7 +159,7 @@ export default class Game extends Component {
     }
 
     private onTouchStart(event: EventTouch) {
-        if (this.maskShowing > 0) return;
+        if (this.maskShowing > 0 || this.cancelInput) return;
 
         // 所有炮台往触点发射炮弹
         this.players.forEach((v, k) => {
@@ -235,7 +237,7 @@ export default class Game extends Component {
     }
 
     private onKeyDown(event: EventKeyboard) {
-        if (this.maskShowing > 0) return;
+        if (this.maskShowing > 0 || this.cancelInput) return;
 
         switch (event.keyCode) {
             // 玩家1
@@ -382,7 +384,7 @@ export default class Game extends Component {
     }
 
     private onKeyPressing(event: EventKeyboard) {
-        if (this.maskShowing > 0) return;
+        if (this.maskShowing > 0 || this.cancelInput) return;
 
         switch (event.keyCode) {
             // 玩家1
@@ -589,12 +591,14 @@ export default class Game extends Component {
 
     public gameMoveBg() {
         console.log('game move background!');
+        this.cancelInput = true;
         this.fishManager.stopCreateFish();
         this.fishManager.keepAllFishStill();
         this.gameBg.startMove(this.fishManager.fishes.values(), () => {
+            this.playBgm();
             this.fishManager.createSceneFishes();
+            this.cancelInput = false;
         });
-        this.playBgm();
         Constant.bullet_pass = this.gameBg.isFishGroup();
     }
 }
