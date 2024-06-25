@@ -10,7 +10,7 @@ export class MovingBg extends Component {
     @property(Sprite) bg02: Sprite | null;
     @property(Sprite) wave: Sprite | null;
 
-    private bgSpeed = 75;
+    private bgSpeed = 125;
     private isMoving = false;
     private leftNode;
     private rightNode;
