@@ -116,7 +116,7 @@ export default class Fish extends Component {
         let k = Math.atan((this.firstPosition.y) / (this.firstPosition.x));
         this.node.angle = -k * 180 / Math.PI;
         const tempVec3 = v3();
-        this.tween = tween(this.node).delay(0).to(duration, { position: finalPos }, {
+        this.tween = tween(this.node).delay(delay).to(duration, { position: finalPos }, {
             onUpdate: (target, ratio) => {
                 Utils.bezierCurve(ratio, this.startPosition, this.firstPosition, secondPos, finalPos, tempVec3);
                 this.node.setPosition(tempVec3.clone());

@@ -247,12 +247,12 @@ export class FishManager extends Component {
     public switchTarget(player: Player, num: number, ignoreUuid?: string) {
         let currentIndex = this.fishes.keys().indexOf(player.targetUuid);
         currentIndex++;
-        if (currentIndex > 5) {
+        if (currentIndex >= Math.min(this.fishes.length(), 6)) {
             currentIndex = 0;
         }
         if (ignoreUuid && this.fishes.values()[currentIndex].getComponent(Fish)._uuid == ignoreUuid) {
             currentIndex++;
-            if (currentIndex > 5) {
+            if (currentIndex >= Math.min(this.fishes.length(), 6)) {
                 currentIndex = 0;
             }
         }
