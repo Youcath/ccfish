@@ -143,12 +143,13 @@ export default class Fish extends Component {
 
     swimmingCircle(startAngle: number, radium: number, duration: number) {
         this.node.active = false;
+        const self = this;
         this.tween = tween(this.node)
             .to(duration, { position: v3(Math.cos(startAngle) * radium, Math.sin(startAngle) * radium) }, {
                 onUpdate(target: Node, ratio: number) {
-                    this.node.setPosition(v3(Math.cos(-4 * Math.PI * ratio + startAngle) * radium, Math.sin(-4 * Math.PI * ratio + startAngle) * radium));
+                    self.node.setPosition(v3(Math.cos(-4 * Math.PI * ratio + startAngle) * radium, Math.sin(-4 * Math.PI * ratio + startAngle) * radium));
                     if (-4 * Math.PI * ratio + startAngle < 0) {
-                        this.node.active = true;
+                        self.node.active = true;
                     }
                 },
             })
