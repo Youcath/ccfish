@@ -274,6 +274,12 @@ export default class Fish extends Component {
                     // 追踪模式的网只对目标鱼产生伤害
                     return;
                 }
+            } else if (net.master.weaponMode == 2) {
+                if (this.fishState == FishState.alive && this.odds * this.multiple < 30) {
+                    this.fishState = FishState.dead;
+                    this.killerIndex = net.masterIndex;
+                }
+                return;
             }
             let random = math.pseudoRandomRange(Math.random() * new Date().getTime(), 0, 1);
             if (this.fishState == FishState.alive && this.gotRate >= random) {

@@ -66,7 +66,7 @@ export class Player extends Component {
 
     shot() {
         let level = this.weaponNode.getComponent(Weapon).curLevel;
-        
+
         if (this.weaponMode == 1 || this.weaponMode == 4) {
             let now = new Date().getTime();
             if (now - this.touchShotTime < Constant.BULLET_INTERVAL * 1000) {
@@ -104,32 +104,32 @@ export class Player extends Component {
             this.weaponNode.getComponent(Animation).play('weapon_level_' + level);
             this.touchShotTime = now;
         } else if (this.weaponMode == 2) {
-            let left = this.coinController.getComponent(CoinController).reduceCoin(this.currentBet);
-            if (left) {
-                if (this.oneBullet == null) {
-                    // 没有子弹在飞
-                    let bulletNode = null;
-                    if (this.bulletPool.size() > 0) {
-                        bulletNode = this.bulletPool.get(this);
-                    } else {
-                        bulletNode = instantiate(this.game.bulletPrefab);
-                    }
-                    this.bullets.push(bulletNode);
 
-                    let bullet = bulletNode.getComponent(Bullet);
-                    bullet.enabled = true;
-                    bullet.shot(this.game, level, this);
-
-                    this.audio.play();
-                    this.weaponNode.getComponent(Animation).play('weapon_level_' + level);
+            if (this.oneBullet == null) {
+                // 没有子弹在飞
+                let bulletNode = null;
+                if (this.bulletPool.size() > 0) {
+                    bulletNode = this.bulletPool.get(this);
                 } else {
-                    // 获取子弹的世界坐标
-                    let pos = find('Canvas').getComponent(UITransform).convertToWorldSpaceAR(this.oneBullet.getPosition());
-                    this.despawnBullet(this.oneBullet);
-                    this.oneBullet = null;
-                    this.castNet(v2(pos.x, pos.y));
+                    bulletNode = instantiate(this.game.bulletPrefab);
                 }
+                this.oneBullet = bulletNode;
+                this.bullets.push(bulletNode);
+
+                let bullet = bulletNode.getComponent(Bullet);
+                bullet.enabled = true;
+                bullet.shot(this.game, level, this);
+
+                this.audio.play();
+                this.weaponNode.getComponent(Animation).play('weapon_level_' + level);
+            } else {
+                // 获取子弹的世界坐标
+                let pos = find('Canvas').getComponent(UITransform).convertToWorldSpaceAR(this.oneBullet.getPosition());
+                this.despawnBullet(this.oneBullet);
+                this.oneBullet = null;
+                this.castNet(v2(pos.x, pos.y));
             }
+
         } else if (this.weaponMode == 3) {
             let now = new Date().getTime();
             if (now - this.touchShotTime < Constant.BULLET_INTERVAL * 1000) {

@@ -128,6 +128,10 @@
     "__prefab": {
       "__id__": 5
     },
+    "frame": {
+      "__uuid__": "6c771229-7591-49e7-b317-243ff81e8a42@f9941",
+      "__expectedType__": "cc.SpriteFrame"
+    },
     "speed": 800,
     "_id": ""
   },

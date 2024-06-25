@@ -7,18 +7,19 @@
 //  * @FilePath: \CourseFishd:\cocos20\CCFish\assets\Script\Bullet.ts
 //  */
 
-import { _decorator, Component, UITransform, Sprite, find, Collider2D, IPhysics2DContact, BoxCollider2D, Contact2DType, Vec3, v2, v3 } from 'cc';
+import { _decorator, Component, UITransform, Sprite, find, Collider2D, IPhysics2DContact, BoxCollider2D, Contact2DType, Vec3, v2, v3, SpriteAtlas, SpriteFrame } from 'cc';
 const { ccclass, property } = _decorator;
 
 import Game from './Game';
 import Net from './Net';
 import { Player } from './Player';
 import { Utils } from './utils/Utils';
-import Fish from './Fish';
 import { Constant } from './config/Constant';
 
 @ccclass('Bullet')
 export default class Bullet extends Component {
+    @property(SpriteFrame)
+    frame: SpriteFrame;
     //    // 子弹初始角度
     angle: number = 0;
     game: Game;
@@ -58,8 +59,13 @@ export default class Bullet extends Component {
     }
     //  根据武器等级设置子弹等级
     setBullet(level: number) {
-        this.bulletLeve = level;
-        this.node.getComponent(Sprite).spriteFrame = this.game.spAtlas.getSpriteFrame('bullet' + this.bulletLeve);
+        if (this.master.weaponMode == 2) {
+            this.bulletLeve = 0;
+            this.node.getComponent(Sprite).spriteFrame = this.frame;
+        } else {
+            this.bulletLeve = level;
+            this.node.getComponent(Sprite).spriteFrame = this.game.spAtlas.getSpriteFrame('bullet' + this.bulletLeve);
+        }
     }
     update(dt) {
         let speedRate = 1;

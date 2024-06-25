@@ -1,4 +1,4 @@
-import { _decorator, Component, Animation, Vec2, v3, find, UITransform, CircleCollider2D } from 'cc';
+import { _decorator, Component, Animation, Vec2, v3, find, UITransform, CircleCollider2D, tween } from 'cc';
 const {ccclass, property} = _decorator;
 
 import { Player } from './Player';
@@ -18,8 +18,15 @@ export default class Net extends Component {
         this.node.setPosition(pos);
         this.master = master;
         this.masterIndex = master.playerIndex;
+        this.node.scale = v3(1, 1, 1);
 
-        this.anim.play('net_' + this.bulletLeve);
+        if (master.weaponMode == 2) {
+            this.anim.play('yiwangdajin');
+            tween(this.node).to(1, {scale: v3(1.5, 1.5, 1.5)}).start();
+            this.scheduleOnce(this.despawnNet, 5);
+        } else {
+            this.anim.play('net_' + this.bulletLeve);
+        }
     }
 
     changeCollider() {

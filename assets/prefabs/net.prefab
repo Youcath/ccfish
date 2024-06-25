@@ -154,6 +154,10 @@
       {
         "__uuid__": "37b4eef4-871c-401c-bdee-6b9adc01c331",
         "__expectedType__": "cc.AnimationClip"
+      },
+      {
+        "__uuid__": "ec6bf943-dbc0-467b-9fdd-a13a64a8d42e",
+        "__expectedType__": "cc.AnimationClip"
       }
     ],
     "_defaultClip": {
