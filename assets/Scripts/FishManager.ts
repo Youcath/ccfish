@@ -10,10 +10,6 @@ import { Constant } from './config/Constant';
 import { Rope } from './Rope';
 const { ccclass, property } = _decorator;
 
-enum SCENE_FISH_TYPE {
-    RANDOM = 0,
-    SPECIAL = 1
-}
 
 @ccclass('FishManager')
 export class FishManager extends Component {
@@ -21,17 +17,17 @@ export class FishManager extends Component {
     fishPool: NodePool;
     fishTypes: Map<string, FishType>;
     fishConmmunityIndex = 0;
-    sceneInfo: SceneInfo;
-    sceneInfos: SceneInfo[];
+    currentSceneInfo: SceneInfo;
+    normalSceneInfo: SceneInfo;
+    specialSceneInfos: SceneInfo[];
+    specialSceneIndex = 0;
     fishes: TreeMapForFish; // 活跃的鱼集合
-    sceneType: SCENE_FISH_TYPE;
-
+    isNormalScene: boolean;
     game: Game;
 
     init(game: Game) {
         this.game = game;
         this.fishes = new TreeMapForFish();
-        this.sceneType = SCENE_FISH_TYPE.RANDOM;
         this.initPools();
         this.loadFish();
     }
@@ -46,18 +42,25 @@ export class FishManager extends Component {
         }
     }
 
-    private loadScenes() {
+    private async loadScene(): Promise<void> {
         // 动态加载json配置文件
+        this.isNormalScene = true;
         let self = this;
-        resources.load("sceneconfig", function (err, jsonAsset) {
-            if (err) {
-                error(err.message || err);
-                return;
-            }
-            // 加载之后转类型
-            self.sceneInfos = jsonAsset.json;
-            self.createSceneFishes();
+        const promise1 = new Promise(function(resolve) {
+            resources.load("normal_scene_config", function (err, jsonAsset) {
+                self.normalSceneInfo = jsonAsset.json;
+                resolve(1);
+            });
         });
+        const promise2 = new Promise(function(resolve) {
+            resources.load("special_scene_config", function (err, jsonAsset) {
+                self.specialSceneInfos = jsonAsset.json;
+                resolve(1);
+            });
+        });
+        Promise.all([promise1, promise2]).then(() => {
+            self.createSceneFishes();
+        })
     }
 
     private loadFish() {
@@ -74,67 +77,51 @@ export class FishManager extends Component {
             types.forEach(t => {
                 self.fishTypes.set(t.name, t);
             });
-            self.loadScenes();
-
+            self.loadScene();
         });
     }
 
     public createSceneFishes() {
         // 选定场景配置信息
-        this.sceneInfo = this.sceneInfos[this.sceneType % (Object.keys(SCENE_FISH_TYPE).length / 2)];
-        this.sceneType++;
+        if (this.isNormalScene) {
+            this.currentSceneInfo = this.normalSceneInfo;
+        } else {
+            this.specialSceneIndex %= this.specialSceneInfos.length;
+            this.currentSceneInfo = this.specialSceneInfos[this.specialSceneIndex];
+            this.specialSceneIndex++;
+        }
         this.scheduleCreateCommunities();
-        this.schedule(this.scheduleCreateCommunities, this.sceneInfo.create_interval);
+        this.schedule(this.scheduleCreateCommunities, this.currentSceneInfo.create_interval);
+        this.isNormalScene = !this.isNormalScene;
     }
 
     private scheduleCreateCommunities() {
-        if (this.sceneInfo.create_method == 'random') {
+        if (this.currentSceneInfo.create_method == 'random') {
             let totalWeight = 0;
-            for (let i = 0; i < this.sceneInfo.communities.length; i++) {
-                totalWeight += this.sceneInfo.communities[i].weight;
+            for (let i = 0; i < this.currentSceneInfo.communities.length; i++) {
+                totalWeight += this.currentSceneInfo.communities[i].weight;
             }
 
-            for (let i = 0; i < this.sceneInfo.create_count; ++i) {
+            for (let i = 0; i < this.currentSceneInfo.create_count; ++i) {
                 // 随机选定鱼群
                 let randomFish = Math.random() * totalWeight;
                 let typeIndex = 0;
                 let tmp = 0;
-                for (; typeIndex < this.sceneInfo.communities.length; typeIndex++) {
-                    tmp += this.sceneInfo.communities[typeIndex].weight;
+                for (; typeIndex < this.currentSceneInfo.communities.length; typeIndex++) {
+                    tmp += this.currentSceneInfo.communities[typeIndex].weight;
                     if (tmp > randomFish) {
                         break;
                     }
                 }
-                let community = this.sceneInfo.communities[typeIndex];
+                let community = this.currentSceneInfo.communities[typeIndex];
 
                 this.createFishCommunity(community);
 
             }
-        } else if (this.sceneInfo.create_method == 'list') {
-            let communities: Array<CommunityInfo> = [];
-
-            while (this.fishConmmunityIndex < this.sceneInfo.communities.length && communities.length < this.sceneInfo.create_count) {
-                communities.push(this.sceneInfo.communities[this.fishConmmunityIndex++]);
-            }
-            if (communities.length > 0) {
-                communities.forEach(c => {
-                    this.createFishCommunity(c);
-                });
-            }
-        } else if (this.sceneInfo.create_method == 'order') {
-            let communities: Array<CommunityInfo> = [];
-
-            while (this.fishConmmunityIndex < this.sceneInfo.communities.length && communities.length < this.sceneInfo.create_count) {
-                communities.push(this.sceneInfo.communities[this.fishConmmunityIndex++]);
-                if (this.fishConmmunityIndex == this.sceneInfo.communities.length) {
-                    this.fishConmmunityIndex = 0;
-                }
-            }
-            if (communities.length > 0) {
-                communities.forEach(c => {
-                    this.createFishCommunity(c);
-                });
-            }
+        } else {
+            this.currentSceneInfo.communities.forEach(c => {
+                this.createFishCommunity(c);
+            });
         }
     }
 
@@ -151,7 +138,7 @@ export class FishManager extends Component {
             let f = cfish.getComponent(Fish);
             f.init(this.game, fishType);
             f.performRing(true);  // 可以带光环
-            const duration = Math.random() * (this.sceneInfo.move_duration_max - this.sceneInfo.move_duration_min) + this.sceneInfo.move_duration_min;
+            const duration = Math.random() * (this.currentSceneInfo.move_duration_max - this.currentSceneInfo.move_duration_min) + this.currentSceneInfo.move_duration_min;
             const startPosition = Utils.getOutPosition();
             const firstPosition = Utils.getInnerPosition();
             const secondPosition = Utils.getInnerPosition();
@@ -183,7 +170,7 @@ export class FishManager extends Component {
                 let f = cfish.getComponent(Fish);
                 f.init(this.game, fishType);
                 f.performRing(false);  // 不带光环
-                f.swimmingLinear(startPos, byPos, endPos, this.sceneInfo.create_interval);   // 固定直线运动
+                f.swimmingLinear(startPos, byPos, endPos, this.currentSceneInfo.create_interval);   // 固定直线运动
                 cfish.setSiblingIndex(2);
                 this.game.onFishTouch(cfish);
                 news.push(cfish);
@@ -207,7 +194,7 @@ export class FishManager extends Component {
                 let f = cfish.getComponent(Fish);
                 f.init(this.game, fishType);
                 f.performRing(false);  // 不带光环
-                f.swimmingCircle(startAngle, community.extra, this.sceneInfo.create_interval - 3);   // 中心转圈
+                f.swimmingCircle(startAngle, community.extra, this.currentSceneInfo.create_interval - 3);   // 中心转圈
                 cfish.setSiblingIndex(2);
                 this.game.onFishTouch(cfish);
                 news.push(cfish);
@@ -216,7 +203,7 @@ export class FishManager extends Component {
             this.fishes.sets(news);
         } else if (community.type == 'line') {
             let fishType = this.fishTypes.get(community.name);
-            const duration = Math.random() * (this.sceneInfo.move_duration_max - this.sceneInfo.move_duration_min) + this.sceneInfo.move_duration_min;
+            const duration = Math.random() * (this.currentSceneInfo.move_duration_max - this.currentSceneInfo.move_duration_min) + this.currentSceneInfo.move_duration_min;
             const startPosition = Utils.getOutPosition();
             const firstPosition = Utils.getInnerPosition();
             const secondPosition = Utils.getInnerPosition();
