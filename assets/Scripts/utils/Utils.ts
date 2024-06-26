@@ -61,8 +61,16 @@ export class Utils {
      * @returns 
      */
     static getFinalPosition(startPos: Vec3): Vec3 {
-        let x = 880 * Math.random();
-        let y = 600 * Math.random();
+        let n = Math.random() * 2;
+        let x = 0;
+        let y = 0;
+        if (n < 1) {
+            x = 880;
+            y = 600 * Math.random();
+        } else {
+            x = 880 * Math.random();
+            y = 600;
+        }
 
         if (startPos.x > 0 && startPos.y > 0) {
             return v3(-x, -y);
