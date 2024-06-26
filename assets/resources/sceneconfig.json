@@ -1,5 +1,5 @@
 [
-      
+
 
     {
         "name": "scene_normal",
@@ -39,17 +39,17 @@
             {
                 "name": "fish_gui",
                 "type": "alone",
-                "weight": 0.7
+                "weight": 0.5
             },
             {
                 "name": "fish_hailuoshuimu",
                 "type": "alone",
-                "weight": 0.9
+                "weight": 0.6
             },
             {
                 "name": "fish_hetun",
                 "type": "alone",
-                "weight": 1
+                "weight": 0.7
             },
             {
                 "name": "fish_jinshayu",
@@ -71,7 +71,7 @@
                 "type": "line",
                 "count": 6,
                 "extra": 4,
-                "weight": 0.5
+                "weight": 0.3
             },
             {
                 "name": "fish_hailuoshuimu",
@@ -85,6 +85,26 @@
                 "type": "line",
                 "count": 5,
                 "extra": 1,
+                "weight": 0.4
+            },
+            {
+                "name": "fish_three1",
+                "type": "alone",
+                "weight": 0.5
+            },
+            {
+                "name": "fish_three2",
+                "type": "alone",
+                "weight": 0.5
+            },
+            {
+                "name": "fish_four1",
+                "type": "alone",
+                "weight": 0.5
+            },
+            {
+                "name": "fish_four2",
+                "type": "alone",
                 "weight": 0.5
             }
         ]

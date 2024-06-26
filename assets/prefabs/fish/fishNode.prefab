@@ -289,8 +289,12 @@
       "__uuid__": "e823291b-4f33-407d-b116-8e46b7b3896b",
       "__expectedType__": "cc.Prefab"
     },
-    "subFishPreb": {
+    "fishRingPreb": {
       "__uuid__": "956cfd88-aa73-4404-b019-371ef1e5b05d",
+      "__expectedType__": "cc.Prefab"
+    },
+    "fishPatternPrefab": {
+      "__uuid__": "e13ea4b3-b86e-4759-8d4d-565765251b86",
       "__expectedType__": "cc.Prefab"
     },
     "_id": ""

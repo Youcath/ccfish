@@ -7,13 +7,16 @@ import Net from './Net';
 import { Utils } from './utils/Utils';
 import { Bomb } from './Bomb'
 import { Constant } from './config/Constant';
+import { CombineFish } from './CombineFish';
 
 @ccclass('Fish')
 export default class Fish extends Component {
+
     // animation 这个属性声明类型，为了在编辑器面板显示类型
     @property(Animation) anim: Animation | null = null;
     @property(Prefab) bombPreb: Prefab | null = null;
-    @property(Prefab) subFishPreb: Prefab | null = null;
+    @property(Prefab) fishRingPreb: Prefab | null = null;
+    @property(Prefab) fishPatternPrefab: Prefab;
 
     // 爆炸
     bomb: Node;
@@ -33,6 +36,8 @@ export default class Fish extends Component {
     fishType: FishType;
     // 暂存game实例
     game: Game;
+    // 三元四喜子节点集合
+    patterns: Array<Node> = new Array();
 
     tween: Tween<Node | number> | undefined;
     killerIndex: number;
@@ -49,7 +54,7 @@ export default class Fish extends Component {
         this.enabled = true;
         this.node.active = true;
         this.node.parent = game.node;
-        this.spawnFish();
+        this.initFishType();
     }
 
     start() {
@@ -61,18 +66,35 @@ export default class Fish extends Component {
 
     unuse() {
         this._uuid = '';
+        if (this.patterns) {
+            this.patterns.forEach(p => {
+                p.removeFromParent();
+                p.destroy();
+            });
+            this.patterns.splice(0);
+        }
     }
 
-    private spawnFish() {
-        this.node.getComponent(Sprite).spriteFrame = this.game.spAtlas.getSpriteFrame(this.fishType.name + '_run_0');
+    private initFishType() {
         this.odds = Utils.getValueRandom(this.fishType.oddsUp, this.fishType.oddsDown);
         this.multiple = Utils.getValueRandom(this.fishType.multipleUp, this.fishType.multipleDown);
         this.gotRate = Utils.getGetRate(this.odds, this.multiple, Constant.profit_rate, this.hasRing ? Constant.RING_MAX_GET : 1);
         this.fishState = FishState.alive;
-
         this.lastPosition = this.node.getPosition();
-        this.changeCollider();
-        this.anim.play(this.fishType.name + '_run');
+
+        if (this.fishType.group && this.fishType.group.length > 2) {
+            this.node.getComponent(Sprite).spriteFrame = null;
+            const len = Math.min(4, this.fishType.group.length);
+            for (let i = 0; i < len; i++) {
+                let pattern = instantiate(this.fishPatternPrefab);
+                pattern.getComponent(CombineFish).init(this, this.fishType, i);
+                this.patterns.push(pattern);
+            }
+        } else {
+            this.node.getComponent(Sprite).spriteFrame = this.game.spAtlas.getSpriteFrame(this.fishType.name + '_run_0');
+            this.changeCollider();
+            this.anim.play(this.fishType.name + '_run');
+        }
     }
 
     // 重新设置碰撞区域
@@ -83,9 +105,13 @@ export default class Fish extends Component {
     }
 
     performRing(enabledRing: boolean) {
-        let ringNode = this.node.getChildByName('subFish');
+        if (this.patterns.length > 0) {
+            // 三元四喜没有闪电环
+            return;
+        }
+        let ringNode = this.node.getChildByName('fishRing');
         if (ringNode == null) {
-            ringNode = instantiate(this.subFishPreb);
+            ringNode = instantiate(this.fishRingPreb);
             this.node.addChild(ringNode);
         }
         if (this.odds * this.multiple < Constant.RING_ODDS_LIMIT && Math.random() <= Constant.RING_RATE && enabledRing) {
@@ -215,6 +241,10 @@ export default class Fish extends Component {
             this.game.gainCoins(fp, this.odds * this.multiple, this.killerIndex);
             this.odds = 0;
         }
+        if (this.patterns.length > 0) {
+            this.despawnFish();
+            return;
+        }
         // 死亡动画
         this.anim.play(this.fishType.name + '_die');
         if (this.fishType.name.includes('jinshayu')) {
@@ -266,7 +296,7 @@ export default class Fish extends Component {
         return this.fishState == FishState.dying;
     }
 
-    private onCollisionEnter(self: Collider2D, other: Collider2D, contact: IPhysics2DContact | null) {
+    onCollisionEnter(self: Collider2D, other: Collider2D, contact: IPhysics2DContact | null) {
         let net: Net = other.node.getComponent(Net);
         if (net) {
             if (net.master.weaponMode == 4) {

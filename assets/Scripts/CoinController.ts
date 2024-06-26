@@ -98,7 +98,7 @@ export default class CoinController extends Component {
     }
 
     cheatCoin() {
-        this.currentValue += 100;
+        this.currentValue += 1000;
         this.setValue(this.currentValue);
         this.master.game.statistics.scoreUpdate(100, this.master.playerIndex);
     }
@@ -143,19 +143,14 @@ export default class CoinController extends Component {
     }
     // 展示分值实际上涨数量的动画
     private doCoinNumberShowingAmin(coinnum: number) {
-        const finishCallback = () => {
-            this.getCoinShow.active = false;
-            this.getCoinShow.position = v3(-86, 0);
-        }
-
         if (this.getCoinShow.active) {
             // 还在显示上次的分数
             this.lastGot += coinnum;
             this.showNumbers(this.lastGot);
             tween(this.getCoinShow).stop();
             this.getCoinShow.position = v3(-86, 50);
-            this.unschedule(finishCallback);
-            this.scheduleOnce(finishCallback, 3);
+            this.unschedule(this.coinNumberShowingFinal);
+            this.scheduleOnce(this.coinNumberShowingFinal, 3);
         } else {
             this.getCoinShow.active = true;
             this.lastGot = coinnum;
@@ -163,12 +158,17 @@ export default class CoinController extends Component {
     
             tween(this.getCoinShow).stop();
             this.getCoinShow.position = v3(-86, 0);
-            this.unschedule(finishCallback);
+            this.unschedule(this.coinNumberShowingFinal);
             tween(this.getCoinShow).by(1, {position: v3(0, 50)}).call(() => {
-                this.scheduleOnce(finishCallback, 3);
+                this.scheduleOnce(this.coinNumberShowingFinal, 3);
             }).start();
         }
         
+    }
+
+    private coinNumberShowingFinal() {
+        this.getCoinShow.active = false;
+        this.getCoinShow.position = v3(-86, 0);
     }
 
     private showNumbers(num: number) {

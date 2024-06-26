@@ -119,5 +119,57 @@
         "h": 68,
         "x": 3,
         "y": 30
+    },
+    {
+        "name": "fish_three1",
+        "group": ["fish_hailuoshuimu", "fish_bigred", "fish_bigred"],
+        "combine": "line",
+        "oddsUp": 35,
+        "oddsDown": 35,
+        "multipleUp": 1,
+        "multipleDown": 1,
+        "w": 65,
+        "h": 68,
+        "x": 3,
+        "y": 30
+    },
+    {
+        "name": "fish_three2",
+        "group": ["fish_hailuoshuimu", "fish_bigred", "fish_bigred"],
+        "combine": "center",
+        "oddsUp": 35,
+        "oddsDown": 35,
+        "multipleUp": 1,
+        "multipleDown": 1,
+        "w": 65,
+        "h": 68,
+        "x": 3,
+        "y": 30
+    },
+    {
+        "name": "fish_four1",
+        "group": ["fish_hailuoshuimu", "fish_bigred", "fish_red", "fish_bigred"],
+        "combine": "line",
+        "oddsUp": 45,
+        "oddsDown": 45,
+        "multipleUp": 1,
+        "multipleDown": 1,
+        "w": 65,
+        "h": 68,
+        "x": 3,
+        "y": 30
+    },
+    {
+        "name": "fish_four2",
+        "group": ["fish_hailuoshuimu", "fish_bigred", "fish_red", "fish_bigred"],
+        "combine": "center",
+        "oddsUp": 45,
+        "oddsDown": 45,
+        "multipleUp": 1,
+        "multipleDown": 1,
+        "w": 65,
+        "h": 68,
+        "x": 3,
+        "y": 30
     }
 ]

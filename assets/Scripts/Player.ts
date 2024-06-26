@@ -51,8 +51,11 @@ export class Player extends Component {
         this.minusNode = this.node.getChildByName("minus");
         this.coinController.getComponent(CoinController).init(this);
         this.weaponNode.getComponent(Weapon).init();
+
+        // 设置初始积分 start
         this.coinController.getComponent(CoinController).currentValue = 2000;
-        game.statistics.scoreUpdate(200, config.index);
+        game.statistics.scoreUpdate(2000, config.index);
+        // 设置初始积分 end
         this.audio = this.node.getComponent(AudioSource);
 
         this.node.parent = find('Canvas');
