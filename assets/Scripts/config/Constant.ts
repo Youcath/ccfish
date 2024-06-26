@@ -12,7 +12,7 @@ export class Constant {
     // 圆环鱼产生概率
     static RING_RATE = 0.3;
     // 可以成为圆环鱼的倍率上限
-    static RING_ODDS_LIMIT = 30;
+    static RING_ODDS_LIMIT = 20;
     // 圆环鱼捕获后，同种鱼获取数量上限
     static RING_MAX_GET = 5;
     // 子弹发射最小间隔单位秒

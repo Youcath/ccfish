@@ -89,8 +89,9 @@
     },
     {
         "name": "fish_jinshayu",
+        "combine": "odds",
         "oddsUp": 500,
-        "oddsDown": 100,
+        "oddsDown": 200,
         "multipleUp": 1,
         "multipleDown": 1,
         "w": 400,

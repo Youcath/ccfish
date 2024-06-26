@@ -297,6 +297,10 @@
       "__uuid__": "e13ea4b3-b86e-4759-8d4d-565765251b86",
       "__expectedType__": "cc.Prefab"
     },
+    "fishOddsPrefab": {
+      "__uuid__": "c9447118-1f0f-475a-8c6c-14e75130ec37",
+      "__expectedType__": "cc.Prefab"
+    },
     "_id": ""
   },
   {

@@ -67,14 +67,14 @@
                 "weight": 0.4
             },
             {
-                "name": "fish_gui",
+                "name": "fish_red",
                 "type": "line",
                 "count": 6,
                 "extra": 4,
                 "weight": 0.3
             },
             {
-                "name": "fish_hailuoshuimu",
+                "name": "fish_bigred",
                 "type": "line",
                 "count": 3,
                 "extra": 8,

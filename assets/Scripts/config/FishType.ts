@@ -10,9 +10,8 @@ interface FishType{
     x: number;  // 碰撞体针对图片的中心偏移
     y: number;
 
-    // 以下为鱼群配置设置，不是直接从JSON读取
     group: Array<string>;  // 多种鱼组合的类型，为鱼配置的name数组，如三元四喜
-    combine: string;   // 组合方式，line为线型组合，center为中心聚合
+    combine: string;   // 组合方式，line为线型组合，center为中心聚合，odds显示即时倍率
 }
 
 // 鱼的生命状态

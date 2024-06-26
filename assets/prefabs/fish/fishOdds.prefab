@@ -71,11 +71,11 @@
     "__prefab": {
       "__id__": 3
     },
-    "_lineHeight": 15,
+    "_lineHeight": 30,
     "_string": "<b>倍率: </b><img src='goldnum_x'/><img src='goldnum_9'/>",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_fontSize": 12,
+    "_fontSize": 25,
     "_fontColor": {
       "__type__": "cc.Color",
       "r": 0,
@@ -114,8 +114,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 56.500809832317074,
-      "height": 18.9
+      "width": 115.61084921915543,
+      "height": 37.8
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",

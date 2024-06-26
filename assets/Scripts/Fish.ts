@@ -1,4 +1,4 @@
-import { _decorator, Component, Animation, Vec3, v3, Sprite, UITransform, BoxCollider2D, tween, math, Tween, Node, Contact2DType, Collider2D, IPhysics2DContact, size, v2, Prefab, instantiate, System, sys, Size, Widget } from 'cc';
+import { _decorator, Component, Animation, Vec3, v3, Sprite, UITransform, BoxCollider2D, tween, math, Tween, Node, Contact2DType, Collider2D, IPhysics2DContact, size, v2, Prefab, instantiate, System, sys, Size, Widget, RichText } from 'cc';
 const { ccclass, property } = _decorator;
 
 import { FishState, FishType } from './config/FishType';
@@ -17,6 +17,7 @@ export default class Fish extends Component {
     @property(Prefab) bombPreb: Prefab | null = null;
     @property(Prefab) fishRingPreb: Prefab | null = null;
     @property(Prefab) fishPatternPrefab: Prefab;
+    @property(Prefab) fishOddsPrefab: Prefab;
 
     // 爆炸
     bomb: Node;
@@ -38,6 +39,8 @@ export default class Fish extends Component {
     game: Game;
     // 三元四喜子节点集合
     patterns: Array<Node> = new Array();
+    // 展示即时倍率的节点
+    oddsNode: Node;
 
     tween: Tween<Node | number> | undefined;
     killerIndex: number;
@@ -66,6 +69,7 @@ export default class Fish extends Component {
 
     unuse() {
         this._uuid = '';
+        this.unschedule(this.scheduleOdds);
         if (this.patterns) {
             this.patterns.forEach(p => {
                 p.removeFromParent();
@@ -76,13 +80,12 @@ export default class Fish extends Component {
     }
 
     private initFishType() {
-        this.odds = Utils.getValueRandom(this.fishType.oddsUp, this.fishType.oddsDown);
-        this.multiple = Utils.getValueRandom(this.fishType.multipleUp, this.fishType.multipleDown);
-        this.gotRate = Utils.getGetRate(this.odds, this.multiple, Constant.profit_rate, this.hasRing ? Constant.RING_MAX_GET : 1);
+       
         this.fishState = FishState.alive;
         this.lastPosition = this.node.getPosition();
 
         if (this.fishType.group && this.fishType.group.length > 2) {
+            this.anim.stop();
             this.node.getComponent(Sprite).spriteFrame = null;
             const len = Math.min(4, this.fishType.group.length);
             for (let i = 0; i < len; i++) {
@@ -105,16 +108,14 @@ export default class Fish extends Component {
     }
 
     performRing(enabledRing: boolean) {
-        if (this.patterns.length > 0) {
-            // 三元四喜没有闪电环
-            return;
-        }
+        this.dealOdds();
+
         let ringNode = this.node.getChildByName('fishRing');
         if (ringNode == null) {
             ringNode = instantiate(this.fishRingPreb);
             this.node.addChild(ringNode);
         }
-        if (this.odds * this.multiple < Constant.RING_ODDS_LIMIT && Math.random() <= Constant.RING_RATE && enabledRing) {
+        if (this.odds * this.multiple < Constant.RING_ODDS_LIMIT && Math.random() <= Constant.RING_RATE && enabledRing && this.patterns.length <= 0) {
             // 倍率小于30的鱼，20%概率生成环
             this.hasRing = true;
             ringNode.active = true;
@@ -130,6 +131,45 @@ export default class Fish extends Component {
             ringNode.active = false;
             this.hasRing = false;
         }
+    }
+
+    private dealOdds() {
+
+        if (this.fishType.combine == 'odds') {
+            if (this.oddsNode == null) {
+                this.oddsNode = instantiate(this.fishOddsPrefab);
+                this.node.addChild(this.oddsNode);
+            }
+            this.oddsNode.active = true;
+            this.gotRate = Utils.getGetRate(this.fishType.oddsUp, this.fishType.multipleUp, Constant.profit_rate, 1);
+            this.schedule(this.scheduleOdds, 1);
+        } else {
+            if (this.oddsNode) {
+                this.oddsNode.active = false;
+            }
+            this.odds = Utils.getValueRandom(this.fishType.oddsUp, this.fishType.oddsDown);
+            this.multiple = Utils.getValueRandom(this.fishType.multipleUp, this.fishType.multipleDown);
+            this.gotRate = Utils.getGetRate(this.odds, this.multiple, Constant.profit_rate, this.hasRing ? Constant.RING_MAX_GET : 1);
+        }
+    }
+
+    private scheduleOdds() {
+        if (this.oddsNode) {
+            this.odds = Utils.getValueRandom(this.fishType.oddsUp, this.fishType.oddsDown);
+            this.multiple = Utils.getValueRandom(this.fishType.multipleUp, this.fishType.multipleDown);
+
+            let str = (this.odds * this.multiple).toString();
+            let nums = str.split('');
+    
+            let richText = this.oddsNode.getComponent(RichText);
+            let text = `<b>倍率: </b><img src=\'goldnum_x\'/>`;
+            nums.forEach(n => {
+                text += `<img src=\'goldnum_${n}\'/>`;
+            });
+            richText.string = text;
+            
+        }
+
     }
 
     // 小鱼游泳，贝塞尔曲线实现
