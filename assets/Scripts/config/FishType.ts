@@ -9,9 +9,12 @@ interface FishType{
     h: number;  // 碰撞长
     x: number;  // 碰撞体针对图片的中心偏移
     y: number;
+    dirx: number; // 初始朝向的单位向量坐标，通常朝右为（1,0）
+    diry: number;
 
     group: Array<string>;  // 多种鱼组合的类型，为鱼配置的name数组，如三元四喜
-    combine: string;   // 组合方式，line为线型组合，center为中心聚合，odds显示即时倍率
+    combine: string;   // 组合方式，line为线型组合，center为中心聚合
+    appearance: string;   // normal普通鱼，odds显示即时倍率，bubble被泡沫包裹
 }
 
 // 鱼的生命状态

@@ -8,80 +8,120 @@
     "move_duration_max": 15,
     "communities": [
         {
-            "name": "fish_red",
-            "type": "alone",
-            "weight": 1
-        },
-        {
-            "name": "fish_denglong",
-            "type": "alone",
-            "weight": 0.6
-        },
-        {
-            "name": "fish_yellow",
-            "type": "alone",
-            "weight": 1
-        },
-        {
-            "name": "fish_bigred",
+            "name": "fish0",
             "type": "alone",
             "weight": 0.7
         },
         {
-            "name": "fish_fuyi",
+            "name": "fish1",
+            "type": "alone",
+            "weight": 0.7
+        },
+        {
+            "name": "fish2",
             "type": "alone",
             "weight": 1
         },
         {
-            "name": "fish_gui",
+            "name": "fish3",
+            "type": "alone",
+            "weight": 1
+        },
+        {
+            "name": "fish4",
+            "type": "alone",
+            "weight": 1
+        },
+        {
+            "name": "fish5",
+            "type": "alone",
+            "weight": 1
+        },
+        {
+            "name": "fish6",
+            "type": "alone",
+            "weight": 1
+        },
+        {
+            "name": "fish7",
+            "type": "alone",
+            "weight": 1
+        },
+        {
+            "name": "fish8",
+            "type": "alone",
+            "weight": 1
+        },
+        {
+            "name": "fish9",
+            "type": "alone",
+            "weight": 1
+        },
+        {
+            "name": "fish10",
+            "type": "alone",
+            "weight": 1
+        },
+        {
+            "name": "fish14",
+            "type": "alone",
+            "weight": 0.8
+        },
+        {
+            "name": "fish12",
+            "type": "alone",
+            "weight": 0.7
+        },
+        {
+            "name": "fish15",
+            "type": "alone",
+            "weight": 0.7
+        },
+        {
+            "name": "fish20",
+            "type": "alone",
+            "weight": 0.6
+        },
+        {
+            "name": "fish17",
+            "type": "alone",
+            "weight": 0.6
+        },
+        {
+            "name": "fish21",
             "type": "alone",
             "weight": 0.5
         },
         {
-            "name": "fish_hailuoshuimu",
-            "type": "alone",
-            "weight": 0.6
-        },
-        {
-            "name": "fish_hetun",
-            "type": "alone",
-            "weight": 0.7
-        },
-        {
-            "name": "fish_jinshayu",
-            "type": "alone",
-            "weight": 0.1
-        },
-        {
-            "name": "fish_shayu",
-            "type": "alone",
-            "weight": 0.2
-        },
-        {
-            "name": "fish_shuimu",
+            "name": "fish19",
             "type": "alone",
             "weight": 0.4
         },
         {
-            "name": "fish_red",
+            "name": "fish30",
+            "type": "alone",
+            "weight": 0.3
+        },
+        {
+            "name": "fish0",
             "type": "line",
             "count": 6,
-            "extra": 4,
-            "weight": 0.3
+            "extra": 5,
+            "weight": 0.8
         },
         {
-            "name": "fish_bigred",
-            "type": "line",
-            "count": 3,
-            "extra": 8,
-            "weight": 0.3
-        },
-        {
-            "name": "fish_hetun",
+            "name": "fish1",
             "type": "line",
             "count": 5,
-            "extra": 1,
-            "weight": 0.4
+            "extra": 5,
+            "weight": 0.8
+        },
+        {
+            "name": "fish2",
+            "type": "line",
+            "count": 5,
+            "extra": 8,
+            "weight": 0.6
         },
         {
             "name": "fish_three1",
@@ -91,17 +131,27 @@
         {
             "name": "fish_three2",
             "type": "alone",
-            "weight": 0.5
+            "weight": 0.4
+        },
+        {
+            "name": "fish_three3",
+            "type": "alone",
+            "weight": 0.4
         },
         {
             "name": "fish_four1",
             "type": "alone",
-            "weight": 0.5
+            "weight": 0.3
         },
         {
             "name": "fish_four2",
             "type": "alone",
-            "weight": 0.5
+            "weight": 0.3
+        },
+        {
+            "name": "fish_four3",
+            "type": "alone",
+            "weight": 0.3
         }
     ]
 }

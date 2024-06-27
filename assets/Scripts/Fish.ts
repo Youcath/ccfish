@@ -1,4 +1,4 @@
-import { _decorator, Component, Animation, Vec3, v3, Sprite, UITransform, BoxCollider2D, tween, math, Tween, Node, Contact2DType, Collider2D, IPhysics2DContact, size, v2, Prefab, instantiate, System, sys, Size, Widget, RichText } from 'cc';
+import { _decorator, Component, Animation, Vec3, v3, Sprite, UITransform, BoxCollider2D, tween, math, Tween, Node, Contact2DType, Collider2D, IPhysics2DContact, size, v2, Prefab, instantiate, System, sys, Size, Widget, RichText, SpriteAtlas } from 'cc';
 const { ccclass, property } = _decorator;
 
 import { FishState, FishType } from './config/FishType';
@@ -18,6 +18,7 @@ export default class Fish extends Component {
     @property(Prefab) fishRingPreb: Prefab | null = null;
     @property(Prefab) fishPatternPrefab: Prefab;
     @property(Prefab) fishOddsPrefab: Prefab;
+    @property(SpriteAtlas) moveAtlas: SpriteAtlas;
 
     // 爆炸
     bomb: Node;
@@ -94,9 +95,9 @@ export default class Fish extends Component {
                 this.patterns.push(pattern);
             }
         } else {
-            this.node.getComponent(Sprite).spriteFrame = this.game.spAtlas.getSpriteFrame(this.fishType.name + '_run_0');
+            this.node.getComponent(Sprite).spriteFrame = this.moveAtlas.getSpriteFrame(this.fishType.name + '_move1');
             this.changeCollider();
-            this.anim.play(this.fishType.name + '_run');
+            this.anim.play('move_' + this.fishType.name);
         }
     }
 
@@ -119,7 +120,7 @@ export default class Fish extends Component {
             // 倍率小于30的鱼，20%概率生成环
             this.hasRing = true;
             ringNode.active = true;
-            let s = this.node.getComponent(UITransform).contentSize;
+            let s = this.node.getComponent(BoxCollider2D).size;
             let diameter = Math.max(s.x, s.y); // 环的直径取鱼矩形框的长边
             ringNode.getComponent(UITransform).setContentSize(size(diameter, diameter));
             let w = ringNode.getComponent(Widget);
@@ -242,7 +243,7 @@ export default class Fish extends Component {
             // 移动的方向向量
             // 求角度
             let dir = currentPos.clone().subtract(this.lastPosition);
-            let angle = Utils.angle(dir, v3(1, 0))
+            let angle = Utils.angle(dir, v3(this.fishType.dirx, this.fishType.diry));
             // 转为欧拉角
             let degree = angle / Math.PI * 180;
             this.node.angle = degree;
@@ -281,10 +282,7 @@ export default class Fish extends Component {
             this.game.gainCoins(fp, this.odds * this.multiple, this.killerIndex);
             this.odds = 0;
         }
-        if (this.patterns.length > 0) {
-            this.despawnFish();
-            return;
-        }
+
         // 死亡动画
         this.anim.play(this.fishType.name + '_die');
         if (this.fishType.name.includes('jinshayu')) {
@@ -309,7 +307,8 @@ export default class Fish extends Component {
                     this.despawnFish();
                 }, this, true);
             } else {
-                this.anim!.on(Animation.EventType.FINISHED, this.despawnFish, this, true);
+                this.tween.stop();
+                this.scheduleOnce(this.despawnFish, 1.5);
             }
         }
     }

@@ -361,7 +361,7 @@
     "_string": "调试",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 27.416666666666668,
+    "_actualFontSize": 20,
     "_fontSize": 20,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
@@ -687,7 +687,7 @@
     "_string": "统计",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 27.416666666666668,
+    "_actualFontSize": 20,
     "_fontSize": 20,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
@@ -995,7 +995,6 @@
       "__uuid__": "86fe4526-9483-4c85-b7c9-b3a4ec696d58",
       "__expectedType__": "cc.SpriteAtlas"
     },
-    "spAtlas2": null,
     "_id": "7eogRBehJA+qyxNNERQAyp"
   },
   {

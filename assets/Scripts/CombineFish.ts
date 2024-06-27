@@ -1,6 +1,7 @@
 import { _decorator, Animation, BoxCollider2D, Component, Contact2DType, Node, v3, Vec3 } from 'cc';
 import Fish from './Fish';
 import { FishType } from './config/FishType';
+import { Utils } from './utils/Utils';
 const { ccclass, property } = _decorator;
 
 @ccclass('CombineFish')
@@ -47,8 +48,9 @@ export class CombineFish extends Component {
             this.node.setPosition(layout[index]);
         }
         this.node.parent = fish.node;
-        this.fishNode.angle = Math.PI / 2;
-        this.fishNode.getComponent(Animation).play(fishType.group[index] + '_run');
+        let angle = Utils.angle(v3(0, 1), v3(fishType.dirx, fishType.diry));
+        this.fishNode.angle = angle;
+        this.fishNode.getComponent(Animation).play('move_' + fishType.group[index]);
     }
 
     start() {
