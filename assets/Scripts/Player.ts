@@ -1,4 +1,4 @@
-import { _decorator, Animation, Component, find, instantiate, Node, NodePool, AudioSource, v3, Vec2, Vec3, UITransform, v2, RichText } from 'cc';
+import { _decorator, Animation, Component, find, instantiate, Node, NodePool, AudioSource, v3, Vec2, Vec3, UITransform, v2, RichText, tween, size } from 'cc';
 import Weapon from './Weapon';
 import CoinController from './CoinController';
 import { PlayerNodeConfig } from './config/PlayerInfo';
@@ -25,6 +25,7 @@ export class Player extends Component {
     minusNode: Node;
     oneBullet: Node;
     oneNet: Node;
+    itemNode: Node;
     //子弹对象池
     bulletPool: NodePool;
     // 网对象池
@@ -107,7 +108,9 @@ export class Player extends Component {
             this.weaponNode.getComponent(Animation).play('weapon_level_' + level);
             this.touchShotTime = now;
         } else if (this.weaponMode == 2) {
-
+            if (this.itemNode) {
+                this.itemNode.active = false;
+            }
             if (this.oneBullet == null) {
                 // 没有子弹在飞
                 let bulletNode = null;
@@ -131,6 +134,7 @@ export class Player extends Component {
                 this.despawnBullet(this.oneBullet);
                 this.oneBullet = null;
                 this.castNet(v2(pos.x, pos.y));
+                this.switchModeTo(1);
             }
 
         } else if (this.weaponMode == 3) {
@@ -250,6 +254,36 @@ export class Player extends Component {
             this.weaponMode++;
         }
         this.showSwitchButton();
+    }
+
+    switchModeTo(mode: number) {
+        this.weaponMode = mode;
+        if (this.weaponMode > 4 || this.weaponMode <= 0) {
+            this.weaponMode = 1;
+        }
+        this.showSwitchButton();
+    }
+
+    gainItem(name: string, pos: Vec3) {
+
+        // 获取道具的动画
+        if (!this.itemNode) {
+            this.itemNode = this.node.getChildByName('item');
+        }
+        this.itemNode.active = true;
+        let stratPos = this.node.getComponent(UITransform).convertToNodeSpaceAR(pos);
+        this.itemNode.getComponent(Animation).play(name);
+        const end = () => {
+            this.itemNode.getComponent(UITransform).setContentSize(size(80, 80));
+            while (this.bullets.length > 0) {
+                let n = this.bullets.pop();
+                // 其余子弹原地销毁
+                this.despawnBullet(n);
+            }
+            this.switchModeTo(2);
+        }
+        this.itemNode.setPosition(stratPos);
+        tween(this.itemNode).to(1, {position: v3(42, -5)}).call(end).start();
     }
 
     cheatCoins() {

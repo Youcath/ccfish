@@ -503,6 +503,11 @@ export default class Game extends Component {
         this.players.get(player).getComponent(Player).gainCoins(coinPos, odds);
     }
 
+    public gainYiwangdajin(playerIndex: number, pos: Vec3) {
+        let player = this.players.get(playerIndex).getComponent(Player);
+        player.gainItem("yiwangdajin", pos)
+    }
+
     public trySwitchTargetNow(fish: Node) {
         const f = fish.getComponent(Fish);
         this.players.forEach((v, k) => {

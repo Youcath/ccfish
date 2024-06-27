@@ -8,6 +8,11 @@
     "move_duration_max": 15,
     "communities": [
         {
+            "name": "yiwangdajin",
+            "type": "alone",
+            "weight": 0.5
+        },
+        {
             "name": "fish0",
             "type": "alone",
             "weight": 0.7
@@ -126,32 +131,32 @@
         {
             "name": "fish_three1",
             "type": "alone",
-            "weight": 0.5
+            "weight": 0.3
         },
         {
             "name": "fish_three2",
             "type": "alone",
-            "weight": 0.4
+            "weight": 0.25
         },
         {
             "name": "fish_three3",
             "type": "alone",
-            "weight": 0.4
+            "weight": 0.25
         },
         {
             "name": "fish_four1",
             "type": "alone",
-            "weight": 0.3
+            "weight": 0.2
         },
         {
             "name": "fish_four2",
             "type": "alone",
-            "weight": 0.3
+            "weight": 0.2
         },
         {
             "name": "fish_four3",
             "type": "alone",
-            "weight": 0.3
+            "weight": 0.2
         }
     ]
 }

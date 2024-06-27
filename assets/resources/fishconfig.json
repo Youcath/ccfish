@@ -312,5 +312,19 @@
         "multipleDown": 1,
         "dirx": 1,
         "diry": 0
+    },
+    {
+        "name": "yiwangdajin",
+        "appearance": "bubble",
+        "oddsUp": 100,
+        "oddsDown": 100,
+        "multipleUp": 1,
+        "multipleDown": 1,
+        "dirx": 1,
+        "diry": 0,
+        "w": 160,
+        "h": 160,
+        "x": 0,
+        "y": 0
     }
 ]

@@ -1,4 +1,4 @@
-import { _decorator, Component, Animation, Vec3, v3, Sprite, UITransform, BoxCollider2D, tween, math, Tween, Node, Contact2DType, Collider2D, IPhysics2DContact, size, v2, Prefab, instantiate, System, sys, Size, Widget, RichText, SpriteAtlas } from 'cc';
+import { _decorator, Component, Animation, Vec3, v3, Sprite, UITransform, BoxCollider2D, tween, math, Tween, Node, Contact2DType, Collider2D, IPhysics2DContact, size, v2, Prefab, instantiate, Widget, RichText, SpriteAtlas, SpriteFrame } from 'cc';
 const { ccclass, property } = _decorator;
 
 import { FishState, FishType } from './config/FishType';
@@ -18,6 +18,8 @@ export default class Fish extends Component {
     @property(Prefab) fishRingPreb: Prefab | null = null;
     @property(Prefab) fishPatternPrefab: Prefab;
     @property(Prefab) fishOddsPrefab: Prefab;
+    @property(Prefab) fishBubblePrefab: Prefab;
+    @property(SpriteFrame) stormNetSprite: SpriteFrame;
     @property(SpriteAtlas) moveAtlas: SpriteAtlas;
 
     // 爆炸
@@ -42,6 +44,8 @@ export default class Fish extends Component {
     patterns: Array<Node> = new Array();
     // 展示即时倍率的节点
     oddsNode: Node;
+    // 泡泡的节点
+    bubbleNode: Node;
 
     tween: Tween<Node | number> | undefined;
     killerIndex: number;
@@ -81,7 +85,6 @@ export default class Fish extends Component {
     }
 
     private initFishType() {
-       
         this.fishState = FishState.alive;
         this.lastPosition = this.node.getPosition();
 
@@ -121,7 +124,7 @@ export default class Fish extends Component {
             this.hasRing = true;
             ringNode.active = true;
             let s = this.node.getComponent(BoxCollider2D).size;
-            let diameter = Math.max(s.x, s.y); // 环的直径取鱼矩形框的长边
+            let diameter = Math.sqrt(Math.pow(s.x, 2) + Math.pow(s.y, 2)); // 环的直径取鱼矩形框的对角线
             ringNode.getComponent(UITransform).setContentSize(size(diameter, diameter));
             let w = ringNode.getComponent(Widget);
             w.horizontalCenter = this.fishType.x; // 根据碰撞体积的中心偏移调整圆心位置
@@ -136,17 +139,38 @@ export default class Fish extends Component {
 
     private dealOdds() {
 
-        if (this.fishType.combine == 'odds') {
+        if (this.fishType.appearance == 'odds') {
             if (this.oddsNode == null) {
                 this.oddsNode = instantiate(this.fishOddsPrefab);
                 this.node.addChild(this.oddsNode);
             }
             this.oddsNode.active = true;
+            if (this.bubbleNode) {
+                this.bubbleNode.active = false;
+            }
             this.gotRate = Utils.getGetRate(this.fishType.oddsUp, this.fishType.multipleUp, Constant.profit_rate, 1);
+            this.scheduleOdds();
             this.schedule(this.scheduleOdds, 1);
+        } else if (this.fishType.appearance == 'bubble') {
+            if (this.bubbleNode == null) {
+                this.bubbleNode = instantiate(this.fishBubblePrefab);
+                this.node.addChild(this.bubbleNode);
+            }
+            this.bubbleNode.active = true;
+            if (this.oddsNode) {
+                this.oddsNode.active = false;
+            }
+            this.odds = Utils.getValueRandom(this.fishType.oddsUp, this.fishType.oddsDown);
+            this.multiple = Utils.getValueRandom(this.fishType.multipleUp, this.fishType.multipleDown);
+            this.gotRate = Utils.getGetRate(this.odds, this.multiple, Constant.profit_rate, 1);
+            this.anim.play('yiwangdajin');
+            this.bubbleNode.getComponent(UITransform).setContentSize(size(160, 160));
         } else {
             if (this.oddsNode) {
                 this.oddsNode.active = false;
+            }
+            if (this.bubbleNode) {
+                this.bubbleNode.active = false;
             }
             this.odds = Utils.getValueRandom(this.fishType.oddsUp, this.fishType.oddsDown);
             this.multiple = Utils.getValueRandom(this.fishType.multipleUp, this.fishType.multipleDown);
@@ -161,14 +185,14 @@ export default class Fish extends Component {
 
             let str = (this.odds * this.multiple).toString();
             let nums = str.split('');
-    
+
             let richText = this.oddsNode.getComponent(RichText);
             let text = `<b>倍率: </b><img src=\'goldnum_x\'/>`;
             nums.forEach(n => {
                 text += `<img src=\'goldnum_${n}\'/>`;
             });
             richText.string = text;
-            
+
         }
 
     }
@@ -262,6 +286,14 @@ export default class Fish extends Component {
             if (this.hasRing) {
                 this.fishState = FishState.dying;
                 this.game.fishManager.ringFishedGet(this, this.killerIndex);
+            } else if (this.fishType.name == "yiwangdajin") {
+                let fp = this.node.parent.getComponent(UITransform).convertToWorldSpaceAR(this.node.position);
+                const getItem = () => {
+                    this.despawnFish();
+                    this.game.gainYiwangdajin(this.killerIndex, fp);
+                }
+                this.tween.stop();
+                this.scheduleOnce(getItem, 0.5);
             } else {
                 this.performNormalDie();
             }
