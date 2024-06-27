@@ -9,19 +9,19 @@
         "move_duration_max": 10,
         "communities": [
             {
-                "name": "fish_jinshayu",
+                "name": "fish12",
                 "type": "circle",
                 "count": 1,
-                "extra": 100
+                "extra": 50
             },
             {
-                "name": "fish_denglong",
+                "name": "fish7",
                 "type": "circle",
                 "count": 15,
-                "extra": 220
+                "extra": 200
             },
             {
-                "name": "fish_red",
+                "name": "fish0",
                 "type": "circle",
                 "count": 30,
                 "extra": 320
@@ -38,19 +38,19 @@
         "move_duration_max": 15,
         "communities": [
             {
-                "name": "fish_jinshayu",
+                "name": "fish12",
                 "type": "circle2",
                 "count": 1,
                 "extra": 0
             },
             {
-                "name": "fish_denglong",
+                "name": "fish7",
                 "type": "circle2",
                 "count": 15,
                 "extra": 200
             },
             {
-                "name": "fish_yellow",
+                "name": "fish4",
                 "type": "circle2",
                 "count": 30,
                 "extra": 300
