@@ -328,9 +328,8 @@ export default class Fish extends Component {
                 });
                 self.despawnFish();
             }, this, true);
-        } else {
-            if (this.fishType.name.includes('shayu')) {
-                this.game.showMask();
+        } else if (this.fishType.name.includes('shayu')) {
+            this.game.showMask();
                 this.node.setSiblingIndex(999);
                 this.bomb = instantiate(this.bombPreb);
                 this.bomb.getComponent(Bomb).show(this.node.position);
@@ -339,9 +338,12 @@ export default class Fish extends Component {
                     this.game.hiddenMask();
                     this.despawnFish();
                 }, this, true);
-            } else {
-                this.tween.stop();
-                this.scheduleOnce(this.despawnFish, 1.5);
+        } else {
+            this.tween.stop();
+            this.scheduleOnce(this.despawnFish, 1.5);
+            // 集宝箱
+            if (this.fishType.name.includes('fish25')) {
+                this.game.collectTreasures(this.killerIndex, fp);
             }
         }
     }

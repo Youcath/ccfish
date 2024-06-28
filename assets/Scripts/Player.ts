@@ -7,6 +7,7 @@ import Bullet from './Bullet';
 import Net from './Net';
 import { Utils } from './utils/Utils';
 import { Constant } from './config/Constant';
+import { TreasureController } from './TreasureController';
 const { ccclass, property } = _decorator;
 
 @ccclass('Player')
@@ -21,6 +22,7 @@ export class Player extends Component {
     game: Game;
     weaponNode: Node;
     coinController: Node;
+    treasureController: Node;
     plusNode: Node;
     minusNode: Node;
     oneBullet: Node;
@@ -49,9 +51,11 @@ export class Player extends Component {
         this.playerIndex = config.index;
         this.weaponNode = this.node.getChildByName("weapon");
         this.coinController = this.node.getChildByName("number_controller");
+        this.treasureController = this.node.getChildByName("treasure_controller");
         this.plusNode = this.node.getChildByName("plus");
         this.minusNode = this.node.getChildByName("minus");
         this.coinController.getComponent(CoinController).init(this);
+        this.treasureController.getComponent(TreasureController).init(this);
         this.weaponNode.getComponent(Weapon).init();
 
         // 设置初始积分 start
@@ -360,6 +364,18 @@ export class Player extends Component {
 
     gainCoins(coinPos: Vec3, odds: number) {
         this.coinController.getComponent(CoinController).gainCoins(coinPos, odds, this.currentBet);
+    }
+
+    gainTreasures(pos: Vec3) {
+        this.treasureController.getComponent(TreasureController).gain(pos);
+    }
+
+    resetTreasures() {
+        this.treasureController.getComponent(TreasureController).reset();
+    }
+
+    currentTreasureCount(): number {
+        return this.treasureController.getComponent(TreasureController).currentTreasureCount();
     }
 }
 

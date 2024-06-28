@@ -103,6 +103,11 @@
             "weight": 0.4
         },
         {
+            "name": "fish25",
+            "type": "alone",
+            "weight": 1
+        },
+        {
             "name": "fish30",
             "type": "alone",
             "weight": 0.3

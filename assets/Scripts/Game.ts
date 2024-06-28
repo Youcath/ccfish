@@ -508,6 +508,16 @@ export default class Game extends Component {
         player.gainItem("yiwangdajin", pos)
     }
 
+    public collectTreasures(playerIndex: number, playerPos: Vec3) {
+        const player = this.players.get(playerIndex).getComponent(Player);
+        player.gainTreasures(playerPos);
+        if (player.currentTreasureCount() >= 5) {
+            player.resetTreasures();
+            // todo: 播放彩金动画
+            
+        }
+    }
+
     public trySwitchTargetNow(fish: Node) {
         const f = fish.getComponent(Fish);
         this.players.forEach((v, k) => {

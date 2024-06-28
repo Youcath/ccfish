@@ -235,6 +235,19 @@
         "y": -38
     },
     {
+        "name": "fish25",
+        "oddsUp": 50,
+        "oddsDown": 50,
+        "multipleUp": 1,
+        "multipleDown": 1,
+        "dirx": 1,
+        "diry": 0,
+        "w": 33,
+        "h": 24,
+        "x": 0,
+        "y": 0
+    },
+    {
         "name": "fish30",
         "oddsUp": 1500,
         "oddsDown": 300,
