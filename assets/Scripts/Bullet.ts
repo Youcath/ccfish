@@ -59,7 +59,7 @@ export default class Bullet extends Component {
     }
     //  根据武器等级设置子弹等级
     setBullet(level: number) {
-        if (this.master.weaponMode == 2) {
+        if (this.master.itemName == 'yiwangdajin') {
             this.bulletLeve = 0;
             this.node.getComponent(Sprite).spriteFrame = this.frame;
         } else {
@@ -159,6 +159,10 @@ export default class Bullet extends Component {
         let bullet: Bullet = other.node.getComponent(Bullet);
         if (bullet) {
             // 来自其他子弹的碰撞忽略
+            return;
+        }
+        if (this.master.itemName == 'yiwangdajin') {
+            // 一网打尽道具，依靠玩家控制
             return;
         }
 

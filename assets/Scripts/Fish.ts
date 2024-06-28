@@ -82,6 +82,12 @@ export default class Fish extends Component {
             });
             this.patterns.splice(0);
         }
+        if (this.bubbleNode) {
+            this.bubbleNode.active = false;
+        }
+        if (this.oddsNode) {
+            this.oddsNode.active = false;
+        }
     }
 
     private initFishType() {
@@ -145,9 +151,7 @@ export default class Fish extends Component {
                 this.node.addChild(this.oddsNode);
             }
             this.oddsNode.active = true;
-            if (this.bubbleNode) {
-                this.bubbleNode.active = false;
-            }
+
             this.gotRate = Utils.getGetRate(this.fishType.oddsUp, this.fishType.multipleUp, Constant.profit_rate, 1);
             this.scheduleOdds();
             this.schedule(this.scheduleOdds, 1);
@@ -157,21 +161,13 @@ export default class Fish extends Component {
                 this.node.addChild(this.bubbleNode);
             }
             this.bubbleNode.active = true;
-            if (this.oddsNode) {
-                this.oddsNode.active = false;
-            }
+
             this.odds = Utils.getValueRandom(this.fishType.oddsUp, this.fishType.oddsDown);
             this.multiple = Utils.getValueRandom(this.fishType.multipleUp, this.fishType.multipleDown);
             this.gotRate = Utils.getGetRate(this.odds, this.multiple, Constant.profit_rate, 1);
             this.anim.play('yiwangdajin');
             this.bubbleNode.getComponent(UITransform).setContentSize(size(160, 160));
         } else {
-            if (this.oddsNode) {
-                this.oddsNode.active = false;
-            }
-            if (this.bubbleNode) {
-                this.bubbleNode.active = false;
-            }
             this.odds = Utils.getValueRandom(this.fishType.oddsUp, this.fishType.oddsDown);
             this.multiple = Utils.getValueRandom(this.fishType.multipleUp, this.fishType.multipleDown);
             this.gotRate = Utils.getGetRate(this.odds, this.multiple, Constant.profit_rate, this.hasRing ? Constant.RING_MAX_GET : 1);
@@ -307,6 +303,11 @@ export default class Fish extends Component {
         collider.size = size(0, 0);
     }
 
+    dieNow(killer: number) {
+        this.fishState = FishState.dead;
+        this.killerIndex = killer;
+    }
+
     private performNormalDie() {
         // 播放金币动画，转为世界坐标
         let fp = this.node.parent.getComponent(UITransform).convertToWorldSpaceAR(this.node.position);
@@ -375,17 +376,15 @@ export default class Fish extends Component {
                     // 追踪模式的网只对目标鱼产生伤害
                     return;
                 }
-            } else if (net.master.weaponMode == 2) {
-                if (this.fishState == FishState.alive && this.odds * this.multiple < 30) {
-                    this.fishState = FishState.dead;
-                    this.killerIndex = net.masterIndex;
-                }
+            } 
+            if (net.master.itemName != '') {
+                // 有道具效果，碰撞交给子弹或网来处理
                 return;
             }
+
             let random = math.pseudoRandomRange(Math.random() * new Date().getTime(), 0, 1);
             if (this.fishState == FishState.alive && this.gotRate >= random) {
-                this.fishState = FishState.dead;
-                this.killerIndex = net.masterIndex;
+                this.dieNow(net.masterIndex);
             }
         }
     }

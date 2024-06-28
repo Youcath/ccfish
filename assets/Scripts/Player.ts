@@ -35,6 +35,7 @@ export class Player extends Component {
     chooseFishIndex = -1;
     targetPos: Vec3; // for weapon 3
     targetUuid: string; // for weapon 4
+    itemName = "";
 
     bullets: Array<Node>;
 
@@ -71,96 +72,127 @@ export class Player extends Component {
     shot() {
         let level = this.weaponNode.getComponent(Weapon).curLevel;
 
-        if (this.weaponMode == 1 || this.weaponMode == 4) {
-            let now = new Date().getTime();
-            if (now - this.touchShotTime < Constant.BULLET_INTERVAL * 1000) {
-                return;
-            }
-            let left = this.coinController.getComponent(CoinController).reduceCoin(this.currentBet);
-            if (left) {
-                if (this.weaponMode == 4) {
-                    const targetNode = this.game.fishManager.fishes.get(this.targetUuid);
-                    let world = find('Canvas').getComponent(UITransform).convertToWorldSpaceAR(targetNode.getPosition());
-                    let targetPos = this.node.getComponent(UITransform).convertToNodeSpaceAR(world);
-                    // 炮台坐标
-                    let weaponPos = this.weaponNode.getPosition();
-                    // 炮台到触点的方向向量
-                    let dir = targetPos.subtract(weaponPos);
-                    // 计算夹角，这个夹角是带方向的
-                    let angle = Utils.angle(dir, v3(0, 1));
-                    //将弧度转换为欧拉角
-                    let degree = angle / Math.PI * 180;
-                    // 设置炮台角度
-                    this.weaponNode.angle = degree;
+        if (this.itemName == '') {
+            // 无道具情况
+            if (this.weaponMode == 1 || this.weaponMode == 4) {
+                let now = new Date().getTime();
+                if (now - this.touchShotTime < Constant.BULLET_INTERVAL * 1000) {
+                    return;
                 }
-                let bulletNode = null;
-                if (this.bulletPool.size() > 0) {
-                    bulletNode = this.bulletPool.get(this);
-                } else {
-                    bulletNode = instantiate(this.game.bulletPrefab);
+                let left = this.coinController.getComponent(CoinController).reduceCoin(this.currentBet);
+                if (left) {
+                    if (this.weaponMode == 4) {
+                        const targetNode = this.game.fishManager.fishes.get(this.targetUuid);
+                        let world = find('Canvas').getComponent(UITransform).convertToWorldSpaceAR(targetNode.getPosition());
+                        let targetPos = this.node.getComponent(UITransform).convertToNodeSpaceAR(world);
+                        // 炮台坐标
+                        let weaponPos = this.weaponNode.getPosition();
+                        // 炮台到触点的方向向量
+                        let dir = targetPos.subtract(weaponPos);
+                        // 计算夹角，这个夹角是带方向的
+                        let angle = Utils.angle(dir, v3(0, 1));
+                        //将弧度转换为欧拉角
+                        let degree = angle / Math.PI * 180;
+                        // 设置炮台角度
+                        this.weaponNode.angle = degree;
+                    }
+                    let bulletNode = null;
+                    if (this.bulletPool.size() > 0) {
+                        bulletNode = this.bulletPool.get(this);
+                    } else {
+                        bulletNode = instantiate(this.game.bulletPrefab);
+                    }
+                    this.bullets.push(bulletNode);
+                    let bullet = bulletNode.getComponent(Bullet);
+                    bullet.enabled = true;
+                    bullet.shot(this.game, level, this);
                 }
-                this.bullets.push(bulletNode);
-                let bullet = bulletNode.getComponent(Bullet);
-                bullet.enabled = true;
-                bullet.shot(this.game, level, this);
-            }
-            this.audio.play();
-            this.weaponNode.getComponent(Animation).play('weapon_level_' + level);
-            this.touchShotTime = now;
-        } else if (this.weaponMode == 2) {
-            if (this.itemNode) {
-                this.itemNode.active = false;
-            }
-            if (this.oneBullet == null) {
-                // 没有子弹在飞
-                let bulletNode = null;
-                if (this.bulletPool.size() > 0) {
-                    bulletNode = this.bulletPool.get(this);
-                } else {
-                    bulletNode = instantiate(this.game.bulletPrefab);
-                }
-                this.oneBullet = bulletNode;
-                this.bullets.push(bulletNode);
-
-                let bullet = bulletNode.getComponent(Bullet);
-                bullet.enabled = true;
-                bullet.shot(this.game, level, this);
-
                 this.audio.play();
                 this.weaponNode.getComponent(Animation).play('weapon_level_' + level);
-            } else {
-                // 获取子弹的世界坐标
-                let pos = find('Canvas').getComponent(UITransform).convertToWorldSpaceAR(this.oneBullet.getPosition());
-                this.despawnBullet(this.oneBullet);
-                this.oneBullet = null;
-                this.castNet(v2(pos.x, pos.y));
-                this.switchModeTo(1);
-            }
-
-        } else if (this.weaponMode == 3) {
-            let now = new Date().getTime();
-            if (now - this.touchShotTime < Constant.BULLET_INTERVAL * 1000) {
-                return;
-            }
-            let left = this.coinController.getComponent(CoinController).reduceCoin(this.currentBet);
-            if (left) {
-                let bulletNode = null;
-                if (this.bulletPool.size() > 0) {
-                    bulletNode = this.bulletPool.get(this);
-                } else {
-                    bulletNode = instantiate(this.game.bulletPrefab);
+                this.touchShotTime = now;
+            } else if (this.weaponMode == 2) {
+                if (this.itemNode) {
+                    this.itemNode.active = false;
                 }
-                this.bullets.push(bulletNode);
-                let bullet = bulletNode.getComponent(Bullet);
-                bullet.enabled = true;
-                bullet.setTarget(this.targetPos);
-                bullet.shot(this.game, level, this);
+                if (this.oneBullet == null) {
+                    // 没有子弹在飞
+                    let bulletNode = null;
+                    if (this.bulletPool.size() > 0) {
+                        bulletNode = this.bulletPool.get(this);
+                    } else {
+                        bulletNode = instantiate(this.game.bulletPrefab);
+                    }
+                    this.oneBullet = bulletNode;
+    
+                    let bullet = bulletNode.getComponent(Bullet);
+                    bullet.enabled = true;
+                    bullet.shot(this.game, level, this);
+    
+                    this.audio.play();
+                    this.weaponNode.getComponent(Animation).play('weapon_level_' + level);
+                } else {
+                    // 获取子弹的世界坐标
+                    let pos = find('Canvas').getComponent(UITransform).convertToWorldSpaceAR(this.oneBullet.getPosition());
+                    this.despawnBullet(this.oneBullet);
+                    this.oneBullet = null;
+                    this.castNet(v2(pos.x, pos.y));
+                }
+    
+            } else if (this.weaponMode == 3) {
+                let now = new Date().getTime();
+                if (now - this.touchShotTime < Constant.BULLET_INTERVAL * 1000) {
+                    return;
+                }
+                let left = this.coinController.getComponent(CoinController).reduceCoin(this.currentBet);
+                if (left) {
+                    let bulletNode = null;
+                    if (this.bulletPool.size() > 0) {
+                        bulletNode = this.bulletPool.get(this);
+                    } else {
+                        bulletNode = instantiate(this.game.bulletPrefab);
+                    }
+                    this.bullets.push(bulletNode);
+                    let bullet = bulletNode.getComponent(Bullet);
+                    bullet.enabled = true;
+                    bullet.setTarget(this.targetPos);
+                    bullet.shot(this.game, level, this);
+                }
+                this.audio.play();
+                this.weaponNode.getComponent(Animation).play('weapon_level_' + level);
+                this.touchShotTime = now;
             }
-            this.audio.play();
-            this.weaponNode.getComponent(Animation).play('weapon_level_' + level);
-            this.touchShotTime = now;
+        } else {
+            // 下面处理各种道具发射
+            if (this.itemName == "yiwangdajin") {
+                if (this.itemNode) {
+                    this.itemNode.active = false;
+                }
+                if (this.oneBullet == null) {
+                    // 没有子弹在飞
+                    let bulletNode = null;
+                    if (this.bulletPool.size() > 0) {
+                        bulletNode = this.bulletPool.get(this);
+                    } else {
+                        bulletNode = instantiate(this.game.bulletPrefab);
+                    }
+                    this.oneBullet = bulletNode;
+    
+                    let bullet = bulletNode.getComponent(Bullet);
+                    bullet.enabled = true;
+                    bullet.shot(this.game, level, this);
+    
+                    this.audio.play();
+                    this.weaponNode.getComponent(Animation).play('weapon_level_' + level);
+                } else {
+                    // 获取子弹的世界坐标
+                    let pos = find('Canvas').getComponent(UITransform).convertToWorldSpaceAR(this.oneBullet.getPosition());
+                    this.despawnBullet(this.oneBullet);
+                    this.oneBullet = null;
+                    this.castNet(v2(pos.x, pos.y));
+                    this.itemName = '';
+                }
+            }
         }
-
     }
 
     // 传入世界坐标
@@ -274,14 +306,15 @@ export class Player extends Component {
         let stratPos = this.node.getComponent(UITransform).convertToNodeSpaceAR(pos);
         this.itemNode.getComponent(Animation).play(name);
         const end = () => {
+            this.itemName = name;
             this.itemNode.getComponent(UITransform).setContentSize(size(80, 80));
             while (this.bullets.length > 0) {
                 let n = this.bullets.pop();
                 // 其余子弹原地销毁
                 this.despawnBullet(n);
             }
-            this.switchModeTo(2);
         }
+        // 道具飞到玩家位置的动画
         this.itemNode.setPosition(stratPos);
         tween(this.itemNode).to(1, {position: v3(42, -5)}).call(end).start();
     }
