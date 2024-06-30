@@ -235,17 +235,18 @@
         "y": -38
     },
     {
-        "name": "fish25",
+        "name": "fish27",
+        "appearance": "treasure",
         "oddsUp": 50,
         "oddsDown": 50,
         "multipleUp": 1,
         "multipleDown": 1,
         "dirx": 1,
         "diry": 0,
-        "w": 33,
-        "h": 24,
-        "x": 0,
-        "y": 0
+        "w": 188,
+        "h": 150,
+        "x": 15,
+        "y": -22
     },
     {
         "name": "fish30",

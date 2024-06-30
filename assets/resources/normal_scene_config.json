@@ -103,9 +103,9 @@
             "weight": 0.4
         },
         {
-            "name": "fish25",
+            "name": "fish27",
             "type": "alone",
-            "weight": 1
+            "weight": 0.6
         },
         {
             "name": "fish30",
@@ -136,32 +136,32 @@
         {
             "name": "fish_three1",
             "type": "alone",
-            "weight": 0.3
+            "weight": 0.2
         },
         {
             "name": "fish_three2",
             "type": "alone",
-            "weight": 0.25
+            "weight": 0.2
         },
         {
             "name": "fish_three3",
             "type": "alone",
-            "weight": 0.25
+            "weight": 0.2
         },
         {
             "name": "fish_four1",
             "type": "alone",
-            "weight": 0.2
+            "weight": 0.15
         },
         {
             "name": "fish_four2",
             "type": "alone",
-            "weight": 0.2
+            "weight": 0.15
         },
         {
             "name": "fish_four3",
             "type": "alone",
-            "weight": 0.2
+            "weight": 0.15
         }
     ]
 }

@@ -342,7 +342,7 @@ export default class Fish extends Component {
             this.tween.stop();
             this.scheduleOnce(this.despawnFish, 1.5);
             // 集宝箱
-            if (this.fishType.name.includes('fish25')) {
+            if (this.fishType.appearance == 'treasure') {
                 this.game.collectTreasures(this.killerIndex, fp);
             }
         }
