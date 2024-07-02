@@ -16,11 +16,13 @@ export class Player extends Component {
     playerNumNode: Node;
     @property(Node)
     betNode: Node;
+    @property(Node)
+    weaponNode: Node;
 
     currentBet = Constant.START_BET;
     playerIndex: number;
     game: Game;
-    weaponNode: Node;
+
     coinController: Node;
     treasureController: Node;
     plusNode: Node;
@@ -49,7 +51,6 @@ export class Player extends Component {
         this.bullets = new Array();
         this.game = game;
         this.playerIndex = config.index;
-        this.weaponNode = this.node.getChildByName("weapon");
         this.coinController = this.node.getChildByName("number_controller");
         this.treasureController = this.node.getChildByName("treasure_controller");
         this.plusNode = this.node.getChildByName("plus");
@@ -112,7 +113,7 @@ export class Player extends Component {
                     bullet.shot(this.game, level, this);
                 }
                 this.audio.play();
-                this.weaponNode.getComponent(Animation).play('weapon_level_' + level);
+                this.weaponNode.getComponent(Weapon).playShot();
                 this.touchShotTime = now;
             } else if (this.weaponMode == 2) {
                 if (this.itemNode) {
@@ -133,7 +134,7 @@ export class Player extends Component {
                     bullet.shot(this.game, level, this);
     
                     this.audio.play();
-                    this.weaponNode.getComponent(Animation).play('weapon_level_' + level);
+                    this.weaponNode.getComponent(Weapon).playShot();
                 } else {
                     // 获取子弹的世界坐标
                     let pos = find('Canvas').getComponent(UITransform).convertToWorldSpaceAR(this.oneBullet.getPosition());
@@ -162,7 +163,7 @@ export class Player extends Component {
                     bullet.shot(this.game, level, this);
                 }
                 this.audio.play();
-                this.weaponNode.getComponent(Animation).play('weapon_level_' + level);
+                this.weaponNode.getComponent(Weapon).playShot();
                 this.touchShotTime = now;
             }
         } else {
@@ -186,7 +187,7 @@ export class Player extends Component {
                     bullet.shot(this.game, level, this);
     
                     this.audio.play();
-                    this.weaponNode.getComponent(Animation).play('weapon_level_' + level);
+                    this.weaponNode.getComponent(Weapon).playShot();
                 } else {
                     // 获取子弹的世界坐标
                     let pos = find('Canvas').getComponent(UITransform).convertToWorldSpaceAR(this.oneBullet.getPosition());
@@ -272,13 +273,13 @@ export class Player extends Component {
         }
         this.showBet();
         let weapon = this.weaponNode.getComponent(Weapon);
-        let levelInterval = Math.round((Constant.MAX_BET - Constant.START_BET) / 7);
+        let levelInterval = Math.round((Constant.MAX_BET - Constant.START_BET) / 8);
         let level = Math.round((this.currentBet - Constant.START_BET) / levelInterval);
         if (level < 1) {
             level = 1;
         }
-        if (level > 7) {
-            level = 7;
+        if (level > 8) {
+            level = 8;
         }
         weapon.setLevel(level);
     }

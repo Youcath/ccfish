@@ -103,6 +103,11 @@ export class Utils {
         return (1 - x) * Math.sin(x * 8 * Math.PI);
     }
 
+    static easingOne(x: number): number {
+        // 震动插值函数，震动1个周期，振幅逐渐趋于0
+        return (1 - x) * Math.sin(x * 2 * Math.PI);
+    }
+
     // 根据上限和下限，概率性选定值，返回整数
     static getValueRandom(up: number, down: number): number {
         if (up == down) {
