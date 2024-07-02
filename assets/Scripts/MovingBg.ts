@@ -1,15 +1,19 @@
 import { _decorator, Animation, Component, find, Node, Sprite, UITransform } from 'cc';
 import Fish from './Fish';
-import { Constant } from './config/Constant'
 const { ccclass, property } = _decorator;
 
 @ccclass('MovingBg')
 export class MovingBg extends Component {
 
+    @property(Sprite) bg: Sprite | null;
     @property(Sprite) bg01: Sprite | null;
     @property(Sprite) bg02: Sprite | null;
+    @property(Sprite) bg03: Sprite | null;
     @property(Sprite) wave: Sprite | null;
 
+    private fishGroupBgArr: Sprite[];
+    private fishGroupBgIndex = 0;
+    private fishGroupBgNode: Node;
     private bgSpeed = 200;
     private isMoving = false;
     private leftNode;
@@ -19,13 +23,11 @@ export class MovingBg extends Component {
     private callback: () => void;
 
     public init() {
+        this.fishGroupBgArr = [this.bg01, this.bg02, this.bg03];
         this.node.parent = find('Canvas');
         this.node.setSiblingIndex(0);
-        this.bg01.node.setPosition(0, 0);
-        this.resetPos(this.bg02.node);
-        this.bg01.node.active = true;
-        this.bg02.node.active = false;
-        this.wave.node.active = false;
+        this.bg.node.setPosition(0, 0);
+        this.bg.node.active = true;
     }
 
     public isFishGroup(): boolean {
@@ -34,8 +36,18 @@ export class MovingBg extends Component {
 
     public startMove(fishes: Node[], callback: () => void) {
         this.isMoving = true;
-        this.rightNode = this.bg01.node.active ? this.bg02.node : this.bg01.node;
-        this.leftNode = this.rightNode === this.bg01.node ? this.bg02.node : this.bg01.node;
+        if (!this.isFishGroupScene) {
+            // 切换到鱼潮
+            this.fishGroupBgNode = this.getFishGroupBgNode();
+            this.resetPos(this.fishGroupBgNode);
+            this.rightNode = this.fishGroupBgNode;
+            this.leftNode = this.bg.node;
+        } else {
+            // 切换到普通场景
+            this.resetPos(this.bg.node);
+            this.rightNode = this.bg.node;
+            this.leftNode = this.fishGroupBgNode;
+        }
         this.rightNode.active = true;
         this.wave.node.active = true;
         this.fishes = fishes;
@@ -44,10 +56,20 @@ export class MovingBg extends Component {
         this.wave.node.getComponent(Animation).play();
     }
 
-    update(deltaTime: number) {
+    public update(deltaTime: number) {
         if (this.isMoving) {
             this.moveBackground(deltaTime);
         }
+    }
+
+    private getFishGroupBgNode(): Node {
+        const node: Node = (this.fishGroupBgArr[this.fishGroupBgIndex]).node;
+        if (this.fishGroupBgIndex + 1 >= this.fishGroupBgArr.length) {
+            this.fishGroupBgIndex = 0;
+        } else {
+            this.fishGroupBgIndex++;
+        }
+        return node;
     }
 
     private resetPos(bgNode: Node) {
@@ -65,7 +87,6 @@ export class MovingBg extends Component {
         this.despawnFishIfNeed(this.rightNode.position.x);
         if (this.rightNode.position.x == 0) {
             this.wave.node.getComponent(Animation).stop();
-            this.resetPos(this.leftNode);
             this.leftNode.active = false;
             this.wave.node.active = false;
             this.isMoving = false;
