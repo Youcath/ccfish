@@ -15,6 +15,8 @@ interface FishType{
     group: Array<string>;  // 多种鱼组合的类型，为鱼配置的name数组，如三元四喜
     combine: string;   // 组合方式，line为线型组合，center为中心聚合
     appearance: string;   // normal普通鱼，odds显示即时倍率，bubble被泡沫包裹，treasure为攒彩金
+
+    baseHp: number; // 基础血量，通常为0，保证鱼至少被打击一定次数后才会死亡
 }
 
 // 鱼的生命状态

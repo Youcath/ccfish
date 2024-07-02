@@ -74,7 +74,7 @@ export default class Bullet extends Component {
         if (this.master.weaponMode == 3) {
             // 穿透弹速度减半
             speedRate = 0.5;
-        } else if (this.master.weaponMode == 4) {
+        } else if (this.master.weaponMode == 2) {
             let targetNode = this.game.fishManager.fishes.get(this.master.targetUuid);
             if (targetNode == null) {
                 this.master.despawnBullet(this.node);
@@ -147,7 +147,7 @@ export default class Bullet extends Component {
         }
     }
     onCollisionEnter(self: Collider2D, other: Collider2D, contact: IPhysics2DContact | null) {
-        if (this.master.weaponMode == 2 || this.master.weaponMode == 3) {
+        if (this.master.weaponMode == 3) {
             // do nothing
             return;
         }

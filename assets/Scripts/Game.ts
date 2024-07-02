@@ -230,7 +230,7 @@ export default class Game extends Component {
         let index = Number.parseInt(customEventData);
         let player = this.players.get(index).getComponent(Player);
         player.switchMode();
-        if (player.weaponMode == 4 && this.fishManager.fishes.length() > 0) {
+        if (player.weaponMode == 2 && this.fishManager.fishes.length() > 0) {
             this.switchTarget(index);
         }
     }
@@ -522,7 +522,7 @@ export default class Game extends Component {
         const f = fish.getComponent(Fish);
         this.players.forEach((v, k) => {
             let player = v.getComponent(Player);
-            if (player.weaponMode == 4 && f._uuid == player.targetUuid) {
+            if (player.weaponMode == 2 && f._uuid == player.targetUuid) {
                 // 需要切换目标
                 this.switchTarget(k, f._uuid);
             }

@@ -35,11 +35,13 @@ export class Player extends Component {
     // 网对象池
     netsPool: NodePool;
     audio: AudioSource;
-    weaponMode = 1; // 1为普通炮弹，遇到鱼就张网；2为可控炮弹，第二次shot张网；3为穿透炮弹，在目标点张网；4为追踪弹
+    weaponMode = 1; // 1为普通炮弹，遇到鱼就张网；2为追踪弹；3为穿透炮弹，在目标点张网
     chooseFishIndex = -1;
     targetPos: Vec3; // for weapon 3
     targetUuid: string; // for weapon 4
     itemName = "";
+
+    weaponDamage = 1;
 
     bullets: Array<Node>;
 
@@ -79,28 +81,13 @@ export class Player extends Component {
 
         if (this.itemName == '') {
             // 无道具情况
-            if (this.weaponMode == 1 || this.weaponMode == 4) {
+            if (this.weaponMode == 1) {
                 let now = new Date().getTime();
                 if (now - this.touchShotTime < Constant.BULLET_INTERVAL * 1000) {
                     return;
                 }
                 let left = this.coinController.getComponent(CoinController).reduceCoin(this.currentBet);
-                if (left) {
-                    if (this.weaponMode == 4) {
-                        const targetNode = this.game.fishManager.fishes.get(this.targetUuid);
-                        let world = find('Canvas').getComponent(UITransform).convertToWorldSpaceAR(targetNode.getPosition());
-                        let targetPos = this.node.getComponent(UITransform).convertToNodeSpaceAR(world);
-                        // 炮台坐标
-                        let weaponPos = this.weaponNode.getPosition();
-                        // 炮台到触点的方向向量
-                        let dir = targetPos.subtract(weaponPos);
-                        // 计算夹角，这个夹角是带方向的
-                        let angle = Utils.angle(dir, v3(0, 1));
-                        //将弧度转换为欧拉角
-                        let degree = angle / Math.PI * 180;
-                        // 设置炮台角度
-                        this.weaponNode.angle = degree;
-                    }
+                if (left) {                  
                     let bulletNode = null;
                     if (this.bulletPool.size() > 0) {
                         bulletNode = this.bulletPool.get(this);
@@ -116,33 +103,41 @@ export class Player extends Component {
                 this.weaponNode.getComponent(Weapon).playShot();
                 this.touchShotTime = now;
             } else if (this.weaponMode == 2) {
-                if (this.itemNode) {
-                    this.itemNode.active = false;
+                let now = new Date().getTime();
+                if (now - this.touchShotTime < Constant.BULLET_INTERVAL * 1000) {
+                    return;
                 }
-                if (this.oneBullet == null) {
-                    // 没有子弹在飞
+                let left = this.coinController.getComponent(CoinController).reduceCoin(this.currentBet);
+                if (left) {
+                    const targetNode = this.game.fishManager.fishes.get(this.targetUuid);
+                    let world = find('Canvas').getComponent(UITransform).convertToWorldSpaceAR(targetNode.getPosition());
+                    let targetPos = this.node.getComponent(UITransform).convertToNodeSpaceAR(world);
+                    // 炮台坐标
+                    let weaponPos = this.weaponNode.getPosition();
+                    // 炮台到触点的方向向量
+                    let dir = targetPos.subtract(weaponPos);
+                    // 计算夹角，这个夹角是带方向的
+                    let angle = Utils.angle(dir, v3(0, 1));
+                    //将弧度转换为欧拉角
+                    let degree = angle / Math.PI * 180;
+                    // 设置炮台角度
+                    this.weaponNode.angle = degree;
+
                     let bulletNode = null;
                     if (this.bulletPool.size() > 0) {
                         bulletNode = this.bulletPool.get(this);
                     } else {
                         bulletNode = instantiate(this.game.bulletPrefab);
                     }
-                    this.oneBullet = bulletNode;
-    
+                    this.bullets.push(bulletNode);
                     let bullet = bulletNode.getComponent(Bullet);
                     bullet.enabled = true;
                     bullet.shot(this.game, level, this);
-    
-                    this.audio.play();
-                    this.weaponNode.getComponent(Weapon).playShot();
-                } else {
-                    // 获取子弹的世界坐标
-                    let pos = find('Canvas').getComponent(UITransform).convertToWorldSpaceAR(this.oneBullet.getPosition());
-                    this.despawnBullet(this.oneBullet);
-                    this.oneBullet = null;
-                    this.castNet(v2(pos.x, pos.y));
                 }
-    
+                this.audio.play();
+                this.weaponNode.getComponent(Weapon).playShot();
+                this.touchShotTime = now;
+
             } else if (this.weaponMode == 3) {
                 let now = new Date().getTime();
                 if (now - this.touchShotTime < Constant.BULLET_INTERVAL * 1000) {
@@ -181,11 +176,11 @@ export class Player extends Component {
                         bulletNode = instantiate(this.game.bulletPrefab);
                     }
                     this.oneBullet = bulletNode;
-    
+
                     let bullet = bulletNode.getComponent(Bullet);
                     bullet.enabled = true;
                     bullet.shot(this.game, level, this);
-    
+
                     this.audio.play();
                     this.weaponNode.getComponent(Weapon).playShot();
                 } else {
@@ -285,7 +280,7 @@ export class Player extends Component {
     }
 
     switchMode() {
-        if (this.weaponMode >= 4) {
+        if (this.weaponMode >= 3) {
             this.weaponMode = 1;
         } else {
             this.weaponMode++;
@@ -295,7 +290,7 @@ export class Player extends Component {
 
     switchModeTo(mode: number) {
         this.weaponMode = mode;
-        if (this.weaponMode > 4 || this.weaponMode <= 0) {
+        if (this.weaponMode > 3 || this.weaponMode <= 0) {
             this.weaponMode = 1;
         }
         this.showSwitchButton();
@@ -321,7 +316,7 @@ export class Player extends Component {
         }
         // 道具飞到玩家位置的动画
         this.itemNode.setPosition(stratPos);
-        tween(this.itemNode).to(1, {position: v3(42, -5)}).call(end).start();
+        tween(this.itemNode).to(1, { position: v3(42, -5) }).call(end).start();
     }
 
     cheatCoins() {

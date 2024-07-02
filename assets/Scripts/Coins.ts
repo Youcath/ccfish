@@ -5,7 +5,7 @@ import CoinController from './CoinController'
 
 @ccclass('Coins')
 export default class Coins extends Component {
-    coinPoss: Vec3[] = [v3(), v3(40, 0), v3(-40, 0), v3(0, 40), v3(0, -40), v3(40, 40), v3(-40, -40), v3(40, -40), v3(-40, 40)];
+    coinPoss: Vec3[] = [v3(), v3(40, 0), v3(-40, 0), v3(0, 40), v3(0, -40), v3(40, 40), v3(-40, -40), v3(40, -40), v3(-40, 40), v3(80, 0), v3(-80, 0), v3(80, 40), v3(-80, -40), v3(80, -40), v3(-80, 40)];
     @property(Animation)
     anim: Animation | null = null;
     cointroller: CoinController;
@@ -15,7 +15,7 @@ export default class Coins extends Component {
     }
     goDown(pos: Vec3, toPos: Vec3, index: number) {
         this.node.parent = find('Canvas');
-        let relative = this.coinPoss[index % 9];
+        let relative = this.coinPoss[index % 15];
         let startPos = v3(pos.x + relative.x, pos.y + relative.y);
         this.node.position = this.node.parent.getComponent(UITransform).convertToNodeSpaceAR(startPos);
         let to = this.node.parent.getComponent(UITransform).convertToNodeSpaceAR(toPos);
@@ -26,7 +26,7 @@ export default class Coins extends Component {
         }
         this.anim.play();
         this.anim.once(Animation.EventType.FINISHED, () => {
-            tween.to(1.5, {scale: new math.Vec3(0.5, 0.5, 0.5), position: to})
+            tween.to(1.5, {scale: v3(0.5, 0.5, 0.5), position: to})
             .call(callback).start();
         }, this);
     }

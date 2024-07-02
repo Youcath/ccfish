@@ -2,10 +2,10 @@
     "name": "normal_scene",
     "time": 300,
     "create_method": "random",
-    "create_count": 8,
+    "create_count": 10,
     "create_interval": 3,
-    "move_duration_min": 10,
-    "move_duration_max": 15,
+    "move_duration_min": 15,
+    "move_duration_max": 20,
     "communities": [
         {
             "name": "yiwangdajin",
@@ -15,7 +15,7 @@
         {
             "name": "fish0",
             "type": "alone",
-            "weight": 1
+            "weight": 3
         },
         {
             "name": "fish1",

@@ -51,6 +51,7 @@ export default class Fish extends Component {
     killerIndex: number;
 
     gotRate: number = 0; // 捕获概率
+    hp: number = 0; // 基础血量
 
     _uuid: string = '';
     hasRing = false;
@@ -92,6 +93,7 @@ export default class Fish extends Component {
 
     private initFishType() {
         this.fishState = FishState.alive;
+        this.hp = this.fishType.baseHp;
         this.lastPosition = this.node.getPosition();
 
         if (this.fishType.group && this.fishType.group.length > 2) {
@@ -373,7 +375,7 @@ export default class Fish extends Component {
     onCollisionEnter(self: Collider2D, other: Collider2D, contact: IPhysics2DContact | null) {
         let net: Net = other.node.getComponent(Net);
         if (net) {
-            if (net.master.weaponMode == 4) {
+            if (net.master.weaponMode == 2) {
                 if (net.master.targetUuid != this._uuid) {
                     // 追踪模式的网只对目标鱼产生伤害
                     return;
@@ -381,6 +383,11 @@ export default class Fish extends Component {
             } 
             if (net.master.itemName != '') {
                 // 有道具效果，碰撞交给子弹或网来处理
+                return;
+            }
+
+            if (this.hp > 0) {
+                this.hp -= net.master.weaponDamage;
                 return;
             }
 
