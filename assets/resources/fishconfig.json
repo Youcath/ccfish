@@ -1,6 +1,7 @@
 [
     {
         "name": "fish0",
+        "baseHp": 1,
         "oddsUp": 2,
         "oddsDown": 2,
         "multipleUp": 1,
@@ -14,6 +15,7 @@
     },
     {
         "name": "fish1",
+        "baseHp": 1,
         "oddsUp": 2,
         "oddsDown": 2,
         "multipleUp": 1,
@@ -27,6 +29,7 @@
     },
     {
         "name": "fish2",
+        "baseHp": 2,
         "oddsUp": 3,
         "oddsDown": 3,
         "multipleUp": 1,
@@ -40,6 +43,7 @@
     },
     {
         "name": "fish3",
+        "baseHp": 2,
         "oddsUp": 4,
         "oddsDown": 4,
         "multipleUp": 1,
@@ -53,6 +57,7 @@
     },
     {
         "name": "fish4",
+        "baseHp": 2,
         "oddsUp": 5,
         "oddsDown": 5,
         "multipleUp": 1,
@@ -66,6 +71,7 @@
     },
     {
         "name": "fish5",
+        "baseHp": 2,
         "oddsUp": 6,
         "oddsDown": 6,
         "multipleUp": 1,
@@ -79,6 +85,7 @@
     },
     {
         "name": "fish6",
+        "baseHp": 3,
         "oddsUp": 7,
         "oddsDown": 7,
         "multipleUp": 1,
@@ -92,6 +99,7 @@
     },
     {
         "name": "fish7",
+        "baseHp": 3,
         "oddsUp": 8,
         "oddsDown": 8,
         "multipleUp": 1,
@@ -105,6 +113,7 @@
     },
     {
         "name": "fish8",
+        "baseHp": 4,
         "oddsUp": 9,
         "oddsDown": 9,
         "multipleUp": 1,
@@ -118,6 +127,7 @@
     },
     {
         "name": "fish9",
+        "baseHp": 4,
         "oddsUp": 10,
         "oddsDown": 10,
         "multipleUp": 1,
@@ -131,6 +141,7 @@
     },
     {
         "name": "fish10",
+        "baseHp": 5,
         "oddsUp": 12,
         "oddsDown": 12,
         "multipleUp": 1,
@@ -144,6 +155,7 @@
     },
     {
         "name": "fish14",
+        "baseHp": 6,
         "oddsUp": 15,
         "oddsDown": 15,
         "multipleUp": 1,
@@ -157,6 +169,7 @@
     },
     {
         "name": "fish12",
+        "baseHp": 7,
         "oddsUp": 18,
         "oddsDown": 18,
         "multipleUp": 1,
@@ -170,6 +183,7 @@
     },
     {
         "name": "fish15",
+        "baseHp": 7,
         "oddsUp": 20,
         "oddsDown": 20,
         "multipleUp": 1,
@@ -183,7 +197,7 @@
     },
     {
         "name": "fish20",
-        "baseHp": 5,
+        "baseHp": 8,
         "oddsUp": 25,
         "oddsDown": 25,
         "multipleUp": 1,
@@ -197,7 +211,7 @@
     },
     {
         "name": "fish17",
-        "baseHp": 5,
+        "baseHp": 8,
         "oddsUp": 30,
         "oddsDown": 30,
         "multipleUp": 1,
@@ -211,7 +225,7 @@
     },
     {
         "name": "fish21",
-        "baseHp": 5,
+        "baseHp": 8,
         "oddsUp": 35,
         "oddsDown": 35,
         "multipleUp": 1,
@@ -225,7 +239,7 @@
     },
     {
         "name": "fish19",
-        "baseHp": 10,
+        "baseHp": 15,
         "appearance": "odds",
         "oddsUp": 300,
         "oddsDown": 100,
@@ -270,6 +284,7 @@
     {
         "name": "fish_three1",
         "group": ["fish3", "fish4", "fish5"],
+        "baseHp": 6,
         "combine": "line",
         "oddsUp": 15,
         "oddsDown": 15,
@@ -281,6 +296,7 @@
     {
         "name": "fish_three2",
         "group": ["fish4", "fish5", "fish3"],
+        "baseHp": 7,
         "combine": "center",
         "oddsUp": 20,
         "oddsDown": 20,
@@ -292,6 +308,7 @@
     {
         "name": "fish_three3",
         "group": ["fish4", "fish5", "fish6"],
+        "baseHp": 8,
         "combine": "center",
         "oddsUp": 25,
         "oddsDown": 25,
@@ -302,7 +319,7 @@
     },
     {
         "name": "fish_four1",
-        "baseHp": 5,
+        "baseHp": 9,
         "group": ["fish3", "fish4", "fish5", "fish6"],
         "combine": "line",
         "oddsUp": 28,
@@ -314,7 +331,7 @@
     },
     {
         "name": "fish_four2",
-        "baseHp": 5,
+        "baseHp": 9,
         "group": ["fish3", "fish4", "fish5", "fish6"],
         "combine": "center",
         "oddsUp": 32,
@@ -326,7 +343,7 @@
     },
     {
         "name": "fish_four3",
-        "baseHp": 5,
+        "baseHp": 9,
         "group": ["fish7", "fish4", "fish5", "fish6"],
         "combine": "center",
         "oddsUp": 45,
@@ -338,7 +355,7 @@
     },
     {
         "name": "yiwangdajin",
-        "baseHp": 8,
+        "baseHp": 12,
         "appearance": "bubble",
         "oddsUp": 100,
         "oddsDown": 100,

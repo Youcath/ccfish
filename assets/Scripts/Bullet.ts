@@ -63,7 +63,7 @@ export default class Bullet extends Component {
             this.bulletLeve = 0;
             this.node.getComponent(Sprite).spriteFrame = this.frame;
         } else {
-            this.bulletLeve = level;
+            this.bulletLeve = level > 7 ? 7 : level;
             this.node.getComponent(Sprite).spriteFrame = this.game.spAtlas.getSpriteFrame('bullet' + this.bulletLeve);
         }
     }

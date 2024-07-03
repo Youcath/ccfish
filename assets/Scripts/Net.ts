@@ -15,7 +15,7 @@ export default class Net extends Component {
     totalOdds: number; // 道具累计的倍率
     maxOdds: number; // 道具倍率上限
     init(position: Vec2, master: Player, level: number) {
-        this.bulletLeve = level;
+        this.bulletLeve = level > 7 ? 7 : level;
         
         this.node.parent = find('Canvas');
         let pos = this.node.parent.getComponent(UITransform).convertToNodeSpaceAR(v3(position.x, position.y, 0));

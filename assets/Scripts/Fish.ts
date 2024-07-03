@@ -166,13 +166,13 @@ export default class Fish extends Component {
 
             this.odds = Utils.getValueRandom(this.fishType.oddsUp, this.fishType.oddsDown);
             this.multiple = Utils.getValueRandom(this.fishType.multipleUp, this.fishType.multipleDown);
-            this.gotRate = Utils.getGetRate(this.odds, this.multiple, Constant.profit_rate, 1);
+            this.gotRate = Utils.getGetRate(this.fishType.oddsUp, this.fishType.multipleUp, Constant.profit_rate, 1);
             this.anim.play('yiwangdajin');
             this.bubbleNode.getComponent(UITransform).setContentSize(size(160, 160));
         } else {
             this.odds = Utils.getValueRandom(this.fishType.oddsUp, this.fishType.oddsDown);
             this.multiple = Utils.getValueRandom(this.fishType.multipleUp, this.fishType.multipleDown);
-            this.gotRate = Utils.getGetRate(this.odds, this.multiple, Constant.profit_rate, this.hasRing ? Constant.RING_MAX_GET : 1);
+            this.gotRate = Utils.getGetRate(this.fishType.oddsUp, this.fishType.multipleUp, Constant.profit_rate, this.hasRing ? Constant.RING_MAX_GET : 1);
         }
     }
 
@@ -257,11 +257,7 @@ export default class Fish extends Component {
                 return;
             }
             let currentPos = this.node.getPosition();
-            // 如果位移不超过1 直接销毁
-            let ds = this.lastPosition.clone().subtract(currentPos).length();
-            if (ds < 0.00001) {
-                return;
-            }
+
             // 移动的方向向量
             // 求角度
             let dir = currentPos.clone().subtract(this.lastPosition);
@@ -276,6 +272,7 @@ export default class Fish extends Component {
 
     private beAttack() {
         if (this.isDie()) {
+            this.fishState = FishState.destroy;
             // 停止贝塞尔曲线动作
             this.tween.stop();
             let collider = this.node.getComponent(BoxCollider2D);

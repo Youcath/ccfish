@@ -2,7 +2,7 @@
     "name": "normal_scene",
     "time": 300,
     "create_method": "random",
-    "create_count": 10,
+    "create_count": 9,
     "create_interval": 3,
     "move_duration_min": 15,
     "move_duration_max": 20,
@@ -20,7 +20,7 @@
         {
             "name": "fish1",
             "type": "alone",
-            "weight": 1
+            "weight": 3
         },
         {
             "name": "fish2",
