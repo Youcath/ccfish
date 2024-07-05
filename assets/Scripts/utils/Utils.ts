@@ -1,4 +1,5 @@
 import { _decorator, bezier, v3, Vec3 } from 'cc';
+import { Constant } from '../config/Constant';
 const { ccclass, property } = _decorator;
 
 @ccclass('Utils')
@@ -123,6 +124,11 @@ export class Utils {
             return 1;
         }
         return (1 - profit) / (odds * multiple * together);
+    }
+
+    // 根据基础HP和游玩人数计算实际HP
+    static getHp(baseHp: number): number {
+        return baseHp * (1 + 0.2 * Constant.player_count);
     }
 }
 

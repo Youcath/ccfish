@@ -14,9 +14,13 @@ interface FishType{
 
     group: Array<string>;  // 多种鱼组合的类型，为鱼配置的name数组，如三元四喜
     combine: string;   // 组合方式，line为线型组合，center为中心聚合
-    appearance: string;   // normal普通鱼，odds显示即时倍率，bubble被泡沫包裹，treasure为攒彩金
+    appearance: string;   // normal普通鱼，odds显示即时倍率，bubble被泡沫包裹
 
     baseHp: number; // 基础血量，通常为0，保证鱼至少被打击一定次数后才会死亡
+    countLimit: number; // 同时存在的数量上限，0表示无限制
+
+    birthEffect: string; // 标识出场效果，为空则没有效果
+    dieEffect: string;  // 标识死亡效果，为空则为normal死亡效果，treasure为攒彩金
 }
 
 // 鱼的生命状态

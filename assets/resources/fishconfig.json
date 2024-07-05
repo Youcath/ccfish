@@ -255,7 +255,7 @@
     {
         "name": "fish27",
         "baseHp": 10,
-        "appearance": "treasure",
+        "dieEffect": "treasure",
         "oddsUp": 50,
         "oddsDown": 50,
         "multipleUp": 1,
@@ -269,7 +269,7 @@
     },
     {
         "name": "fish30",
-        "baseHp": 30,
+        "baseHp": 20,
         "oddsUp": 1500,
         "oddsDown": 300,
         "multipleUp": 1,
@@ -279,7 +279,8 @@
         "w": 480,
         "h": 360,
         "x": 0,
-        "y": -58
+        "y": -58,
+        "countLimit": 1
     },
     {
         "name": "fish_three1",

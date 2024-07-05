@@ -93,7 +93,7 @@ export default class Fish extends Component {
 
     private initFishType() {
         this.fishState = FishState.alive;
-        this.hp = this.fishType.baseHp;
+        this.hp = this.fishType.baseHp ? Utils.getHp(this.fishType.baseHp) : 0;
         this.lastPosition = this.node.getPosition();
 
         if (this.fishType.group && this.fishType.group.length > 2) {
@@ -119,7 +119,8 @@ export default class Fish extends Component {
         collider.size = new math.Size(this.fishType.w, this.fishType.h);
     }
 
-    performRing(enabledRing: boolean) {
+    // 返回需要准备的延时，比如出场动画耗时
+    prepare(enabledRing: boolean): number {
         this.dealOdds();
 
         let ringNode = this.node.getChildByName('fishRing');
@@ -143,6 +144,7 @@ export default class Fish extends Component {
             ringNode.active = false;
             this.hasRing = false;
         }
+        return 0;
     }
 
     private dealOdds() {
@@ -196,7 +198,7 @@ export default class Fish extends Component {
     }
 
     // 小鱼游泳，贝塞尔曲线实现
-    swimmingBezier(startPos: Vec3, finalPos: Vec3, firstPos: Vec3, secondPos: Vec3, duration: number, delay?: number) {
+    swimmingBezier(startPos: Vec3, finalPos: Vec3, firstPos: Vec3, secondPos: Vec3, duration: number, delay = 0) {
         // 位置
         this.startPosition = startPos;
         this.node.position = this.startPosition;
@@ -217,9 +219,10 @@ export default class Fish extends Component {
             .start();
     }
 
-    swimmingLinear(startPos: Vec3, byPos: Vec3, finalPos: Vec3, duration: number) {
+    swimmingLinear(startPos: Vec3, byPos: Vec3, finalPos: Vec3, duration: number, delay = 0) {
         this.node.position = startPos;
         this.tween = tween(this.node)
+            .delay(delay)
             .to(duration, { position: byPos })
             .delay(10.0)
             .to(duration, { position: finalPos })
@@ -230,10 +233,10 @@ export default class Fish extends Component {
             .start();
     }
 
-    swimmingCircle(startAngle: number, radium: number, duration: number) {
+    swimmingCircle(startAngle: number, radium: number, duration: number, delay = 0) {
         this.node.active = false;
         const self = this;
-        this.tween = tween(this.node)
+        this.tween = tween(this.node).delay(delay)
             .to(duration, { position: v3(Math.cos(startAngle) * radium, Math.sin(startAngle) * radium) }, {
                 onUpdate(target: Node, ratio: number) {
                     self.node.setPosition(v3(Math.cos(-4 * Math.PI * ratio + startAngle) * radium, Math.sin(-4 * Math.PI * ratio + startAngle) * radium));
@@ -341,7 +344,7 @@ export default class Fish extends Component {
             this.tween.stop();
             this.scheduleOnce(this.despawnFish, 1.5);
             // 集宝箱
-            if (this.fishType.appearance == 'treasure') {
+            if (this.fishType.dieEffect == 'treasure') {
                 this.game.collectTreasures(this.killerIndex, fp);
             }
         }

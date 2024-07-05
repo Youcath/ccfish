@@ -102,7 +102,7 @@ export class FishManager extends Component {
                 totalWeight += this.currentSceneInfo.communities[i].weight;
             }
 
-            for (let i = 0; i < this.currentSceneInfo.create_count; ++i) {
+            for (let i = 0; i < this.currentSceneInfo.create_count;) {
                 // 随机选定鱼群
                 let randomFish = Math.random() * totalWeight;
                 let typeIndex = 0;
@@ -115,7 +115,10 @@ export class FishManager extends Component {
                 }
                 let community = this.currentSceneInfo.communities[typeIndex];
 
-                this.createFishCommunity(community);
+                if (this.createFishCommunity(community)) {
+                    // 成功创建了鱼
+                    i++;
+                }
 
             }
         } else {
@@ -125,28 +128,41 @@ export class FishManager extends Component {
         }
     }
 
-    createFishCommunity(community: CommunityInfo) {
+    createFishCommunity(community: CommunityInfo): boolean {
         if (community.type == 'alone') {
             // 独立的鱼
             let fishType = this.fishTypes.get(community.name);
-            let cfish: Node = null;
-            if (this.fishPool.size() > 0) {
-                cfish = this.fishPool.get(this);
-            } else {
-                cfish = instantiate(this.game.fishPrefab);
+            let c = (!community.count || community.count <= 0) ? 1 : community.count;
+            if (fishType.countLimit && fishType.countLimit > 0) {
+                // 这个鱼有数量上限
+                let existCount = this.checkTypeCount(fishType);
+                if (existCount >= fishType.countLimit) {
+                    // 数量到达上限，不能再创建
+                    return false;
+                }
+                c = Math.min(c, fishType.countLimit - existCount);
             }
-            let f = cfish.getComponent(Fish);
-            f.init(this.game, fishType);
-            f.performRing(true);  // 可以带光环
-            const duration = Math.random() * (this.currentSceneInfo.move_duration_max - this.currentSceneInfo.move_duration_min) + this.currentSceneInfo.move_duration_min;
-            const startPosition = Utils.getOutPosition();
-            const firstPosition = Utils.getInnerPosition();
-            const secondPosition = Utils.getInnerPosition();
-            const finalPos = Utils.getFinalPosition(startPosition);
-            f.swimmingBezier(startPosition, finalPos, firstPosition, secondPosition, duration);   // 贝塞尔曲线随机运动
-            cfish.setSiblingIndex(2);
-            this.game.onFishTouch(cfish);
-            this.fishes.set(cfish);
+            let news = [];
+            for (let i = 0; i < c; i++) {
+                let cfish: Node = null;
+                if (this.fishPool.size() > 0) {
+                    cfish = this.fishPool.get(this);
+                } else {
+                    cfish = instantiate(this.game.fishPrefab);
+                }
+                let f = cfish.getComponent(Fish);
+                f.init(this.game, fishType);
+                const duration = Math.random() * (this.currentSceneInfo.move_duration_max - this.currentSceneInfo.move_duration_min) + this.currentSceneInfo.move_duration_min;
+                const startPosition = Utils.getOutPosition();
+                const firstPosition = Utils.getInnerPosition();
+                const secondPosition = Utils.getInnerPosition();
+                const finalPos = Utils.getFinalPosition(startPosition);
+                f.swimmingBezier(startPosition, finalPos, firstPosition, secondPosition, duration, f.prepare(true));   // 贝塞尔曲线随机运动
+                cfish.setSiblingIndex(2);
+                this.game.onFishTouch(cfish);
+                news.push(cfish);
+            }
+            this.fishes.sets(news);
         } else if (community.type == 'circle') {
             // 圆圈从右往左出现
             let startCenter = v3(1000);  // 起点圆心
@@ -169,8 +185,7 @@ export class FishManager extends Component {
                 }
                 let f = cfish.getComponent(Fish);
                 f.init(this.game, fishType);
-                f.performRing(false);  // 不带光环
-                f.swimmingLinear(startPos, byPos, endPos, this.currentSceneInfo.create_interval);   // 固定直线运动
+                f.swimmingLinear(startPos, byPos, endPos, this.currentSceneInfo.create_interval, f.prepare(false));   // 固定直线运动
                 cfish.setSiblingIndex(2);
                 this.game.onFishTouch(cfish);
                 news.push(cfish);
@@ -193,8 +208,7 @@ export class FishManager extends Component {
                 }
                 let f = cfish.getComponent(Fish);
                 f.init(this.game, fishType);
-                f.performRing(false);  // 不带光环
-                f.swimmingCircle(startAngle, community.extra, this.currentSceneInfo.create_interval - 3);   // 中心转圈
+                f.swimmingCircle(startAngle, community.extra, this.currentSceneInfo.create_interval - 3, f.prepare(false));   // 中心转圈
                 cfish.setSiblingIndex(2);
                 this.game.onFishTouch(cfish);
                 news.push(cfish);
@@ -219,9 +233,8 @@ export class FishManager extends Component {
                 }
                 let f = cfish.getComponent(Fish);
                 f.init(this.game, fishType);
-                f.performRing(false);  // 不带光环
 
-                f.swimmingBezier(startPosition, finalPos, firstPosition, secondPosition, duration, community.extra * i);   // 贝塞尔曲线随机运动
+                f.swimmingBezier(startPosition, finalPos, firstPosition, secondPosition, duration, f.prepare(false) + community.extra * i);   // 贝塞尔曲线随机运动
                 cfish.setSiblingIndex(2);
                 this.game.onFishTouch(cfish);
                 this.fishes.set(cfish);
@@ -229,6 +242,19 @@ export class FishManager extends Component {
             }
             this.fishes.sets(news);
         }
+        return true;
+    }
+
+    private checkTypeCount(type: FishType): number{
+        let count = 0;
+        if (this.fishes.length() > 0) {
+            this.fishes.values().forEach(element => {
+                if (element.getComponent(Fish).fishType.name == type.name) {
+                    count++;
+                }
+            });
+        }
+        return count;
     }
 
     public switchTarget(player: Player, num: number, ignoreUuid?: string) {
@@ -308,27 +334,32 @@ export class FishManager extends Component {
         this.scheduleCreateCommunities();
         this.schedule(this.scheduleCreateCommunities, this.currentSceneInfo.create_interval);
     }
-
+    // for debug
     createStayFish(community: CommunityInfo) {
         if (community.type == 'alone') {
             // 独立的鱼
             let fishType = this.fishTypes.get(community.name);
-            let cfish: Node = null;
-            if (this.fishPool.size() > 0) {
-                cfish = this.fishPool.get(this);
-            } else {
-                cfish = instantiate(this.game.fishPrefab);
+            let news = [];
+            let c = (!community.count || community.count <= 0) ? 1 : community.count;
+            for (let i = 0; i < c; i++) {
+                let cfish: Node = null;
+                if (this.fishPool.size() > 0) {
+                    cfish = this.fishPool.get(this);
+                } else {
+                    cfish = instantiate(this.game.fishPrefab);
+                }
+                let f = cfish.getComponent(Fish);
+                f.init(this.game, fishType);
+                f.prepare(true);  // 可以带光环
+                cfish.setPosition(v3());
+                cfish.setSiblingIndex(2);
+                this.game.onFishTouch(cfish);
+                
+                news.push(cfish);
             }
-            let f = cfish.getComponent(Fish);
-            f.init(this.game, fishType);
-            f.performRing(true);  // 可以带光环
-            cfish.setPosition(v3());
-            cfish.setSiblingIndex(2);
-            this.game.onFishTouch(cfish);
-            this.fishes.set(cfish);
+            this.fishes.sets(news);
         } else if (community.type == 'circle') {
-            // 圆圈从右往左出现
-            let startCenter = v3();  // 起点圆心
+            let startCenter = v3();  // 位置圆心
             let c = community.count;
             let dr = 2 * Math.PI / c; // 相近两条鱼的角度间隔
             let news = [];
@@ -344,7 +375,7 @@ export class FishManager extends Component {
                 }
                 let f = cfish.getComponent(Fish);
                 f.init(this.game, fishType);
-                f.performRing(false);  // 不带光环
+                f.prepare(false);  // 不带光环
                 cfish.setPosition(startPos)
                 cfish.setSiblingIndex(2);
                 this.game.onFishTouch(cfish);
@@ -368,8 +399,7 @@ export class FishManager extends Component {
                 }
                 let f = cfish.getComponent(Fish);
                 f.init(this.game, fishType);
-                f.performRing(false);  // 不带光环
-                f.swimmingCircle(startAngle, community.extra, this.currentSceneInfo.create_interval - 3);   // 中心转圈
+                f.swimmingCircle(startAngle, community.extra, this.currentSceneInfo.create_interval - 3, f.prepare(false));   // 中心转圈
                 cfish.setSiblingIndex(2);
                 this.game.onFishTouch(cfish);
                 news.push(cfish);
@@ -394,9 +424,8 @@ export class FishManager extends Component {
                 }
                 let f = cfish.getComponent(Fish);
                 f.init(this.game, fishType);
-                f.performRing(false);  // 不带光环
 
-                f.swimmingBezier(startPosition, finalPos, firstPosition, secondPosition, duration, community.extra * i);   // 贝塞尔曲线随机运动
+                f.swimmingBezier(startPosition, finalPos, firstPosition, secondPosition, duration, f.prepare(false) + community.extra * i);   // 贝塞尔曲线随机运动
                 cfish.setSiblingIndex(2);
                 this.game.onFishTouch(cfish);
                 this.fishes.set(cfish);
