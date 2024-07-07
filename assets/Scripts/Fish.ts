@@ -320,33 +320,11 @@ export default class Fish extends Component {
 
         // 死亡动画
         this.anim.play(this.fishType.name + '_die');
-        if (this.fishType.name.includes('jinshayu')) {
-            this.game.showMask();
-            this.node.setSiblingIndex(999);
-            const self = this;
-            this.anim!.on(Animation.EventType.FINISHED, () => {
-                this.game.showBonus(() => {
-                    self.game.hiddenMask();
-                });
-                self.despawnFish();
-            }, this, true);
-        } else if (this.fishType.name.includes('shayu')) {
-            this.game.showMask();
-                this.node.setSiblingIndex(999);
-                this.bomb = instantiate(this.bombPreb);
-                this.bomb.getComponent(Bomb).show(this.node.position);
-                this.game.showCameraEasing();
-                this.anim!.on(Animation.EventType.FINISHED, () => {
-                    this.game.hiddenMask();
-                    this.despawnFish();
-                }, this, true);
-        } else {
-            this.tween.stop();
-            this.scheduleOnce(this.despawnFish, 1.5);
-            // 集宝箱
-            if (this.fishType.dieEffect == 'treasure') {
-                this.game.collectTreasures(this.killerIndex, fp);
-            }
+        this.tween.stop();
+        this.scheduleOnce(this.despawnFish, 1.5);
+        // 集宝箱
+        if (this.fishType.dieEffect == 'treasure') {
+            this.game.collectTreasures(this.killerIndex, fp);
         }
     }
 

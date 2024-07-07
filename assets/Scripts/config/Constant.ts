@@ -24,6 +24,9 @@ export class Constant {
     static MAX_BET = 200;
     // 下注间隔
     static BET_INTERVAL = 10;
+
+    // 是否屏蔽所有输入
+    static IGNORE_ALL_INPUT = false;
 }
 
 
